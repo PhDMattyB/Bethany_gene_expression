@@ -9,6 +9,7 @@
 
 library(tidyverse)
 library(data.table)
+library(qvalue)
 
 setwd('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/')
 
@@ -44,6 +45,14 @@ gene_annotation %>%
 
 
 goi = read_csv('~/Parsons_Postdoc/Bethany_gene_expression/GLMER_gene_expression_ecotemp_pval0.01.csv')
+
+pvalues <- goi$ecow_temp18_pval
+qobj <- qvalue(p = pvalues)
+qvalues = qvalue_truncp(p = pvalues)
+
+qvalues$qvalues %>% 
+  as_tibble() %>% 
+  arrange(value)
 
 goi_names = goi %>% 
   select(gene_name, 
