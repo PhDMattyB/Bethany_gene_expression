@@ -50,15 +50,19 @@ pvalues <- goi$ecow_temp18_pval
 qobj <- qvalue(p = pvalues)
 qvalues = qvalue_truncp(p = pvalues)
 
-qvalues$qvalues %>% 
+eco_temp_qvalues = qvalues$qvalues %>% 
   as_tibble() %>% 
-  arrange(value)
+  arrange(value) 
+
 
 goi_names = goi %>% 
   select(gene_name, 
          mean_expression_relative, 
          ecow_temp18_pval) %>% 
   rename(ensemble_name = gene_name)
+
+goi_names = bind_cols(goi_names, 
+                      eco_temp_qvalues)
 
 gene_metadata = gene_annotation %>% 
   filter(feature == 'gene') %>% 
@@ -118,3 +122,171 @@ cleaned_data %>%
   select(gene_name) %>% 
   # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
   write_tsv('Expression_gene_names_ecotemp_pval0.01.txt')
+
+
+
+# eco*temp qvalue FDR -----------------------------------------------------
+
+pvalues <- goi$ecow_temp18_pval
+# qobj <- qvalue(p = pvalues)
+qvalues = qvalue_truncp(p = pvalues)
+
+eco_temp_qvalues = qvalues$qvalues %>% 
+  as_tibble() %>% 
+  rename(qval = value)
+
+
+goi_names = goi %>% 
+  select(gene_name, 
+         mean_expression_relative, 
+         ecow_temp18_pval) %>% 
+  rename(ensemble_name = gene_name)
+
+goi_names = bind_cols(goi_names, 
+                      eco_temp_qvalues) %>% 
+  filter(qval < 0.05)
+
+gene_metadata = gene_annotation %>% 
+  filter(feature == 'gene') %>% 
+  select(position,
+         chromosome,
+         feature)
+
+ensemlbe_annotation_data = gene_annotation %>% 
+  filter(feature == 'gene') %>% 
+  pull(gene_id) %>% 
+  as_tibble() %>% 
+  separate(value, 
+           into = c('ensemble_id', 
+                    'gene_name',
+                    'relationship'), 
+           sep = ';')
+
+ensemble_annotation_genes = ensemlbe_annotation_data %>% 
+  separate(ensemble_id, 
+           into = c('trash', 
+                    'ensemble_id'), 
+           sep = '=') %>%
+  separate(gene_name, 
+           into = c('trash', 
+                    'gene_name'), 
+           sep = '=') %>% 
+  select(-trash) %>% 
+  separate(ensemble_id, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '.CDS') %>% 
+  select(-trash) 
+
+annotation_data = bind_cols(gene_metadata, 
+                            ensemble_annotation_genes)
+
+
+cleaned_data = inner_join(goi_names, 
+                          annotation_data, 
+                          by = 'ensemble_name') %>% 
+  select(ensemble_name, 
+         gene_name, 
+         chromosome, 
+         position, 
+         mean_expression_relative, 
+         ecow_temp18_pval,
+         feature, 
+         relationship) %>% 
+  separate(ensemble_name, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '_') %>% 
+  select(-trash)
+
+
+cleaned_data %>% 
+  select(gene_name) %>% 
+  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
+  write_tsv('qvalue_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
+
+
+
+# eco*temp BH FDR ---------------------------------------------------------
+
+pvalues <- goi$ecow_temp18_pval
+
+BH_pvals = p.adjust(pvalues, 
+         method = 'hochberg', 
+         n = length(pvalues))
+
+
+eco_temp_BH_pval = BH_pvals %>% 
+  as_tibble() %>% 
+  rename(BH_pval = value)
+
+
+goi_names = goi %>% 
+  select(gene_name, 
+         mean_expression_relative, 
+         ecow_temp18_pval) %>% 
+  rename(ensemble_name = gene_name)
+
+goi_names = bind_cols(goi_names, 
+                      eco_temp_BH_pval) %>% 
+  filter(BH_pval < 0.01)
+
+gene_metadata = gene_annotation %>% 
+  filter(feature == 'gene') %>% 
+  select(position,
+         chromosome,
+         feature)
+
+ensemlbe_annotation_data = gene_annotation %>% 
+  filter(feature == 'gene') %>% 
+  pull(gene_id) %>% 
+  as_tibble() %>% 
+  separate(value, 
+           into = c('ensemble_id', 
+                    'gene_name',
+                    'relationship'), 
+           sep = ';')
+
+ensemble_annotation_genes = ensemlbe_annotation_data %>% 
+  separate(ensemble_id, 
+           into = c('trash', 
+                    'ensemble_id'), 
+           sep = '=') %>%
+  separate(gene_name, 
+           into = c('trash', 
+                    'gene_name'), 
+           sep = '=') %>% 
+  select(-trash) %>% 
+  separate(ensemble_id, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '.CDS') %>% 
+  select(-trash) 
+
+annotation_data = bind_cols(gene_metadata, 
+                            ensemble_annotation_genes)
+
+
+cleaned_data = inner_join(goi_names, 
+                          annotation_data, 
+                          by = 'ensemble_name') %>% 
+  select(ensemble_name, 
+         gene_name, 
+         chromosome, 
+         position, 
+         mean_expression_relative, 
+         ecow_temp18_pval,
+         feature, 
+         relationship) %>% 
+  separate(ensemble_name, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '_') %>% 
+  select(-trash)
+
+
+cleaned_data %>% 
+  select(gene_name) %>% 
+  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
+  write_tsv('BH_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
+
