@@ -227,6 +227,10 @@ cleaned_data %>%
   # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
   write_tsv('BH_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
 
+cleaned_data %>% 
+  group_by(chromosome) %>% 
+  arrange(desc(chromosome)) %>% 
+  View()
 
 
 # ecotype only results ----------------------------------------------------
