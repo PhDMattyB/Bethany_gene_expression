@@ -124,6 +124,11 @@ cleaned_data %>%
   write_tsv('Expression_gene_names_ecotemp_pval0.01.txt')
 
 
+cleaned_data %>% 
+  group_by(chromosome) %>% 
+  arrange(desc(chromosome)) %>% 
+  View()
+
 
 # eco*temp qvalue FDR -----------------------------------------------------
 
@@ -170,6 +175,10 @@ cleaned_data %>%
   write_tsv('qvalue_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
 
 
+cleaned_data %>% 
+  group_by(chromosome) %>% 
+  arrange(desc(chromosome)) %>% 
+  View()
 
 # eco*temp BH FDR ---------------------------------------------------------
 
