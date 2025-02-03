@@ -603,6 +603,9 @@ Brain_Liver_qval_intersect = inner_join(brain_qvalue_ecotemp,
            by = c('gene_name', 
                   'ensemble_name', 
                   'chromosome'))
+Brain_Liver_qval_intersect %>% 
+  write_tsv('Qvalue_Brain_Liver_gene_ecotemp_intersection.txt')
+
 
  
 intersect(brain_BH_ecotemp$gene_name, 
@@ -614,3 +617,10 @@ Brain_liver_BH_intersect = inner_join(brain_BH_ecotemp,
            by = c('gene_name', 
                   'ensemble_name', 
                   'chromosome'))
+
+Brain_liver_BH_intersect %>% 
+  write_tsv('BH_brain_liver_gene_ecotemp_intersection.txt')
+
+
+Brain_liver_BH_intersect %>% 
+  filter(gene_name == 'glula')
