@@ -88,13 +88,15 @@ brain_goi_names = brain_goi %>%
 # brain eco*temp qvalue FDR -----------------------------------------------------
 
 brain_ecotemp_pvalues <- goi$ecow_temp18_pval
-# qobj <- qvalue(p = pvalues)
+
+## qvalue FDR
 brain_ecotemp_qvalues = qvalue_truncp(p = brain_ecotemp_pvalues)
 
 brain_ecotemp_qvalues = brain_ecotemp_qvalues$qvalues %>% 
   as_tibble() %>% 
   rename(qval = value)
 
+## Benjami hochberg FDR
 BH_ecotemp_pvals = p.adjust(brain_ecotemp_pvalues, 
                     method = 'hochberg', 
                     n = length(brain_ecotemp_pvalues))
@@ -168,48 +170,7 @@ brain_BH_ecotemp %>%
   arrange(desc(chromosome)) %>% 
   View()
 
-# eco*temp BH FDR ---------------------------------------------------------
 
-
-
-
-goi_names = goi %>% 
-  select(gene_name, 
-         mean_expression_relative, 
-         ecow_temp18_pval) %>% 
-  rename(ensemble_name = gene_name)
-
-goi_names = bind_cols(goi_names, 
-                      eco_temp_BH_pval) %>% 
-  filter(BH_pval < 0.05)
-
-cleaned_data = inner_join(goi_names, 
-                          annotation_data, 
-                          by = 'ensemble_name') %>% 
-  select(ensemble_name, 
-         gene_name, 
-         chromosome, 
-         position, 
-         mean_expression_relative, 
-         ecow_temp18_pval,
-         feature, 
-         relationship) %>% 
-  separate(ensemble_name, 
-           into = c('ensemble_name', 
-                    'trash'), 
-           sep = '_') %>% 
-  select(-trash)
-
-
-cleaned_data %>% 
-  select(gene_name) %>% 
-  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
-  write_tsv('BH_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
-
-cleaned_data %>% 
-  group_by(chromosome) %>% 
-  arrange(desc(chromosome)) %>% 
-  View()
 
 
 # ecotype only results ----------------------------------------------------
@@ -628,3 +589,28 @@ liver_ecotemp_qvalue %>%
 dim(liver_ecotemp_BH)
 
 dim(liver_ecotemp_qvalue)
+
+
+
+# Brain vs liver eco temp comparison --------------------------------------
+
+intersect(brain_qvalue_ecotemp$gene_name, 
+          liver_ecotemp_qvalue$gene_name) %>% 
+  as_tibble()
+
+Brain_Liver_qval_intersect = inner_join(brain_qvalue_ecotemp, 
+           liver_ecotemp_qvalue, 
+           by = c('gene_name', 
+                  'ensemble_name', 
+                  'chromosome'))
+
+ 
+intersect(brain_BH_ecotemp$gene_name, 
+          liver_ecotemp_BH$gene_name) %>% 
+  as_tibble()
+
+Brain_liver_BH_intersect = inner_join(brain_BH_ecotemp, 
+           liver_ecotemp_BH, 
+           by = c('gene_name', 
+                  'ensemble_name', 
+                  'chromosome'))
