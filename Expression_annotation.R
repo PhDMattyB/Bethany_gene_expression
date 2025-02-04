@@ -173,6 +173,59 @@ brain_BH_ecotemp %>%
 
 
 
+# Brain - Graph - ecotype temp interaction  -------------------------------
+
+brain_BH_ecotemp_graph = brain_BH_ecotemp %>% 
+  rename(CHR = chromosome, 
+         POS = position) %>% 
+  stickle_CHR_reorder2() %>% 
+  dist_cal()
+
+brain_BH_axis_df = axis_df(brain_BH_ecotemp_graph)
+
+ggplot(brain_BH_ecotemp_graph, 
+       aes(x = POS, 
+           y = mean_expression_relative))+
+  geom_point(aes(colour = ))
+
+ggplot(non_outs, 
+       aes(x = {{xval}}, 
+           y = {{yval}}))+
+  # plot the non outliers in grey
+  geom_point(aes(color = as.factor(chr)), 
+             alpha = 0.8, 
+             size = 1.3)+
+  ## alternate colors per chromosome
+  scale_color_manual(values = rep(c("grey", "dimgrey"), 39))+
+  ## plot the outliers on top of everything
+  ## currently digging this hot pink colour
+  geom_point(data = outs,
+             col = out_col,
+             alpha=0.8, 
+             size=1.3)+
+  scale_x_continuous(label = axisdf$CHR, 
+                     breaks = axisdf$center)+
+  scale_y_continuous(expand = c(0, 0), 
+                     limits = c(0,1.0))+
+  # geom_hline(yintercept = 0.00043, 
+  #            linetype = 2, 
+  #            col = 'Black')+
+  # ylim(0,1.0)+
+  # scale_y_reverse(expand = c(0, 0))+
+  # remove space between plot area and x axis
+  labs(x = 'Cumulative base pair', 
+       y = 'Fst', 
+       title = plot_letter)+
+  theme(legend.position="none",
+        # panel.border = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(), 
+        axis.text.x = element_text(size = 9, 
+                                   angle = 90), 
+        axis.title = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 12))
+
 # ecotype only results ----------------------------------------------------
 
 ## read in our data
@@ -567,23 +620,23 @@ liver_ecotemp_qvalue %>%
 
 
 
-liver_ecotemp_BH %>% 
-  group_by(chromosome) %>% 
-  arrange(desc(chromosome)) %>% 
-  filter(chromosome == 'chrXXI') %>% 
-  filter(position >= 9963830, 
-         position <= 11574445) %>% 
-  arrange(position) %>% 
-  View()
-
-liver_ecotemp_qvalue %>% 
-  group_by(chromosome) %>% 
-  arrange(desc(chromosome)) %>% 
-  filter(chromosome == 'chrXXI') %>% 
-  filter(position >= 9963830, 
-         position <= 11574445) %>% 
-  arrange(position) %>%  
-  View()
+# liver_ecotemp_BH %>% 
+#   group_by(chromosome) %>% 
+#   arrange(desc(chromosome)) %>% 
+#   filter(chromosome == 'chrXXI') %>% 
+#   filter(position >= 9963830, 
+#          position <= 11574445) %>% 
+#   arrange(position) %>% 
+#   View()
+# 
+# liver_ecotemp_qvalue %>% 
+#   group_by(chromosome) %>% 
+#   arrange(desc(chromosome)) %>% 
+#   filter(chromosome == 'chrXXI') %>% 
+#   filter(position >= 9963830, 
+#          position <= 11574445) %>% 
+#   arrange(position) %>%  
+#   View()
 
 
 dim(liver_ecotemp_BH)
