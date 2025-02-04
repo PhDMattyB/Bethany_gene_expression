@@ -128,25 +128,28 @@ liver_cleaned = liver_cleaned %>%
   column_to_rownames(var = 'rowname')
 
 # liver GLMER -------------------------------------------------------------
+liver_cleaned2 <- data.frame(t(liver_cleaned))
+liver_meta = as.data.frame(liver_meta)
 
-liver_lme4_results <- as.data.frame( matrix( nrow =14797,  ncol = 15) )
+liver_lme4_results <- as.data.frame( matrix( nrow =14797,  ncol = 10) )
 
-for(i in 1:ncol(liver_cleaned)){
-  focal_gene = liver_cleaned[,i]
-  all_others = rowSums(liver_cleaned[,-i])
+for(i in 1:ncol(liver_cleaned2)){
+  focal_gene = liver_cleaned2[,i]
+  all_others = rowSums(liver_cleaned2[,-i])
   Y = cbind(focal_gene, 
             all_others)
   liver_Model = glmer(Y ~ type * temp * sex + (1|fam),
                 family = "binomial",
-                glmerControl(optimizer="bobyqa", optCtrl = list(maxfun = 100000)),
+                glmerControl(optimizer="bobyqa", 
+                             optCtrl = list(maxfun = 100000)),
                 data = liver_meta)
   liver_glmer_results = summary(liver_Model)
   # mod_coef = coef(summary(Model))
   ## dont need the second one. It does the same as summary
   # gene_results2 = anova(Model,
   #                       test = 'LRT')
-  liver_lme4_results[i, 1] = colnames(liver_cleaned)[i]
-  liver_lme4_results[i, 2] = sum(df2[,i]/sum(liver_cleaned))
+  liver_lme4_results[i, 1] = colnames(liver_cleaned2)[i]
+  liver_lme4_results[i, 2] = sum(liver_cleaned2[,i]/sum(liver_cleaned2))
   liver_lme4_results[i, 3] = liver_glmer_results$coefficients[1,4]
   liver_lme4_results[i, 4] = liver_glmer_results$coefficients[2,4]
   liver_lme4_results[i, 5] = liver_glmer_results$coefficients[3,4]
