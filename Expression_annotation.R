@@ -78,126 +78,40 @@ annotation_data = bind_cols(gene_metadata,
 # eco*temp qvalue  -----------------------------------------------------------
 
 
-goi = read_csv('~/Parsons_Postdoc/Bethany_gene_expression/GLMER_gene_expression_ecotemp_pval0.01.csv')
+brain_goi = read_csv('~/Parsons_Postdoc/Bethany_gene_expression/GLMER_gene_expression_ecotemp_pval0.01.csv')
 
-pvalues <- goi$ecow_temp18_pval
-qobj <- qvalue(p = pvalues)
-qvalues = qvalue_truncp(p = pvalues)
-
-eco_temp_qvalues = qvalues$qvalues %>% 
-  as_tibble() %>% 
-  arrange(value) 
-
-
-goi_names = goi %>% 
+brain_goi_names = brain_goi %>% 
   select(gene_name, 
          mean_expression_relative, 
          ecow_temp18_pval) %>% 
   rename(ensemble_name = gene_name)
+# brain eco*temp qvalue FDR -----------------------------------------------------
 
-goi_names = bind_cols(goi_names, 
-                      eco_temp_qvalues)
+brain_ecotemp_pvalues <- goi$ecow_temp18_pval
 
+## qvalue FDR
+brain_ecotemp_qvalues = qvalue_truncp(p = brain_ecotemp_pvalues)
 
-
-cleaned_data = inner_join(goi_names, 
-           annotation_data, 
-           by = 'ensemble_name') %>% 
-  select(ensemble_name, 
-         gene_name, 
-         chromosome, 
-         position, 
-         mean_expression_relative, 
-         ecow_temp18_pval,
-         feature, 
-         relationship) %>% 
-  separate(ensemble_name, 
-           into = c('ensemble_name', 
-                    'trash'), 
-           sep = '_') %>% 
-  select(-trash)
-
-
-cleaned_data %>% 
-  select(gene_name) %>% 
-  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
-  write_tsv('Expression_gene_names_ecotemp_pval0.01.txt')
-
-
-
-# eco*temp qvalue FDR -----------------------------------------------------
-
-pvalues <- goi$ecow_temp18_pval
-# qobj <- qvalue(p = pvalues)
-qvalues = qvalue_truncp(p = pvalues)
-
-eco_temp_qvalues = qvalues$qvalues %>% 
+brain_ecotemp_qvalues = brain_ecotemp_qvalues$qvalues %>% 
   as_tibble() %>% 
   rename(qval = value)
 
-
-goi_names = goi %>% 
-  select(gene_name, 
-         mean_expression_relative, 
-         ecow_temp18_pval) %>% 
-  rename(ensemble_name = gene_name)
-
-goi_names = bind_cols(goi_names, 
-                      eco_temp_qvalues) %>% 
-  filter(qval < 0.05)
-
-cleaned_data = inner_join(goi_names, 
-                          annotation_data, 
-                          by = 'ensemble_name') %>% 
-  select(ensemble_name, 
-         gene_name, 
-         chromosome, 
-         position, 
-         mean_expression_relative, 
-         ecow_temp18_pval,
-         feature, 
-         relationship) %>% 
-  separate(ensemble_name, 
-           into = c('ensemble_name', 
-                    'trash'), 
-           sep = '_') %>% 
-  select(-trash)
+## Benjami hochberg FDR
+BH_ecotemp_pvals = p.adjust(brain_ecotemp_pvalues, 
+                    method = 'hochberg', 
+                    n = length(brain_ecotemp_pvalues))
 
 
-cleaned_data %>% 
-  select(gene_name) %>% 
-  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
-  write_tsv('qvalue_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
-
-
-
-# eco*temp BH FDR ---------------------------------------------------------
-
-pvalues <- goi$ecow_temp18_pval
-
-BH_pvals = p.adjust(pvalues, 
-         method = 'hochberg', 
-         n = length(pvalues))
-
-
-eco_temp_BH_pval = BH_pvals %>% 
+brain_ecotemp_bh_pvals = BH_ecotemp_pvals %>% 
   as_tibble() %>% 
   rename(BH_pval = value)
 
-
-goi_names = goi %>% 
-  select(gene_name, 
-         mean_expression_relative, 
-         ecow_temp18_pval) %>% 
-  rename(ensemble_name = gene_name)
-
-goi_names = bind_cols(goi_names, 
-                      eco_temp_BH_pval) %>% 
-  filter(BH_pval < 0.05)
-
-cleaned_data = inner_join(goi_names, 
-                          annotation_data, 
-                          by = 'ensemble_name') %>% 
+brain_qvalue_ecotemp = bind_cols(brain_goi_names, 
+                                 brain_ecotemp_qvalues) %>% 
+  filter(qval < 0.05) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
   select(ensemble_name, 
          gene_name, 
          chromosome, 
@@ -212,13 +126,105 @@ cleaned_data = inner_join(goi_names,
            sep = '_') %>% 
   select(-trash)
 
-
-cleaned_data %>% 
+brain_qvalue_ecotemp%>% 
   select(gene_name) %>% 
   # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
-  write_tsv('BH_FDR_Expression_gene_names_ecotemp_pval0.01.txt')
+  write_tsv('BRAIN_qvalue_FDR_Expression_gene_names_ecotemp_pval0.05.txt')
 
 
+brain_BH_ecotemp = bind_cols(brain_goi_names, 
+                             brain_ecotemp_bh_pvals) %>% 
+  filter(BH_pval < 0.05)%>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  select(ensemble_name, 
+         gene_name, 
+         chromosome, 
+         position, 
+         mean_expression_relative, 
+         ecow_temp18_pval,
+         feature, 
+         relationship) %>% 
+  separate(ensemble_name, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '_') %>% 
+  select(-trash)
+
+brain_BH_ecotemp%>% 
+  select(gene_name) %>% 
+  # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
+  write_tsv('BRAIN_BH_FDR_Expression_gene_names_ecotemp_pval0.05.txt')
+
+
+brain_qvalue_ecotemp %>% 
+  group_by(chromosome) %>% 
+  arrange(desc(chromosome)) %>% 
+  View()
+
+
+
+brain_BH_ecotemp %>% 
+  group_by(chromosome) %>% 
+  arrange(desc(chromosome)) %>% 
+  View()
+
+
+
+
+# Brain - Graph - ecotype temp interaction  -------------------------------
+
+brain_BH_ecotemp_graph = brain_BH_ecotemp %>% 
+  rename(CHR = chromosome, 
+         POS = position) %>% 
+  stickle_CHR_reorder2() %>% 
+  dist_cal()
+
+brain_BH_axis_df = axis_df(brain_BH_ecotemp_graph)
+
+ggplot(brain_BH_ecotemp_graph, 
+       aes(x = POS, 
+           y = mean_expression_relative))+
+  geom_point(aes(colour = ))
+
+ggplot(non_outs, 
+       aes(x = {{xval}}, 
+           y = {{yval}}))+
+  # plot the non outliers in grey
+  geom_point(aes(color = as.factor(chr)), 
+             alpha = 0.8, 
+             size = 1.3)+
+  ## alternate colors per chromosome
+  scale_color_manual(values = rep(c("grey", "dimgrey"), 39))+
+  ## plot the outliers on top of everything
+  ## currently digging this hot pink colour
+  geom_point(data = outs,
+             col = out_col,
+             alpha=0.8, 
+             size=1.3)+
+  scale_x_continuous(label = axisdf$CHR, 
+                     breaks = axisdf$center)+
+  scale_y_continuous(expand = c(0, 0), 
+                     limits = c(0,1.0))+
+  # geom_hline(yintercept = 0.00043, 
+  #            linetype = 2, 
+  #            col = 'Black')+
+  # ylim(0,1.0)+
+  # scale_y_reverse(expand = c(0, 0))+
+  # remove space between plot area and x axis
+  labs(x = 'Cumulative base pair', 
+       y = 'Fst', 
+       title = plot_letter)+
+  theme(legend.position="none",
+        # panel.border = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(), 
+        axis.text.x = element_text(size = 9, 
+                                   angle = 90), 
+        axis.title = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 12))
 
 # ecotype only results ----------------------------------------------------
 
@@ -301,7 +307,7 @@ eco_qvalue_data %>%
   select(gene_name) %>% 
   write_tsv('ECOTYPE_GLMER_genes_qvalue_FDR_0.05.txt')
 
-
+###
 # pop*ecotype comparison --------------------------------------------------
 
 goi = read_csv('~/Parsons_Postdoc/Bethany_gene_expression/GLMER_gene_expression_ecotemp_pval0.01.csv')
@@ -358,7 +364,7 @@ popeco_datas = bind_cols(popeco_data,
                       skr_eco_BH_pval)
 
 
-
+###
 # MYV*ECO and SKR*ECO comparison ------------------------------------------
 ## compare the genes between the two fixed effect interactions
 
@@ -405,7 +411,7 @@ intersect(myv_eco_genes,
 BH_intersection = inner_join(myv_eco_BH_genes, 
            skr_eco_BH_genes)
 
-
+###
 # MYV*ECO and SKR*ECO annotation results ----------------------------------
 
 
@@ -534,3 +540,140 @@ BH_intersection%>%
   write_tsv('SKR_MYV_ECO_Intersect_GLMER_genes_BH_FDR_0.05.txt')
 
 
+
+
+
+# LIVER expression annotation ---------------------------------------------
+
+# LIVER eco*temp qvalue FDR -----------------------------------------------------
+
+liver_goi = read_csv('~/Parsons_Postdoc/Bethany_gene_expression/GLMER_LIVER_gene_expression_ecotemp_pval0.01.csv')
+
+liver_goi_names = liver_goi %>% 
+  select(gene_name, 
+         mean_expression_relative, 
+         ecow_temp18_pval) %>% 
+  rename(ensemble_name = gene_name)
+
+liver_ecotemp_pval = liver_goi$ecow_temp18_pval
+liver_ecotemp_qvalues = qvalue_truncp(p = liver_ecotemp_pval)
+liver_ecotemp_qvalues = liver_ecotemp_qvalues$qvalues %>% 
+  as_tibble() %>% 
+  rename(qval = value)
+
+liver_ecotemp_BH = p.adjust(liver_ecotemp_pval, 
+                            method = 'hochberg', 
+                            n = length(liver_ecotemp_pval))
+
+liver_ecotemp_BH = liver_ecotemp_BH %>% 
+  as_tibble() %>% 
+  rename(BH_pval = value)
+
+
+liver_ecotemp_BH = bind_cols(liver_goi_names, 
+                         liver_ecotemp_BH) %>% 
+  filter(BH_pval < 0.05) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name')%>% 
+  select(ensemble_name, 
+         gene_name, 
+         chromosome, 
+         position, 
+         mean_expression_relative, 
+         ecow_temp18_pval,
+         feature, 
+         relationship) %>% 
+  separate(ensemble_name, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '_') %>% 
+  select(-trash)
+
+liver_ecotemp_qvalue = bind_cols(liver_goi_names, 
+                            liver_ecotemp_qvalues) %>% 
+  filter(qval < 0.05) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name')%>% 
+  select(ensemble_name, 
+         gene_name, 
+         chromosome, 
+         position, 
+         mean_expression_relative, 
+         ecow_temp18_pval,
+         feature, 
+         relationship) %>% 
+  separate(ensemble_name, 
+           into = c('ensemble_name', 
+                    'trash'), 
+           sep = '_') %>% 
+  select(-trash)
+
+liver_ecotemp_BH %>% 
+  select(gene_name) %>% 
+  write_tsv('~/Parsons_Postdoc/Bethany_gene_expression/LIVER_BH_FDR_GLMER_ecotemp_pval0.05.txt')
+
+liver_ecotemp_qvalue %>% 
+  select(gene_name) %>% 
+  write_tsv('~/Parsons_Postdoc/Bethany_gene_expression/LIVER_qvalue_FDR_GLMER_ecotemp_pval0.05.txt')
+
+
+
+# liver_ecotemp_BH %>% 
+#   group_by(chromosome) %>% 
+#   arrange(desc(chromosome)) %>% 
+#   filter(chromosome == 'chrXXI') %>% 
+#   filter(position >= 9963830, 
+#          position <= 11574445) %>% 
+#   arrange(position) %>% 
+#   View()
+# 
+# liver_ecotemp_qvalue %>% 
+#   group_by(chromosome) %>% 
+#   arrange(desc(chromosome)) %>% 
+#   filter(chromosome == 'chrXXI') %>% 
+#   filter(position >= 9963830, 
+#          position <= 11574445) %>% 
+#   arrange(position) %>%  
+#   View()
+
+
+dim(liver_ecotemp_BH)
+
+dim(liver_ecotemp_qvalue)
+
+
+
+# Brain vs liver eco temp comparison --------------------------------------
+
+intersect(brain_qvalue_ecotemp$gene_name, 
+          liver_ecotemp_qvalue$gene_name) %>% 
+  as_tibble()
+
+Brain_Liver_qval_intersect = inner_join(brain_qvalue_ecotemp, 
+           liver_ecotemp_qvalue, 
+           by = c('gene_name', 
+                  'ensemble_name', 
+                  'chromosome'))
+Brain_Liver_qval_intersect %>% 
+  write_tsv('Qvalue_Brain_Liver_gene_ecotemp_intersection.txt')
+
+
+ 
+intersect(brain_BH_ecotemp$gene_name, 
+          liver_ecotemp_BH$gene_name) %>% 
+  as_tibble()
+
+Brain_liver_BH_intersect = inner_join(brain_BH_ecotemp, 
+           liver_ecotemp_BH, 
+           by = c('gene_name', 
+                  'ensemble_name', 
+                  'chromosome'))
+
+Brain_liver_BH_intersect %>% 
+  write_tsv('BH_brain_liver_gene_ecotemp_intersection.txt')
+
+
+Brain_liver_BH_intersect %>% 
+  filter(gene_name == 'glula')
