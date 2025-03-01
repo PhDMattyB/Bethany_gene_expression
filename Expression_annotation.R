@@ -11,6 +11,30 @@ library(tidyverse)
 library(data.table)
 library(qvalue)
 
+
+
+# Sample metadata ---------------------------------------------------------
+
+setwd('~/Parsons_Postdoc/Bethany_gene_expression/')
+
+brain_data = read_csv('F1_labfish_sampledata_brain_over10M(1).csv')
+
+brain_data %>% 
+  group_by(Pop_eco, 
+           temp) %>% 
+  summarize(num = n())
+
+liver_data = read_csv('F1_labfish_sampledata10M_liver.csv')
+
+liver_data %>% 
+  group_by(popeco, 
+           temp) %>% 
+  summarize(num = n())
+
+# stickleback annotation --------------------------------------------------
+
+
+
 setwd('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/')
 
 ## extract all of the stickle genome annotation data
