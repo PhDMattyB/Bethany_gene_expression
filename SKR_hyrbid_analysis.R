@@ -200,3 +200,97 @@ brain_limma = read_csv('Brain_LIMMA_model_results.csv')
 brain_common_genes = inner_join(brain_edge, 
            brain_limma, 
            by = 'GeneID')
+
+
+### 12 degree inheritance pattern
+exp_pattern_12 = brain_common_genes %>% 
+  select(GeneID, 
+         am_hyb_12, 
+         geo_hyb_12)
+
+
+Nothing = exp_pattern_12 %>% 
+  filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
+  filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+
+
+## 987 genes
+dom_geo1 = exp_pattern_12 %>%
+  # filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32 &
+  #          geo_hyb_12 >= 0.32 & geo_hyb_12 <= -0.32)
+  filter(am_hyb_12 <= 0.32 &
+         am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 > 0.32) %>% 
+  # filter(geo_hyb_12 >= 0.32 & 
+  #        geo_hyb_12 <= -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2 = exp_pattern_12 %>%
+  # filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32 &
+  #          geo_hyb_12 >= 0.32 & geo_hyb_12 <= -0.32)
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 < -0.32) %>% 
+  # filter(geo_hyb_12 >= 0.32 & 
+  #        geo_hyb_12 <= -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>%
+  filter(am_hyb_12 > 0.32) %>% 
+  # filter(am_hyb_12 <= -0.32 & geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
+  filter(am_hyb_12 < -0.32) %>% 
+    mutate(exp_pattern = 'Dominant Ambient')
+
+
+
+additive1 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+exp_pattern_12_graph = bind_rows(dom_amb1, 
+                                 dom_amb2, 
+                                 dom_geo1,
+                           dom_geo2, 
+                           additive1, 
+                           additive2, 
+                           transgressive1, 
+                           transgressive2, 
+                           Nothing)
+
+
+
+ggplot(data = exp_pattern_12_graph, 
+       aes(x = geo_hyb_12, 
+           y = am_hyb_12, 
+           col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')
+
