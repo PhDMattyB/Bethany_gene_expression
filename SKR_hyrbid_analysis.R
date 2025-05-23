@@ -209,47 +209,32 @@ exp_pattern_12 = brain_common_genes %>%
   select(GeneID, 
          am_hyb_12, 
          geo_hyb_12)
-
-
 Nothing = exp_pattern_12 %>% 
   filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
   filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
   mutate(exp_pattern = 'Neutral')
-
-
 ## 987 genes
 dom_geo1 = exp_pattern_12 %>%
-  # filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32 &
-  #          geo_hyb_12 >= 0.32 & geo_hyb_12 <= -0.32)
   filter(am_hyb_12 <= 0.32 &
          am_hyb_12 >= -0.32) %>%
   filter(geo_hyb_12 > 0.32) %>% 
-  # filter(geo_hyb_12 >= 0.32 & 
-  #        geo_hyb_12 <= -0.32) %>% 
   mutate(exp_pattern = 'Dominant Geothermal')
 
 dom_geo2 = exp_pattern_12 %>%
-  # filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32 &
-  #          geo_hyb_12 >= 0.32 & geo_hyb_12 <= -0.32)
   filter(am_hyb_12 <= 0.32 &
            am_hyb_12 >= -0.32) %>%
   filter(geo_hyb_12 < -0.32) %>% 
-  # filter(geo_hyb_12 >= 0.32 & 
-  #        geo_hyb_12 <= -0.32) %>% 
   mutate(exp_pattern = 'Dominant Geothermal')
 
 
 dom_amb1 = exp_pattern_12 %>% 
   filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>%
   filter(am_hyb_12 > 0.32) %>% 
-  # filter(am_hyb_12 <= -0.32 & geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>% 
   mutate(exp_pattern = 'Dominant Ambient')
 dom_amb2 = exp_pattern_12 %>% 
   filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
   filter(am_hyb_12 < -0.32) %>% 
     mutate(exp_pattern = 'Dominant Ambient')
-
-
 
 additive1 = exp_pattern_12 %>% 
   filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
@@ -280,10 +265,10 @@ inheritance_pal = c('#ff9e00',
                     '#669bbc',
                     '#c1121f', 
                     '#adb5bd', 
-                    '#3c096c')
+                    '#7400b8')
 
 
-ggplot(data = exp_pattern_12_graph, 
+Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph, 
        aes(x = geo_hyb_12, 
            y = am_hyb_12, 
            col = exp_pattern))+
@@ -301,7 +286,8 @@ ggplot(data = exp_pattern_12_graph,
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
   labs(x = 'Geothermal 12 - Hybrid 12', 
-       y = 'Ambient 12 - Hybrid 12')+
+       y = 'Ambient 12 - Hybrid 12',
+       title = 'A)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -309,4 +295,307 @@ ggplot(data = exp_pattern_12_graph,
         axis.title = element_text(size = 14), 
         axis.text = element_text(size = 12), 
         legend.position = 'none')
+
+
+### 18 degree inheritance pattern
+exp_pattern_18 = brain_common_genes %>% 
+  select(GeneID, 
+         am_hyb_18, 
+         geo_hyb_18)
+Nothing = exp_pattern_18 %>% 
+  filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
+  filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+## 987 genes
+dom_geo1 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= -0.32) %>%
+  filter(am_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= 0.32) %>%
+  filter(am_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+
+additive1 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+exp_pattern_18_graph = bind_rows(dom_amb1, 
+                                 dom_amb2, 
+                                 dom_geo1,
+                                 dom_geo2, 
+                                 additive1, 
+                                 additive2, 
+                                 transgressive1, 
+                                 transgressive2, 
+                                 Nothing)
+
+inheritance_pal = c('#ff9e00',
+                    '#669bbc',
+                    '#c1121f', 
+                    '#adb5bd', 
+                    '#7400b8')
+
+
+Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph, 
+       aes(x = geo_hyb_18, 
+           y = am_hyb_18, 
+           col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Geothermal 12 - Hybrid 12', 
+       y = 'Ambient 12 - Hybrid 12', 
+       title = 'B)')+
+  xlim(-3.5, 3.5)+
+  ylim(-3.5, 3.5)+
+  scale_color_manual(values = inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+
+# Liver inheritance pattern -----------------------------------------------
+
+
+liver_edge = read_csv('Liver_EdgeR_GLMQLFTest_results.csv')
+liver_limma = read_csv('Liver_LIMMA_model_results.csv')
+
+liver_common_genes = inner_join(liver_edge, 
+                                liver_limma, 
+                                by = 'GeneID')
+
+
+### 12 degree inheritance pattern
+liver_pattern_12 = liver_common_genes %>% 
+  select(GeneID, 
+         am_hyb_12, 
+         geo_hyb_12)
+Nothing = liver_pattern_12 %>% 
+  filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
+  filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
+  mutate(liver_pattern = 'Neutral')
+## 987 genes
+dom_geo1 = liver_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 > 0.32) %>% 
+  mutate(liver_pattern = 'Dominant Geothermal')
+
+dom_geo2 = liver_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 < -0.32) %>% 
+  mutate(liver_pattern = 'Dominant Geothermal')
+
+
+dom_amb1 = liver_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>%
+  filter(am_hyb_12 > 0.32) %>% 
+  mutate(liver_pattern = 'Dominant Ambient')
+dom_amb2 = liver_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
+  filter(am_hyb_12 < -0.32) %>% 
+  mutate(liver_pattern = 'Dominant Ambient')
+
+additive1 = liver_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(liver_pattern = 'Additive')
+additive2 = liver_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(liver_pattern = 'Additive')
+
+transgressive1 = liver_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+transgressive2 = liver_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+liver_pattern_12_graph = bind_rows(dom_amb1, 
+                                 dom_amb2, 
+                                 dom_geo1,
+                                 dom_geo2, 
+                                 additive1, 
+                                 additive2, 
+                                 transgressive1, 
+                                 transgressive2, 
+                                 Nothing)
+
+inheritance_pal = c('#ff9e00',
+                    '#669bbc',
+                    '#c1121f', 
+                    '#adb5bd', 
+                    '#7400b8')
+
+
+liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph, 
+                                aes(x = geo_hyb_12, 
+                                    y = am_hyb_12, 
+                                    col = liver_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Geothermal 12 - Hybrid 12', 
+       y = 'Ambient 12 - Hybrid 12',
+       title = 'C)')+
+  xlim(-3.5, 3.5)+
+  ylim(-3.5, 3.5)+
+  scale_color_manual(values = inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+### 18 degree inheritance pattern
+liver_pattern_18 = liver_common_genes %>% 
+  select(GeneID, 
+         am_hyb_18, 
+         geo_hyb_18)
+Nothing = liver_pattern_18 %>% 
+  filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
+  filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
+  mutate(liver_pattern = 'Neutral')
+## 987 genes
+dom_geo1 = liver_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 > 0.32) %>% 
+  mutate(liver_pattern = 'Dominant Geothermal')
+
+dom_geo2 = liver_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 < -0.32) %>% 
+  mutate(liver_pattern = 'Dominant Geothermal')
+
+
+dom_amb1 = liver_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= -0.32) %>%
+  filter(am_hyb_18 > 0.32) %>% 
+  mutate(liver_pattern = 'Dominant Ambient')
+dom_amb2 = liver_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= 0.32) %>%
+  filter(am_hyb_18 < -0.32) %>% 
+  mutate(liver_pattern = 'Dominant Ambient')
+
+additive1 = liver_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(liver_pattern = 'Additive')
+additive2 = liver_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(liver_pattern = 'Additive')
+
+transgressive1 = liver_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+transgressive2 = liver_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+liver_pattern_18_graph = bind_rows(dom_amb1, 
+                                 dom_amb2, 
+                                 dom_geo1,
+                                 dom_geo2, 
+                                 additive1, 
+                                 additive2, 
+                                 transgressive1, 
+                                 transgressive2, 
+                                 Nothing)
+
+liv_inheritance_pal = c('#669bbc',
+                    '#c1121f', 
+                    '#adb5bd', 
+                    '#7400b8')
+
+
+liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph, 
+                                aes(x = geo_hyb_18, 
+                                    y = am_hyb_18, 
+                                    col = liver_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Geothermal 12 - Hybrid 12', 
+       y = 'Ambient 12 - Hybrid 12', 
+       title = 'D)')+
+  xlim(-3.5, 3.5)+
+  ylim(-3.5, 3.5)+
+  scale_color_manual(values = liv_inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+
+# Combine the inheritance graphs ------------------------------------------
+
+Inherit_deez_nuts = (Inheritance_pattern_12 + Inheritance_pattern_18)/(liver_Inheritance_pattern_12+liver_Inheritance_pattern_18)
+
+ggsave('Hybrid_inheritance_pattern.tiff', 
+       plot = Inherit_deez_nuts, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 15)
 
