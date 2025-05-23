@@ -189,3 +189,14 @@ liver_limma_results %>%
   as.data.frame() %>% 
   as_tibble() %>% 
   write_csv('liver_LIMMA_model_results.csv')
+
+
+
+# Brain gene expression - downstream --------------------------------------
+
+brain_edge = read_csv('Brain_EdgeR_GLMQLFTest_results.csv')
+brain_limma = read_csv('Brain_LIMMA_model_results.csv')
+
+brain_common_genes = inner_join(brain_edge, 
+           brain_limma, 
+           by = 'GeneID')
