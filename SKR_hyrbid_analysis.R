@@ -14,6 +14,8 @@ setwd('~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/')
 library(tidyverse)
 library(edgeR)
 
+theme_set(theme_bw())
+
 brain_exp = read_tsv('brain_gene_read_counts_table_all_final.tsv')
 liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
 
@@ -274,6 +276,11 @@ exp_pattern_12_graph = bind_rows(dom_amb1,
                            transgressive2, 
                            Nothing)
 
+inheritance_pal = c('#ff9e00',
+                    '#669bbc',
+                    '#c1121f', 
+                    '#adb5bd', 
+                    '#3c096c')
 
 
 ggplot(data = exp_pattern_12_graph, 
@@ -292,5 +299,14 @@ ggplot(data = exp_pattern_12_graph,
   geom_vline(xintercept = 0.32, 
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
-             linetype = 'dashed')
+             linetype = 'dashed')+
+  labs(x = 'Geothermal 12 - Hybrid 12', 
+       y = 'Ambient 12 - Hybrid 12')+
+  xlim(-3.5, 3.5)+
+  ylim(-3.5, 3.5)+
+  scale_color_manual(values = inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
 
