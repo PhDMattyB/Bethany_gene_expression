@@ -51,8 +51,8 @@ brain_metadata %>%
 brain_dge_list = DGEList(brain_exp)
 brain_norm = calcNormFactors(brain_dge_list)
 
-mm = model.matrix(~0 + ecotype*temp, 
-                  data = brain_metadata)
+mm = model.matrix(~0 + ecotemp, 
+                  data = metadata)
 
 brain_keep = filterByExpr(brain_norm, 
                           min.count = 10,
@@ -64,46 +64,39 @@ brain_keep = brain_norm[brain_keep,]
 brain_dispersion = estimateDisp(brain_keep, 
                                 mm) 
 
-brain_glm = glmQLFit(brain_dispersion, 
-         design = mm, 
-         dispersion = brain_dispersion$common.dispersion)
-
-brain_glm_test = glmQLFTest(brain_glm)
-
-topTags(brain_glm_test)
-
-## limma model
-brain_voom = voom(brain_keep, mm, plot = T)
-
-fit_limma <- limma::lmFit(brain_voom, design=mm)
+# brain_glm = glmQLFit(brain_dispersion, 
+#          design = mm, 
+#          dispersion = brain_dispersion$common.dispersion)
+# 
+# brain_glm_test = glmQLFTest(brain_glm)
+# 
+# topTags(brain_glm_test)
+# 
+# ## limma model
+# brain_voom = voom(brain_keep, mm, plot = T)
+# 
+# fit_limma <- limma::lmFit(brain_voom, design=mm)
 
 
 # Brain divergent gene expression -----------------------------------------
 
-# div_data = metadata %>% 
-#   unite(col = ecotemp, 
-#         c('ecotype',  
-#           'temp'), 
-#         sep = '_', 
-#         remove = F) %>% 
-#   filter(ecotype %in% c('SKRC', 
-#                         'SKRW'))
-
-design_div = model.matrix(~0+ecotemp, 
-                          data = metadata)
-
-
-ecotype.div.brain = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
-                                  # eco18 = ecotempSKRC_18 - ecotempSKRW_18, 
-                                  levels = design_div)
+contrast = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
+                             eco18 = ecotempSKRC_18 - ecotempSKRW_18,
+                             plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
+                             plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
+                             plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
+                             am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
+                             am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
+                             geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
+                             geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
+                                  levels = mm)
 
 brain_glm_div = glmQLFit(brain_dispersion, 
                      # contrast = ecotype.div.brain,
-                     design = design_div,
-                     dispersion = brain_dispersion$common.dispersion)
+                     design = mm)
 
-eco_div_brain_test = glmQLFTest(brain_glm_div, 
-                                contrast = ecotype.div.brain)
+brain_glm_test = glmQLFTest(brain_glm_div, 
+                                contrast = contrast)
 
 topTags(eco_div_brain_test)
 
