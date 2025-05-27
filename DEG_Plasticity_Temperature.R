@@ -77,5 +77,19 @@ brain_plast_hyb = read_csv('Brain_hybrid_plastic_significant.csv')%>%
   mutate(status = 'Outlier')
 
 
+brain_eco12_clean = bind_rows(brain_eco12, 
+                              brain_eco12_neutral)
+
+brain_eco18_clean = bind_rows(brain_eco18, 
+                              brain_eco18_neutral)
+
+brain_plast_amb_clean = bind_rows(brain_plast_amb, 
+                              brain_plast_amb_neutral)
+
+brain_plast_geo_clean = bind_rows(brain_plast_geo, 
+                                  brain_plast_geo_neutral)
+
+brain_plast_hyb_clean = bind_rows(brain_plast_hyb, 
+                                  brain_plast_hyb_neutral)
 
 
