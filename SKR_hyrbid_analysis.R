@@ -119,59 +119,51 @@ brain_limma_results = topTable(brain_fit_ebayes,
 brain_limma_results_all = topTable(brain_fit_ebayes, 
                                n = 13452, 
                                adjust.method = 'bonferroni')
-# eco12 = topTable(fit = brain_fit_ebayes, 
-#          coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco12'), 
-#          adjust.method = 'bonferroni', 
-#          number = Inf, 
-#          p.value = 0.05)
-# 
-# eco12 %>% 
-#   as_tibble() %>% 
-#   write_csv("Brain_eco_div_12_significant.csv")
-# 
-# eco18 = topTable(fit = brain_fit_ebayes, 
-#                  coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco18'), 
-#                  adjust.method = 'bonferroni', 
-#                  number = Inf, 
-#                  p.value = 0.05)
-# 
-# eco18 %>% 
-#   as_tibble() %>% 
-#   write_csv("Brain_eco_div_18_significant.csv")
-# 
-# plast_amb = topTable(fit = brain_fit_ebayes, 
-#                  coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_amb'), 
-#                  adjust.method = 'bonferroni', 
-#                  number = Inf, 
-#                  p.value = 0.05)
-# 
-# plast_amb %>% 
-#   as_tibble() %>% 
-#   write_csv("Brain_ambient_plastic_significant.csv")
-# 
-# 
-# plast_geo = topTable(fit = brain_fit_ebayes, 
-#                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_geo'), 
-#                      adjust.method = 'bonferroni', 
-#                      number = Inf, 
-#                      p.value = 0.05)
-# 
-# plast_geo %>% 
-#   as_tibble() %>% 
-#   write_csv('Brain_geothermal_plastic_significant.csv')
-# 
-# plast_hyb = topTable(fit = brain_fit_ebayes, 
-#                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_hyb'), 
-#                      adjust.method = 'bonferroni', 
-#                      number = Inf, 
-#                      p.value = 0.05)
-# 
-# plast_hyb %>% 
-#   as_tibble() %>% 
-#   write_csv('Brain_hybrid_plastic_significant.csv')
+eco12 = topTable(fit = brain_fit_ebayes,
+         coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco12'),
+         adjust.method = 'bonferroni',
+         number = 13452)
+
+eco12 %>%
+  as_tibble() %>%
+  write_csv("Brain_eco_div_12.csv")
+
+eco18 = topTable(fit = brain_fit_ebayes,
+                 coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco18'),
+                 adjust.method = 'bonferroni',
+                 number = 13452)
+
+eco18 %>%
+  as_tibble() %>%
+  write_csv("Brain_eco_div_18.csv")
+
+plast_amb = topTable(fit = brain_fit_ebayes,
+                 coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_amb'),
+                 adjust.method = 'bonferroni',
+                 number = 13452)
+
+plast_amb %>%
+  as_tibble() %>%
+  write_csv("Brain_ambient_plastic.csv")
 
 
+plast_geo = topTable(fit = brain_fit_ebayes,
+                     coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_geo'),
+                     adjust.method = 'bonferroni',
+                     number = 13452)
 
+plast_geo %>%
+  as_tibble() %>%
+  write_csv('Brain_geothermal_plastic.csv')
+
+plast_hyb = topTable(fit = brain_fit_ebayes,
+                     coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_hyb'),
+                     adjust.method = 'bonferroni',
+                     number = 13452)
+
+plast_hyb %>%
+  as_tibble() %>%
+  write_csv('Brain_hybrid_plastic.csv')
 
 
 brain_limma_results %>% 
