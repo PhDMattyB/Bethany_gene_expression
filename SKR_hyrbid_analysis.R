@@ -119,6 +119,7 @@ brain_limma_results = topTable(brain_fit_ebayes,
 brain_limma_results_all = topTable(brain_fit_ebayes, 
                                n = 13452, 
                                adjust.method = 'bonferroni')
+
 eco12 = topTable(fit = brain_fit_ebayes,
          coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco12'),
          adjust.method = 'bonferroni',

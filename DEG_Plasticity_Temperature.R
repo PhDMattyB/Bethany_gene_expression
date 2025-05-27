@@ -93,6 +93,43 @@ brain_plast_hyb_clean = bind_rows(brain_plast_hyb,
                                   brain_plast_hyb_neutral)
 
 
+# overlap differential exppression ----------------------------------------
+
+
+
+inner_join(brain_eco12, 
+           brain_eco18, 
+           by = 'GeneID') 
+## only 2 genes are differentially divergent between ecotypes
+## across the two temperatures. 
+
+inner_join(brain_plast_amb, 
+           brain_plast_geo, 
+           by = 'GeneID') 
+## 47 genes are plastic in both the ambient and geothermal ecotypes
+
+inner_join(brain_plast_amb, 
+           brain_plast_hyb, 
+           by = 'GeneID')
+## 43 genes are plastic in both the amient and hybridl ecotypes
+
+inner_join(brain_plast_geo, 
+           brain_plast_hyb, 
+           by = 'GeneID')
+## 85 genes are plastic in both the geothermal and hybrid ecotypes
+
+inner_join(brain_plast_amb, 
+           brain_plast_geo, 
+           by = 'GeneID') %>% 
+  inner_join(.,
+             brain_plast_hyb, 
+             by = 'GeneID')
+
+## 38 that are plastic between all three ecotypes
+
+# quick volcano plots -----------------------------------------------------
+
+
 ggplot(data = brain_eco12_clean, 
        aes(x = logFC, 
            y = adj.P.Val, 
