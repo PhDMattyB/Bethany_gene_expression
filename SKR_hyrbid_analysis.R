@@ -115,10 +115,20 @@ brain_limma_results = topTable(brain_fit_ebayes,
          adjust.method = 'bonferroni', 
          p.value = 0.05)
 
+brain_limma_results_all = topTable(brain_fit_ebayes, 
+                               n = 13452, 
+                               adjust.method = 'bonferroni')
+
 brain_limma_results %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
   write_csv('Brain_LIMMA_model_results.csv')
+
+brain_limma_results_all %>% 
+  as.data.frame() %>% 
+  as_tibble() %>% 
+  write_csv('Brain_LIMMA_model_results_all.csv')
+
 
 
 # liver normalization -----------------------------------------------------
