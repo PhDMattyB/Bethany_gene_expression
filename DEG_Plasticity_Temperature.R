@@ -93,3 +93,38 @@ brain_plast_hyb_clean = bind_rows(brain_plast_hyb,
                                   brain_plast_hyb_neutral)
 
 
+ggplot(data = brain_eco12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_eco18_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_plast_amb_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_plast_geo_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+
+ggplot(data = brain_plast_hyb_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
