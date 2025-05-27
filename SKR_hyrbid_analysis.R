@@ -402,6 +402,7 @@ liver_common_genes = inner_join(liver_edge,
                                 by = 'GeneID')
 
 
+
 ### 12 degree inheritance pattern
 liver_pattern_12 = liver_common_genes %>% 
   select(GeneID, 
@@ -598,4 +599,21 @@ ggsave('Hybrid_inheritance_pattern.tiff',
        units = 'cm', 
        width = 30, 
        height = 15)
+
+
+mean_data = data %>% 
+  group_by(diet, 
+           species) %>% 
+  mutate(mean_pheno = mean(phenotype))
+
+
+ggplot(data = mean_data, 
+       aes(x = diet, 
+           y = phenotype, 
+           col = species))+
+  geom_point()
+  
+
+
+
 
