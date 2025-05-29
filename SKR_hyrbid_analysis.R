@@ -110,6 +110,27 @@ brain_fit_limma_contrast = contrasts.fit(brain_fit_limma,
 
 brain_fit_ebayes = eBayes(brain_fit_limma_contrast)
 
+# geneid = brain_fit_ebayes$genes$GeneID %>% 
+#   as_tibble() %>% 
+#   rename(gene_name = value)
+# exonid = read_tsv('exonID.txt')
+# 
+# full_join(geneid, 
+#           exonid)
+# 
+# semi_join(geneid, 
+#           exonid)
+# 
+# ids = union_all(geneid, 
+#           exonid)
+# 
+# diffSplice(fit = brain_fit_ebayes, 
+#            geneid = brain_fit_ebayes$genes$GeneID, 
+#            exonid = F, 
+#            robust = T, 
+#            verbose = T)
+
+
 brain_limma_results = topTable(brain_fit_ebayes, 
          n = 13452, 
          adjust.method = 'bonferroni', 
@@ -239,6 +260,64 @@ liver_fit_limma_contrast = contrasts.fit(liver_fit_limma,
 
 
 liver_fit_ebayes = eBayes(liver_fit_limma_contrast)
+
+Liver_limma_results_all = topTable(liver_fit_ebayes, 
+                                   n = 10506, 
+                                   adjust.method = 'bonferroni')
+
+liver_eco12 = topTable(fit = liver_fit_ebayes,
+                 coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco12'),
+                 adjust.method = 'bonferroni',
+                 number = 10506)
+
+liver_eco12 %>%
+  as_tibble() %>%
+  write_csv("Liver_eco_div_12.csv")
+
+liver_eco18 = topTable(fit = liver_fit_ebayes,
+                 coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco18'),
+                 adjust.method = 'bonferroni',
+                 number = 10506)
+
+liver_eco18 %>%
+  as_tibble() %>%
+  write_csv("Liver_eco_div_18.csv")
+
+liver_plast_amb = topTable(fit = liver_fit_ebayes,
+                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_amb'),
+                     adjust.method = 'bonferroni',
+                     number = 10506)
+
+liver_plast_amb %>%
+  as_tibble() %>%
+  write_csv("Liver_ambient_plastic.csv")
+
+
+liver_plast_geo = topTable(fit = liver_fit_ebayes,
+                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_geo'),
+                     adjust.method = 'bonferroni',
+                     number = 10506)
+
+liver_plast_geo %>%
+  as_tibble() %>%
+  write_csv('Liver_geothermal_plastic.csv')
+
+liver_plast_hyb = topTable(fit = liver_fit_ebayes,
+                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_hyb'),
+                     adjust.method = 'bonferroni',
+                     number = 10506)
+
+liver_plast_hyb %>%
+  as_tibble() %>%
+  write_csv('Liver_hybrid_plastic.csv')
+
+Liver_limma_results_all %>% 
+  as.data.frame() %>% 
+  as_tibble() %>% 
+  write_csv('Liver_LIMMA_model_results_all.csv')
+
+
+
 
 liver_limma_results = topTable(liver_fit_ebayes, 
                                n = 13452, 

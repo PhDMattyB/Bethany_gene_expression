@@ -64,7 +64,7 @@ brain_plast_hyb_neutral = read_csv('Brain_hybrid_plastic.csv') %>%
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')
 
-## significantly differentially expressed genes
+##  brain significantly differentially expressed genes
 brain_eco12 = read_csv('Brain_eco_div_12_significant.csv') %>% 
   mutate(status = 'Outlier')
 brain_eco18 = read_csv('Brain_eco_div_18_significant.csv')%>% 
@@ -93,7 +93,7 @@ brain_plast_hyb_clean = bind_rows(brain_plast_hyb,
                                   brain_plast_hyb_neutral)
 
 
-# overlap differential exppression ----------------------------------------
+# brain overlap differential exppression ----------------------------------------
 
 
 
@@ -105,17 +105,26 @@ inner_join(brain_eco12,
 
 inner_join(brain_plast_amb, 
            brain_plast_geo, 
-           by = 'GeneID') 
+           by = 'GeneID') %>% 
+  select(GeneID) %>% 
+  write_tsv('Brain_plasticity_amb_vs_geo.txt', 
+            col_names = F)
 ## 47 genes are plastic in both the ambient and geothermal ecotypes
 
 inner_join(brain_plast_amb, 
            brain_plast_hyb, 
-           by = 'GeneID')
+           by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Brain_plasticity_amb_vs_hyb.txt', 
+            col_names = F)
 ## 43 genes are plastic in both the amient and hybridl ecotypes
 
 inner_join(brain_plast_geo, 
            brain_plast_hyb, 
-           by = 'GeneID')
+           by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Brain_plasticity_geo_vs_hyb.txt', 
+            col_names = F)
 ## 85 genes are plastic in both the geothermal and hybrid ecotypes
 
 inner_join(brain_plast_amb, 
@@ -123,11 +132,14 @@ inner_join(brain_plast_amb,
            by = 'GeneID') %>% 
   inner_join(.,
              brain_plast_hyb, 
-             by = 'GeneID')
+             by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Brain_plasticity_amb_vs_geo_vs_hyb.txt', 
+            col_names = F)
 
 ## 38 that are plastic between all three ecotypes
 
-# quick volcano plots -----------------------------------------------------
+# brain quick volcano plots -----------------------------------------------------
 
 
 ggplot(data = brain_eco12_clean, 
@@ -165,3 +177,57 @@ ggplot(data = brain_plast_hyb_clean,
            col = status))+
   geom_point()+
   scale_y_reverse()
+
+
+
+# stickleback v5 annotation -----------------------------------------------
+
+gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/stickleback_v5_ensembl_genes.gff3.gz', 
+                           col_names = F, 
+                           skip = 1) %>% 
+  # filter(X3 %in% c('gene', 
+  #                  'exon', 
+  #                  'CDS')) %>% 
+  group_by(X1) %>% 
+  arrange(X4, 
+          X5) %>% 
+  ## arrange each gene by its start and end points on each chromosome
+  mutate(mid = X4 + (X5-X4)/2) %>% 
+  dplyr::select(X1, 
+                X3:X5, 
+                X9:mid) %>% 
+  rename(chromosome = X1, 
+         feature = X3, 
+         start = X4, 
+         end = X5, 
+         gene_id = X9, 
+         position = mid) %>% 
+  na.omit() %>% 
+  separate(col = gene_id, 
+                    into = c('ensemble_id', 
+                             'gene_name', 
+                             'parent_code', 
+                             'gene_name2'), 
+                    sep = ';') %>%
+  separate(col = gene_name, 
+           into = c('Garbage', 
+                    'gene_name'), 
+           sep = '=') %>% 
+  dplyr::select(chromosome, 
+                position, 
+                start, ,
+                end, 
+                feature,
+                gene_name) %>% 
+  na.omit()
+
+gene_annotation %>% 
+  select(chromosome, 
+         gene_id) %>% 
+  pull(gene_id)
+
+
+gene_annotation %>% 
+  ungroup() %>% 
+  select(gene_name) %>% 
+  write_tsv('exonID.txt')
