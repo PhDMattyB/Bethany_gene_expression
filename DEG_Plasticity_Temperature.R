@@ -231,3 +231,146 @@ gene_annotation %>%
   ungroup() %>% 
   select(gene_name) %>% 
   write_tsv('exonID.txt')
+
+
+# Liver temp plast --------------------------------------------------------
+Liver_limma_all = read_csv('Liver_LIMMA_model_results_all.csv')
+
+## All genes 
+
+Liver_eco12_neutral = read_csv('Liver_eco_div_12.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+Liver_eco18_neutral = read_csv('Liver_eco_div_18.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')
+Liver_plast_amb_neutral = read_csv('Liver_ambient_plastic.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')
+Liver_plast_geo_neutral = read_csv('Liver_geothermal_plastic.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')
+Liver_plast_hyb_neutral = read_csv('Liver_hybrid_plastic.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')
+
+##  Liver significantly differentially expressed genes
+Liver_eco12 = read_csv('Liver_eco_div_12.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+Liver_eco18 = read_csv('Liver_eco_div_18.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+Liver_plast_amb = read_csv('Liver_ambient_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+Liver_plast_geo = read_csv('Liver_geothermal_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+Liver_plast_hyb = read_csv('Liver_hybrid_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+
+Liver_eco12_clean = bind_rows(Liver_eco12, 
+                              Liver_eco12_neutral)
+
+Liver_eco18_clean = bind_rows(Liver_eco18, 
+                              Liver_eco18_neutral)
+
+Liver_plast_amb_clean = bind_rows(Liver_plast_amb, 
+                                  Liver_plast_amb_neutral)
+
+Liver_plast_geo_clean = bind_rows(Liver_plast_geo, 
+                                  Liver_plast_geo_neutral)
+
+Liver_plast_hyb_clean = bind_rows(Liver_plast_hyb, 
+                                  Liver_plast_hyb_neutral)
+
+
+# Liver overlap differential exppression ----------------------------------------
+
+inner_join(Liver_eco12, 
+           Liver_eco18, 
+           by = 'GeneID') 
+## only 2 genes are differentially divergent between ecotypes
+## across the two temperatures. 
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_geo, 
+           by = 'GeneID') %>% 
+  select(GeneID) %>% 
+  write_tsv('Liver_plasticity_amb_vs_geo.txt', 
+            col_names = F)
+## 47 genes are plastic in both the ambient and geothermal ecotypes
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_hyb, 
+           by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Liver_plasticity_amb_vs_hyb.txt', 
+            col_names = F)
+## 43 genes are plastic in both the amient and hybridl ecotypes
+
+inner_join(Liver_plast_geo, 
+           Liver_plast_hyb, 
+           by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Liver_plasticity_geo_vs_hyb.txt', 
+            col_names = F)
+## 85 genes are plastic in both the geothermal and hybrid ecotypes
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_geo, 
+           by = 'GeneID') %>% 
+  inner_join(.,
+             Liver_plast_hyb, 
+             by = 'GeneID')%>% 
+  select(GeneID) %>% 
+  write_tsv('Liver_plasticity_amb_vs_geo_vs_hyb.txt', 
+            col_names = F)
+
+## 38 that are plastic between all three ecotypes
+
+# Liver quick volcano plots -----------------------------------------------------
+
+
+ggplot(data = Liver_eco12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = Liver_eco18_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = Liver_plast_amb_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = Liver_plast_geo_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+
+ggplot(data = Liver_plast_hyb_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+
+
+

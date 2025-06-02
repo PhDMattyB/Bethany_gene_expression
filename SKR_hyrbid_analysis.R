@@ -188,6 +188,45 @@ plast_hyb %>%
   write_csv('Brain_hybrid_plastic.csv')
 
 
+amb_hyb_12 = topTable(fit = brain_fit_ebayes,
+                     coef = which(colnames(brain_fit_ebayes$coefficients) == 'am_hyb_12'),
+                     adjust.method = 'bonferroni',
+                     number = 13452)
+
+amb_hyb_12 %>%
+  as_tibble() %>%
+  write_csv('Brain_amb_hyb_12_div.csv')
+
+amb_hyb_18 = topTable(fit = brain_fit_ebayes,
+                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'am_hyb_18'),
+                      adjust.method = 'bonferroni',
+                      number = 13452)
+
+amb_hyb_18 %>%
+  as_tibble() %>%
+  write_csv('Brain_amb_hyb_18_div.csv')
+
+
+geo_hyb_12 = topTable(fit = brain_fit_ebayes,
+                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'geo_hyb_12'),
+                      adjust.method = 'bonferroni',
+                      number = 13452)
+
+geo_hyb_12 %>%
+  as_tibble() %>%
+  write_csv('Brain_geo_hyb_12_div.csv')
+
+
+geo_hyb_18 = topTable(fit = brain_fit_ebayes,
+                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'geo_hyb_18'),
+                      adjust.method = 'bonferroni',
+                      number = 13452)
+
+geo_hyb_18 %>%
+  as_tibble() %>%
+  write_csv('Brain_geo_hyb_18_div.csv')
+
+
 brain_limma_results %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
@@ -310,6 +349,47 @@ liver_plast_hyb = topTable(fit = liver_fit_ebayes,
 liver_plast_hyb %>%
   as_tibble() %>%
   write_csv('Liver_hybrid_plastic.csv')
+
+liver_amb_hyb_12 = topTable(fit = liver_fit_ebayes,
+                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_12'),
+                      adjust.method = 'bonferroni',
+                      number = 10506)
+
+liver_amb_hyb_12 %>%
+  as_tibble() %>%
+  write_csv('liver_amb_hyb_12_div.csv')
+
+liver_amb_hyb_18 = topTable(fit = liver_fit_ebayes,
+                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_18'),
+                      adjust.method = 'bonferroni',
+                      number = 10506)
+
+liver_amb_hyb_18 %>%
+  as_tibble() %>%
+  write_csv('liver_amb_hyb_18_div.csv')
+
+
+liver_geo_hyb_12 = topTable(fit = liver_fit_ebayes,
+                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_12'),
+                      adjust.method = 'bonferroni',
+                      number = 10506)
+
+liver_geo_hyb_12 %>%
+  as_tibble() %>%
+  write_csv('liver_geo_hyb_12_div.csv')
+
+
+liver_geo_hyb_18 = topTable(fit = liver_fit_ebayes,
+                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_18'),
+                      adjust.method = 'bonferroni',
+                      number = 10506)
+
+liver_geo_hyb_18 %>%
+  as_tibble() %>%
+  write_csv('liver_geo_hyb_18_div.csv')
+
+
+
 
 Liver_limma_results_all %>% 
   as.data.frame() %>% 
