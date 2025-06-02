@@ -140,8 +140,6 @@ inner_join(brain_plast_amb,
 ## 38 that are plastic between all three ecotypes
 
 
-
-
 # brain quick volcano plots -----------------------------------------------------
 
 
@@ -182,6 +180,57 @@ ggplot(data = brain_plast_hyb_clean,
   scale_y_reverse()
 
 
+
+
+
+# brain hybrid vs pure divergence and plasticity ----------------------------------------------
+
+neutral_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+significant_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+neutral_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+significant_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+neutral_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+significant_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+neutral_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+significant_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+
+## quantify overlap in divergence at same temperature
+inner_join(significant_amb_hyb_12, 
+           significant_geo_hyb_12, 
+           by = 'GeneID')
+
+inner_join(significant_amb_hyb_18, 
+           significant_geo_hyb_18, 
+           by = 'GeneID')
+
+## plasticity in divergence
+inner_join(significant_amb_hyb_12, 
+           significant_amb_hyb_18, 
+           by = 'GeneID')
+
+inner_join(significant_geo_hyb_12, 
+           significant_geo_hyb_18, 
+           by = 'GeneID')
 
 
 # Liver temp plast --------------------------------------------------------
