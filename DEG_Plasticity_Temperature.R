@@ -213,6 +213,56 @@ significant_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>%
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')
 
+brain_amb_hyb_12_clean = bind_rows(significant_amb_hyb_12, 
+                                   neutral_amb_hyb_12)
+
+brain_amb_hyb_18_clean = bind_rows(significant_amb_hyb_18, 
+                                   neutral_amb_hyb_18)
+
+brain_geo_hyb_12_clean = bind_rows(significant_geo_hyb_12, 
+                                   neutral_geo_hyb_12)
+brain_geo_hyb_18_clean = bind_rows(significant_geo_hyb_18, 
+                                   neutral_geo_hyb_18)
+
+
+ggplot(data = brain_amb_hyb_12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_amb_hyb_18_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_geo_hyb_12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+ggplot(data = brain_geo_hyb_18_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+
+ggplot(data = brain_plast_hyb_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+
+
 
 ## quantify overlap in divergence at same temperature
 inner_join(significant_amb_hyb_12, 
