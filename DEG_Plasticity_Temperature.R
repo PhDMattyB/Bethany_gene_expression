@@ -139,6 +139,9 @@ inner_join(brain_plast_amb,
 
 ## 38 that are plastic between all three ecotypes
 
+
+
+
 # brain quick volcano plots -----------------------------------------------------
 
 
@@ -179,58 +182,6 @@ ggplot(data = brain_plast_hyb_clean,
   scale_y_reverse()
 
 
-
-# stickleback v5 annotation -----------------------------------------------
-
-gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/stickleback_v5_ensembl_genes.gff3.gz', 
-                           col_names = F, 
-                           skip = 1) %>% 
-  # filter(X3 %in% c('gene', 
-  #                  'exon', 
-  #                  'CDS')) %>% 
-  group_by(X1) %>% 
-  arrange(X4, 
-          X5) %>% 
-  ## arrange each gene by its start and end points on each chromosome
-  mutate(mid = X4 + (X5-X4)/2) %>% 
-  dplyr::select(X1, 
-                X3:X5, 
-                X9:mid) %>% 
-  rename(chromosome = X1, 
-         feature = X3, 
-         start = X4, 
-         end = X5, 
-         gene_id = X9, 
-         position = mid) %>% 
-  na.omit() %>% 
-  separate(col = gene_id, 
-                    into = c('ensemble_id', 
-                             'gene_name', 
-                             'parent_code', 
-                             'gene_name2'), 
-                    sep = ';') %>%
-  separate(col = gene_name, 
-           into = c('Garbage', 
-                    'gene_name'), 
-           sep = '=') %>% 
-  dplyr::select(chromosome, 
-                position, 
-                start, ,
-                end, 
-                feature,
-                gene_name) %>% 
-  na.omit()
-
-gene_annotation %>% 
-  select(chromosome, 
-         gene_id) %>% 
-  pull(gene_id)
-
-
-gene_annotation %>% 
-  ungroup() %>% 
-  select(gene_name) %>% 
-  write_tsv('exonID.txt')
 
 
 # Liver temp plast --------------------------------------------------------
@@ -293,8 +244,6 @@ Liver_plast_hyb_clean = bind_rows(Liver_plast_hyb,
 inner_join(Liver_eco12, 
            Liver_eco18, 
            by = 'GeneID') 
-## only 2 genes are differentially divergent between ecotypes
-## across the two temperatures. 
 
 inner_join(Liver_plast_amb, 
            Liver_plast_geo, 
@@ -371,6 +320,58 @@ ggplot(data = Liver_plast_hyb_clean,
   geom_point()+
   scale_y_reverse()
 
+
+# stickleback v5 annotation -----------------------------------------------
+
+gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/stickleback_v5_ensembl_genes.gff3.gz', 
+                           col_names = F, 
+                           skip = 1) %>% 
+  # filter(X3 %in% c('gene', 
+  #                  'exon', 
+  #                  'CDS')) %>% 
+  group_by(X1) %>% 
+  arrange(X4, 
+          X5) %>% 
+  ## arrange each gene by its start and end points on each chromosome
+  mutate(mid = X4 + (X5-X4)/2) %>% 
+  dplyr::select(X1, 
+                X3:X5, 
+                X9:mid) %>% 
+  rename(chromosome = X1, 
+         feature = X3, 
+         start = X4, 
+         end = X5, 
+         gene_id = X9, 
+         position = mid) %>% 
+  na.omit() %>% 
+  separate(col = gene_id, 
+           into = c('ensemble_id', 
+                    'gene_name', 
+                    'parent_code', 
+                    'gene_name2'), 
+           sep = ';') %>%
+  separate(col = gene_name, 
+           into = c('Garbage', 
+                    'gene_name'), 
+           sep = '=') %>% 
+  dplyr::select(chromosome, 
+                position, 
+                start, ,
+                end, 
+                feature,
+                gene_name) %>% 
+  na.omit()
+
+gene_annotation %>% 
+  select(chromosome, 
+         gene_id) %>% 
+  pull(gene_id)
+
+
+gene_annotation %>% 
+  ungroup() %>% 
+  select(gene_name) %>% 
+  write_tsv('exonID.txt')
 
 
 
