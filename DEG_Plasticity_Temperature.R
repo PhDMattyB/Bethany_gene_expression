@@ -265,24 +265,79 @@ ggplot(data = brain_plast_hyb_clean,
 
 
 ## quantify overlap in divergence at same temperature
-inner_join(significant_amb_hyb_12, 
+div_pure_hyb_12 = inner_join(significant_amb_hyb_12, 
            significant_geo_hyb_12, 
            by = 'GeneID')
 
-inner_join(significant_amb_hyb_18, 
+ggplot(data = div_pure_hyb_12, 
+       aes(x = logFC.y, 
+           y = logFC.x))+
+  geom_point()
+
+
+div_pure_hyb_18 = inner_join(significant_amb_hyb_18, 
            significant_geo_hyb_18, 
            by = 'GeneID')
+ggplot(data = div_pure_hyb_18, 
+       aes(x = logFC.y, 
+           y = logFC.x))+
+  geom_point()
+
 
 ## plasticity in divergence
-inner_join(significant_amb_hyb_12, 
+amb_hyb_div_common = inner_join(significant_amb_hyb_12, 
            significant_amb_hyb_18, 
-           by = 'GeneID')
+           by = 'GeneID') 
 
-inner_join(significant_geo_hyb_12, 
+# amb_hyb_12_only = anti_join(significant_amb_hyb_12, 
+#           amb_hyb_div_common, 
+#           by = 'GeneID')
+# 
+# amb_hyb_18_only = anti_join(significant_amb_hyb_18, 
+#                             amb_hyb_div_common, 
+#                             by = 'GeneID')
+
+
+geo_hyb_div_common = inner_join(significant_geo_hyb_12, 
            significant_geo_hyb_18, 
            by = 'GeneID')
 
+# geo_hyb_12_only = anti_join(significant_geo_hyb_12, 
+#                             geo_hyb_div_common, 
+#                             by = 'GeneID')
+# 
+# geo_hyb_18_only = anti_join(significant_geo_hyb_18, 
+#                             geo_hyb_div_common, 
+#                             by = 'GeneID')
 
+
+
+Div_eco_temp = inner_join(amb_hyb_div_common, 
+           geo_hyb_div_common, 
+           by = 'GeneID')
+
+amb_hyb_div_common_temp = anti_join(amb_hyb_div_common,
+          Div_eco_temp,
+          by = 'GeneID')
+
+geo_hyb_div_common_temp = anti_join(geo_hyb_div_common,
+                                    Div_eco_temp,
+                                    by = 'GeneID')
+
+amb_hyb_12_only = anti_join(significant_amb_hyb_12, 
+                            Div_eco_temp, 
+                            by = 'GeneID')
+amb_hyb_18_only = anti_join(significant_amb_hyb_18, 
+                            Div_eco_temp, 
+                            by = 'GeneID')
+
+
+geo_hyb_12_only = anti_join(significant_geo_hyb_12, 
+                            Div_eco_temp, 
+                            by = 'GeneID')
+geo_hyb_18_only = anti_join(significant_geo_hyb_18, 
+                            Div_eco_temp, 
+                            by = 'GeneID')
 # Liver temp plast --------------------------------------------------------
 Liver_limma_all = read_csv('Liver_LIMMA_model_results_all.csv')
 
