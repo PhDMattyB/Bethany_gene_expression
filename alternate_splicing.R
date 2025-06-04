@@ -66,4 +66,4 @@ colData(se)$family = factor(c('006','008','073','073','073','082','082','082','0
 
 
 
-dxd = DEXSeqDataSetFromSE(se, design = ~ ecotype + temp + ecotype*temp)
+dxd = DEXSeqDataSetFromSE(se, design = ~ exon + ecotype:exon + temp:exon + ecotype:temp:exon)
