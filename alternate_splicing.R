@@ -29,11 +29,10 @@ bam_files = BamFileList(bam_files)
 
 se = summarizeOverlaps(flattenedAnnotation, 
                        BamFileList(bam_files), 
+                       mode = 'Union',
                        singleEnd = F, 
                        fragments = F, 
                        ignore.strand = T)
-
-
 
 colData(se)$ecotype = factor(c('SKRC','SKRC','SKRC','SKRC','SKRC','SKRC','SKRC','SKRC','SKRC','SKRC',
                                'SKRC','SKRC','SKRC','SKRC','SKRC','SKRC','SKRW','SKRW','SKRW','SKRW',
@@ -64,6 +63,11 @@ colData(se)$family = factor(c('006','008','073','073','073','082','082','082','0
                             '046','046','046', '017','017','017','017','068','068','068',
                             '068','017','017','017','068','068','068','068'))
 
+# colnames(counts) = NULL
 
+dxd = DEXSeqDataSetFromSE(se, design = ~ sample + exon)
 
-dxd = DEXSeqDataSetFromSE(se, design = ~ exon + ecotype:exon + temp:exon + ecotype:temp:exon)
+DEXse
+rownames(se)
+rowData(se)
+
