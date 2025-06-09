@@ -407,7 +407,22 @@ brain_module_df = bind_cols(brain_Genes,
   select(-gene_id) %>% 
   mutate(cluster = as.character(case_when(
     # colors == 'turquoise' ~ 'Cluster1', 
-    colors == 'grey' ~ 'Cluster1'
+    colors == 'black' ~ 'Cluster 1', 
+    colors == 'blue' ~ 'Cluster 2', 
+    colors == 'brown' ~ 'Cluster 3', 
+    colors == 'cyan' ~ 'Cluster 4', 
+    colors == 'green' ~ 'Cluster 5', 
+    colors == 'greenyellow' ~ 'Cluster 6', 
+    colors == 'grey' ~ 'Cluster 7', 
+    colors == 'magenta' ~ 'Cluster 8', 
+    colors == 'midnightblue' ~ 'Cluster 9', 
+    colors == 'pink' ~ 'Cluster 10', 
+    colors == 'purple' ~ 'Cluster 11', 
+    colors == 'red' ~ 'Cluster 12', 
+    colors == 'salmon' ~ 'Cluster 13', 
+    colors == 'tan' ~ 'Cluster 14', 
+    colors == 'turquoise' ~ 'Cluster 15', 
+    colors == 'yellow' ~ 'Cluster 16'
   ))) %>% 
   select(-colors)
 
@@ -417,8 +432,9 @@ brain_module_df = bind_cols(brain_Genes,
 #             file = "brain_gene_modules.txt",
 #             delim = "\t")
 
-mod_eigen = moduleEigengenes(brain_input_mat, mergedColors)$eigengenes %>%
-  rownames_to_column()
+mod_eigen = moduleEigengenes(brain_input_mat, mergedColors)$eigengenes 
+# %>%
+#   rownames_to_column()
 mod_eigen$ecotemp = row.names(mod_eigen)
 
 mod_eigen = orderMEs(mod_eigen)
@@ -453,13 +469,28 @@ brain_mME = brain_mME %>%
         sep = '_',
         remove = F) %>% 
   mutate(cluster = as.character(case_when(
-    # name == 'turquoise' ~ 'Cluster1', 
-    name == 'grey' ~ 'Cluster1'
+    # colors == 'turquoise' ~ 'Cluster1', 
+    name == 'black' ~ 'Cluster 1', 
+    name == 'blue' ~ 'Cluster 2', 
+    name == 'brown' ~ 'Cluster 3', 
+    name == 'cyan' ~ 'Cluster 4', 
+    name == 'green' ~ 'Cluster 5', 
+    name == 'greenyellow' ~ 'Cluster 6', 
+    name == 'grey' ~ 'Cluster 7', 
+    name == 'magenta' ~ 'Cluster 8', 
+    name == 'midnightblue' ~ 'Cluster 9', 
+    name == 'pink' ~ 'Cluster 10', 
+    name == 'purple' ~ 'Cluster 11', 
+    name == 'red' ~ 'Cluster 12', 
+    name == 'salmon' ~ 'Cluster 13', 
+    name == 'tan' ~ 'Cluster 14', 
+    name == 'turquoise' ~ 'Cluster 15', 
+    name == 'yellow' ~ 'Cluster 16'
   )))
 
 
 brain_mME %>% ggplot(., aes(x=cluster, 
-                            y=ecotype, 
+                            y=ecotemp2, 
                             fill=value)) +
   geom_tile() +
   theme_bw() +
@@ -469,15 +500,18 @@ brain_mME %>% ggplot(., aes(x=cluster,
     mid = "white",
     midpoint = 0,
     limit = c(-1,1)) +
-  facet_grid(~temp)+
+  # facet_grid(~temp)+
   theme(axis.text.x = element_text(angle=90)) +
   labs(title = "Module-trait Relationships", 
        y = "Modules", 
        fill="corr")
 
-
 brain_details = brain_mME %>% 
-  select(1:3) %>% 
+  select(ecotemp, 
+         ecotemp2, 
+         ecotype, 
+         temp, 
+         cluster) %>% 
   rename(name = ecotemp) %>% 
   distinct(name)
 
@@ -507,10 +541,11 @@ brain_exp_pattern = brain_count_limma %>%
 
 
 brain_exp_pattern %>% 
+  filter(cluster == 'Cluster 16') %>% 
   ggplot(., aes(x=ecotemp, 
                 y=value, 
                 group=GeneID)) +
-  geom_line(aes(color = GeneID),
+  geom_line(aes(color = cluster),
             alpha = 0.2) +
   theme_bw() +
   theme(
@@ -521,14 +556,6 @@ brain_exp_pattern %>%
        y = "normalized expression")
 
 
-brain_exp_pattern %>% 
-  # filter(GeneID == 'ENSGACG00000010111') %>% 
-  ggplot(., 
-         aes(x = ecotype, 
-             y = value))+
-  geom_violin(aes(fill = temp), 
-              color = 'black')+
-  facet_wrap(~GeneID)
 
 
 
