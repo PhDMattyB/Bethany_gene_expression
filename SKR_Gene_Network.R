@@ -166,9 +166,9 @@ liver_module_df = bind_cols(liver_Genes,
 
 
 
-write_delim(liver_module_df,
-            file = "liver_gene_modules.txt",
-            delim = "\t")
+# write_delim(liver_module_df,
+#             file = "liver_gene_modules.txt",
+#             delim = "\t")
 
 mod_eigen = moduleEigengenes(liver_input_mat, mergedColors)$eigengenes
 
@@ -194,12 +194,14 @@ liver_mME = liver_mME %>%
                                 'temp', 
                                 'family', 
                                 'sample'), 
-                       sep = '_') %>% 
+                       sep = '_', 
+           remove = F) %>% 
   separate(col = ecotype, 
            into = c('sample_num', 
                     'ecotype'), 
-           sep = '-') %>% 
-  unite(col = ecotemp, 
+           sep = '-', 
+           remove = F) %>% 
+  unite(col = ecotemp2, 
         c('ecotype',
           'temp'),
         sep = '_',
@@ -210,7 +212,7 @@ liver_mME = liver_mME %>%
         )))
   
 
-liver_mME %>% ggplot(., aes(x=ecotemp, 
+liver_mME %>% ggplot(., aes(x=ecotemp2, 
                             y=cluster, 
                             fill=value)) +
   geom_tile() +
@@ -225,3 +227,48 @@ liver_mME %>% ggplot(., aes(x=ecotemp,
   labs(title = "Module-trait Relationships", 
        y = "Modules", 
        fill="corr")
+
+
+liver_details = liver_mME %>% 
+  select(1:3) %>% 
+  rename(name = ecotemp) %>% 
+  distinct(name)
+
+
+liver_exp_pattern = liver_count_limma %>%
+  pivot_longer(-GeneID) %>% 
+  inner_join(., 
+             liver_module_df, 
+             by = 'GeneID') %>% 
+  separate(col = name, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-', 
+           remove = F) %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+  
+
+liver_exp_pattern %>% 
+  ggplot(., aes(x=ecotemp, 
+                  y=value, 
+                  group=GeneID)) +
+  geom_line(aes(color = cluster),
+            alpha = 0.2) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) +
+  facet_grid(rows = vars(cluster)) +
+  labs(x = "treatment",
+       y = "normalized expression")
