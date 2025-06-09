@@ -46,6 +46,10 @@ liver_common_genes = read_csv('Liver_DEG_Common_edger_limma.csv')
 # Brain temp plast --------------------------------------------------------
 brain_limma_all = read_csv('Brain_LIMMA_model_results_all.csv')
 
+brain_limma_all %>% 
+  dplyr::select(GeneID) %>% 
+  write_tsv('brain_limma_gene_list.txt')
+
 ## All genes 
 
 brain_eco12_neutral = read_csv('Brain_eco_div_12.csv') %>% 
