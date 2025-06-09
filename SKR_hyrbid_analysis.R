@@ -249,7 +249,7 @@ mm = model.matrix(~0 + ecotemp,
 liver_keep = filterByExpr(liver_norm, 
                           min.count = 10,
                           mm)
-sum(liver_keep) # number of genes retai
+sum(liver_keep) # number of genes retain
 liver_keep = liver_norm[liver_keep,]
 
 ## EdgeR model

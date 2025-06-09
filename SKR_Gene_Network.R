@@ -21,7 +21,14 @@ brain_count_limma = inner_join(brain_exp,
            by = 'GeneID')
 
 
-liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
+
+liver_exp = read_tsv('Liver_Normalized_expression.txt')
+liver_exp_gene = read_tsv("Liver_Normalized_expression_gene_list.txt")
+
+liver_exp = bind_cols(liver_exp_gene, 
+                      liver_exp)
+
+
 liver_limma = read_tsv("Liver_limma_gene_list.txt")
 
 liver_count_limma = inner_join(liver_exp, 
@@ -159,8 +166,8 @@ liver_module_df = bind_cols(liver_Genes,
                             liver_module_df) %>% 
   select(-gene_id) %>% 
   mutate(cluster = as.character(case_when(
-    colors == 'turquoise' ~ 'Cluster1', 
-    colors == 'grey' ~ 'Cluster2'
+    # colors == 'turquoise' ~ 'Cluster1', 
+    colors == 'grey' ~ 'Cluster1'
   ))) %>% 
   select(-colors)
 
@@ -170,13 +177,12 @@ liver_module_df = bind_cols(liver_Genes,
 #             file = "liver_gene_modules.txt",
 #             delim = "\t")
 
-mod_eigen = moduleEigengenes(liver_input_mat, mergedColors)$eigengenes
+mod_eigen = moduleEigengenes(liver_input_mat, mergedColors)$eigengenes %>% 
+  rownames_to_column()
 
 mod_eigen = orderMEs(mod_eigen)
 
 module_order = names(mod_eigen) %>% gsub("ME","", .)
-
-MEs0$treatment = row.names(MEs0)
 
 mod_eigen$ecotemp = row.names(mod_eigen)
 
@@ -212,8 +218,8 @@ liver_mME = liver_mME %>%
         )))
   
 
-liver_mME %>% ggplot(., aes(x=ecotemp2, 
-                            y=cluster, 
+liver_mME %>% ggplot(., aes(x=cluster, 
+                            y=ecotype, 
                             fill=value)) +
   geom_tile() +
   theme_bw() +
@@ -223,6 +229,7 @@ liver_mME %>% ggplot(., aes(x=ecotemp2,
     mid = "white",
     midpoint = 0,
     limit = c(-1,1)) +
+  facet_grid(~temp)+
   theme(axis.text.x = element_text(angle=90)) +
   labs(title = "Module-trait Relationships", 
        y = "Modules", 
