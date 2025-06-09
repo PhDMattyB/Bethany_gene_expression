@@ -134,5 +134,39 @@ brain_PCA_coord %>%
              col = 'black')+
   theme(panel.grid = element_blank(),
     text = element_text(size= 14),
-    axis.text = element_text(color = "black")
-  )
+    axis.text = element_text(color = "black"), 
+    legend.position = 'none')
+
+ggsave('Brain_PCA_All_DEG_Axes1_2.tiff', 
+       plot = last_plot(),
+       dpi = 'retina', 
+       width = 4, 
+       height = 3)
+
+
+brain_PCA_coord %>% 
+  ggplot(aes(x = PC2, y = PC3)) +
+  geom_point(aes(fill = ecotemp), 
+             color = "grey20", 
+             shape = 21, 
+             size = 3, 
+             alpha = 0.8) +
+  # scale_color_manual(values = PCA_cols)+
+  scale_fill_manual(values = PCA_cols)+
+  labs(x = paste("PC2 (", pc_importance[2, 2] %>% signif(3)*100, "% of Variance)", sep = ""), 
+       y = paste("PC3 (", pc_importance[3, 2] %>% signif(3)*100, "% of Variance)", "  ", sep = ""),
+       fill = NULL) +  
+  theme_bw() +
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  theme(panel.grid = element_blank(),
+        text = element_text(size= 14),
+        axis.text = element_text(color = "black"))
+
+ggsave('Brain_PCA_All_DEG_Axes2_3.tiff', 
+       plot = last_plot(),
+       dpi = 'retina', 
+       width = 4, 
+       height = 3)
