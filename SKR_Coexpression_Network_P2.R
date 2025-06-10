@@ -88,6 +88,11 @@ metadata = names(brain_exp) %>%
 #   pivot_wider(names_from = library, 
 #               values_from = logTPM)
 
+
+
+# PCA ---------------------------------------------------------------------
+
+
 brain_pca_data = brain_long_wide %>% 
   select(-GeneID)
 
@@ -174,6 +179,9 @@ ggsave('Brain_PCA_All_DEG_Axes2_3.tiff',
 
 
 
+# variance filtering ------------------------------------------------------
+
+
 
 ## variance filtering
 
@@ -239,6 +247,10 @@ brain_edge_table %>%
 
 brain_edge_table_select = brain_edge_table %>% 
   filter(r > 0.7)
+
+
+# module optimization -----------------------------------------------------
+
 
 
 gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/stickleback_v5_ensembl_genes.gff3.gz', 
@@ -385,6 +397,11 @@ Optimize_num_gene <- optimization_results %>%
 wrap_plots(Optimize_num_module, Optimize_num_gene, nrow = 2)
 
 
+
+# module expression -------------------------------------------------------
+
+
+
 brain_network_modules <- data.frame(
   GeneID = names(membership(brain_modules)),
   module = as.vector(membership(brain_modules)) 
@@ -465,6 +482,11 @@ ggplot(aes(x = ecotemp, y = value)) +
             size = 2)+
   facet_grid(~module) 
 
+
+
+# Heatmap -----------------------------------------------------------------
+
+
 brain_modules_mean_exp$mean_exp %>% summary()
 
 quantile(brain_modules_mean_exp$mean_exp, 0.95)
@@ -481,6 +503,10 @@ brain_modules_mean_exp_reordered = brain_modules_mean_exp %>%
               select(module,
                      mean_exp), 
             by = 'module') 
+
+brain_modules_mean_exp_reordered %>% 
+  group_by(module) %>% 
+  summarize(n = n()) %>% View()
 
 brain_heatmap = brain_modules_mean_exp_reordered %>% 
   separate(col = ecotemp, 
@@ -549,4 +575,75 @@ wrap_plots(brain_heatmap,
   theme(
     legend.position = "bottom",
     legend.box = "vertical"
+  )
+
+
+
+# network -----------------------------------------------------------------
+
+subnetwork_edges = brain_edge_table_select %>% 
+  # filter(from %in% names(neighbors_of_bait) &
+  #          to %in% names(neighbors_of_bait)) %>% 
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+subnetwork_genes = c(subnetwork_edges$from, 
+                     subnetwork_edges$to) %>% 
+  unique()
+
+length(subnetwork_genes)
+dim(subnetwork_edges)
+
+
+subnetwork_nodes <- brain_node_tab %>% 
+  filter(GeneID %in% subnetwork_genes) %>% 
+  left_join(brain_network_modules, by = "GeneID") %>% 
+  left_join(brain_module_peak_exp, by = "module") %>% 
+  mutate(module_annotation = case_when(
+    str_detect(module, '1|2|3|4|5|6') ~ 'Mod 1-6', 
+    str_detect(module, '7|8|10|13|14|15') ~ 'Mod 7-12', 
+    str_detect(module, '16|18|19|28|29|30') ~ 'Mod 13-18', 
+    str_detect(module, '33|36|43|45|47|52') ~ 'Mod 19-24', 
+    str_detect(module, '53|60|64|68|72|73') ~ 'Mod 25-30', 
+    str_detect(module, '76|79|82|89|96|97') ~ 'Mod 31-36', 
+    str_detect(module, '101|102|126|130|134') ~ 'Mod 37-41', 
+    str_detect(module, '189') ~ 'Mod 42'
+  ))
+
+dim(subnetwork_nodes)
+
+
+brain_subnetwork <- graph_from_data_frame(subnetwork_edges,
+                                       vertices = subnetwork_nodes,
+                                       directed = F)
+
+
+
+brain_subnetwork %>% 
+  ggraph(layout = "kk",
+         circular = F) +
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  geom_node_point(alpha = 0.8, 
+                  color = "white", 
+                  shape = 21, 
+                  size = 2,
+                  aes(fill = module_annotation)) + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent")[c(1,3,6)], 
+                               "grey30")) +
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
   )
