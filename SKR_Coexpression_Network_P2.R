@@ -454,13 +454,99 @@ brain_module_peak_exp = brain_modules_mean_exp %>%
   slice_max(order_by = mean_exp, n = 1) 
 
 brain_high_var_modules %>% 
-  filter(module == 1 | module == 2) %>%
+  filter(module == 5 | module == 6) %>%
 ggplot(aes(x = ecotemp, y = value)) +
   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
   geom_line(data = brain_modules_mean_exp %>%  
-            filter(module == 1 | module == 2), 
+            filter(module == 5 | module == 6), 
             aes(x = ecotemp, 
                 y = mean_exp, 
                 group = module), 
             size = 2)+
   facet_grid(~module) 
+
+brain_modules_mean_exp$mean_exp %>% summary()
+
+quantile(brain_modules_mean_exp$mean_exp, 0.95)
+
+brain_modules_mean_exp = brain_modules_mean_exp %>% 
+  mutate(mean_exp_clipped = case_when(
+    mean_exp > 5.15 ~ 5.15, 
+    mean_exp < -5.15 ~ -5.15, 
+    T ~ mean_exp
+  ))
+
+brain_modules_mean_exp_reordered = brain_modules_mean_exp %>% 
+  full_join(brain_module_peak_exp %>% 
+              select(module,
+                     mean_exp), 
+            by = 'module') 
+
+brain_heatmap = brain_modules_mean_exp_reordered %>% 
+  separate(col = ecotemp, 
+           into = c('ecotype', 
+                    'temp'), 
+           sep = '_', 
+           remove = F) %>% 
+  ggplot(aes(x = temp, 
+             y = as.factor(module)))+
+  facet_grid(.~ ecotype, 
+             scales = "free", 
+             space = "free") +
+  geom_tile(aes(fill = mean_exp_clipped), 
+            color = 'grey80')+
+  scale_fill_gradientn(colors = rev(brewer.pal(11, "RdBu")),
+                       limits = c(-5.15, 5.15),
+                       breaks = c(-5.15, 0, 5.15),
+                       labels = c("< -5.15", "0", "> 5.15"))+
+  labs(x = NULL,
+       y = "Module",
+       fill = "Normalized expression")+
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black"),
+    # axis.text.x = element_blank(),
+    axis.text.x = element_text(size = 14),
+    strip.text = element_blank(),
+    legend.position = "bottom",
+    panel.spacing = unit(0.5, "lines") 
+  )
+
+heat_strip1 = expand.grid(
+  ecotype = unique(metadata$ecotype),
+  temp = unique(metadata$temp),
+  stringsAsFactors = F
+) %>% 
+  mutate(ecotype = factor(ecotype, levels = c(
+    "SKRC",
+    "SKRHYB",
+    "SKRW"))) %>% 
+  mutate(temp = factor(temp, levels = c(
+    "12",
+    "18"))) %>% 
+  ggplot(aes(x = ecotype, 
+             y = 1)) +
+  facet_grid(.~ ecotype, 
+             scales = "free", 
+             space = "free") +
+  geom_tile(aes(fill = ecotype)) +
+  scale_fill_manual(values = brewer.pal(8, "Set2")) +
+  guides(fill = guide_legend(nrow = 1)) +
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_blank(),
+    text = element_text(size = 14),
+    panel.spacing = unit(0.5, "lines"),
+    legend.key.height = unit(0.75, "lines")
+  )
+
+wrap_plots(brain_heatmap, 
+           heat_strip1, 
+           nrow = 2, 
+           heights = c(1, 0.08, 0.08), 
+           guides = "collect") &
+  theme(
+    legend.position = "bottom",
+    legend.box = "vertical"
+  )
