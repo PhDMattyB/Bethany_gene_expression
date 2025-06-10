@@ -1891,3 +1891,16 @@ wrap_plots(ambient_plast_gene_network,
     legend.position = "bottom",
     legend.box = "vertical"
   )
+
+
+
+
+plast_hyb_subnetwork_nodes
+plast_amb_subnetwork_nodes
+plast_geo_subnetwork_nodes
+
+
+plast_hyb_subnetwork_edges
+plast_amb_subnetwork_edges
+plast_geo_subnetwork_edges
+
