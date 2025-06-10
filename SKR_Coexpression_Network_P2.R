@@ -1465,7 +1465,7 @@ plast_geo_gene_network = plast_geo_subnetwork %>%
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#e63946') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -1863,7 +1863,7 @@ plast_hyb_gene_network = plast_hyb_subnetwork %>%
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#90be6d') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -1894,13 +1894,25 @@ wrap_plots(ambient_plast_gene_network,
 
 
 
+# Combine the three graphs ------------------------------------------------
 
-plast_hyb_subnetwork_nodes
-plast_amb_subnetwork_nodes
-plast_geo_subnetwork_nodes
+createNetworkFromGraph(plast_amb_subnetwork)
+createNetworkFromIgraph(plast_amb_subnetwork)
 
 
-plast_hyb_subnetwork_edges
-plast_amb_subnetwork_edges
-plast_geo_subnetwork_edges
+combo_amb_geo = igraph::union(plast_amb_subnetwork,
+                                plast_geo_subnetwork)
+
+# igraph::compose(plast_amb_subnetwork, 
+#                 plast_geo_subnetwork)
+
+
+plot(combo_amb_geo)
+
+plot(combo_amb_geo, layout = layout_nicely,
+     vertex.size = 20, vertex.color = "lightblue",
+     edge.width = 2, edge.color = "gray",
+     vertex.label.cex = 0.8, vertex.label.color = "black",
+     main = "Combined Social and Professional Networks")
+
 
