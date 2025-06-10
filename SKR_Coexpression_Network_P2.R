@@ -444,12 +444,23 @@ brain_high_var_modules = brain_var_genes_data_long %>%
 
 
 brain_modules_mean_exp = brain_high_var_modules %>% 
-  group_by(module, ecotype, temp) %>% 
+  group_by(module, ecotemp) %>% 
   summarise(mean_exp = mean(value)) %>% 
   ungroup()
 
 
 brain_module_peak_exp = brain_modules_mean_exp %>% 
   group_by(module) %>%
-  slice_max(order_by = mean_exp, n = 1)
+  slice_max(order_by = mean_exp, n = 1) 
 
+brain_high_var_modules %>% 
+  filter(module == 1 | module == 2) %>%
+ggplot(aes(x = ecotemp, y = value)) +
+  geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+  geom_line(data = brain_modules_mean_exp %>%  
+            filter(module == 1 | module == 2), 
+            aes(x = ecotemp, 
+                y = mean_exp, 
+                group = module), 
+            size = 2)+
+  facet_grid(~module) 
