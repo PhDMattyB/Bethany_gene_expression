@@ -49,6 +49,7 @@ library(readxl)
 library(patchwork)
 library(RColorBrewer)
 library(viridis)
+library(RCy3)
 
 theme_set(theme_bw())
 
@@ -1896,23 +1897,12 @@ wrap_plots(ambient_plast_gene_network,
 
 # Combine the three graphs ------------------------------------------------
 
-createNetworkFromGraph(plast_amb_subnetwork)
+
+## Need to output the Igraph files as Networks. 
+## These can then be put into Cytoscape to be merged
+## and to better visualize the network
 createNetworkFromIgraph(plast_amb_subnetwork)
 
+createNetworkFromIgraph(plast_geo_subnetwork)
 
-combo_amb_geo = igraph::union(plast_amb_subnetwork,
-                                plast_geo_subnetwork)
-
-# igraph::compose(plast_amb_subnetwork, 
-#                 plast_geo_subnetwork)
-
-
-plot(combo_amb_geo)
-
-plot(combo_amb_geo, layout = layout_nicely,
-     vertex.size = 20, vertex.color = "lightblue",
-     edge.width = 2, edge.color = "gray",
-     vertex.label.cex = 0.8, vertex.label.color = "black",
-     main = "Combined Social and Professional Networks")
-
-
+createNetworkFromIgraph(plast_hyb_subnetwork)
