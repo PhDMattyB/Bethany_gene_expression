@@ -1081,9 +1081,6 @@ ambient_plast_gene_network = plast_amb_subnetwork %>%
   )
 
 
-# Other datasets ----------------------------------------------------------
-
-
 # Geo plasticity - gene network analysis ----------------------------------
 
 
@@ -1906,3 +1903,69 @@ createNetworkFromIgraph(plast_amb_subnetwork)
 createNetworkFromIgraph(plast_geo_subnetwork)
 
 createNetworkFromIgraph(plast_hyb_subnetwork)
+
+
+
+
+
+# ecological divergence networks ------------------------------------------
+
+# amb vs geo Divergence at 12 degrees -------------------------------------------------
+
+brain_eco12 = read_csv('Brain_eco_div_12.csv')%>% 
+  mutate(status = 'Outlier') %>% 
+  left_join(., 
+            brain_count_limma, 
+            by = 'GeneID') %>% 
+  select(GeneID, 
+         9:56) %>% 
+  as.data.frame()
+
+
+
+row.names(brain_eco12) = brain_eco12$GeneID
+
+amb_plast_cor_mat = cor(t(brain_eco12[,-1]))
+
+number_comparisons = ncol(brain_eco12) - 1
+
+eco12_cor_mat_upper = amb_plast_cor_mat
+eco12_cor_mat_upper[lower.tri(eco12_cor_mat_upper)] <- NA
+
+eco12_edge_table = eco12_cor_mat_upper %>% 
+  as.data.frame() %>% 
+  mutate(from = row.names(amb_plast_cor_mat)) %>% 
+  pivot_longer(cols = !from, 
+               names_to = 'to', 
+               values_to = 'r') %>% 
+  filter(is.na(r) == F) %>% 
+  filter(from != to) %>% 
+  mutate(t = r*sqrt((number_comparisons-2)/(1-r^2))) %>% 
+  mutate(p.value = case_when(
+    t > 0 ~ pt(t, df = number_comparisons-2, lower.tail = F),
+    t <= 0 ~ pt(t, df = number_comparisons-2, lower.tail = F)
+  )) %>% 
+  mutate(FDR = p.adjust(p.value, method = 'fdr'))
+
+
+eco12_edge_table %>% 
+  filter(r > 0) %>% 
+  filter(FDR < 0.05) %>% 
+  slice_min(order_by = abs(r), n = 10)
+
+
+eco12_edge_table %>% 
+  # slice_sample(n = 20000) %>% 
+  ggplot(aes(x = r)) +
+  geom_histogram(color = "white", bins = 100) +
+  geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+
+eco12_edge_table_select = eco12_edge_table %>% 
+  filter(r > 0.7 | r < -0.7)
+
