@@ -1913,6 +1913,7 @@ createNetworkFromIgraph(plast_hyb_subnetwork)
 # amb vs geo Divergence at 12 degrees -------------------------------------------------
 
 brain_eco12 = read_csv('Brain_eco_div_12.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier') %>% 
   left_join(., 
             brain_count_limma, 
@@ -1920,6 +1921,10 @@ brain_eco12 = read_csv('Brain_eco_div_12.csv')%>%
   select(GeneID, 
          9:56) %>% 
   as.data.frame()
+
+
+
+
 
 
 
@@ -1968,4 +1973,239 @@ eco12_edge_table %>%
 
 eco12_edge_table_select = eco12_edge_table %>% 
   filter(r > 0.7 | r < -0.7)
+
+
+
+
+
+
+
+
+
+
+eco12_node_tab = data.frame(
+  GeneID = c(eco12_edge_table_select$from, 
+             eco12_edge_table_select$to) %>% 
+    unique()
+) %>% 
+  left_join(annotation_ensemble_genes, 
+            by = c('GeneID')) %>% 
+  rename(functional_annotation = gene_name)
+
+
+eco12_network = graph_from_data_frame(
+  eco12_edge_table_select,
+  vertices = eco12_node_tab,
+  directed = F
+)
+
+eco12_modules = cluster_leiden(eco12_network, 
+                                   resolution = 1, 
+                                   objective_function = "modularity")
+
+eco12_optimization = purrr::map_dfc(
+  .x = seq(from = 0.25, to = 5, by = 0.25),
+  .f = optimize_resolution, 
+  network = eco12_network) %>% 
+  t() %>% 
+  cbind(
+    resolution = seq(from = 0.25, to = 5, by = 0.25)
+  ) %>% 
+  as.data.frame() %>% 
+  rename(num_module = V1,
+         num_contained_gene = V2)
+
+
+eco12_optimize_num_module <- eco12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_module)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. modules\nw/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+eco12_optimize_num_gene = eco12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_contained_gene)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. genes in\nmodules w/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+wrap_plots(eco12_optimize_num_module, 
+           eco12_optimize_num_gene, nrow = 2)
+
+
+
+
+
+
+
+
+eco12_network_modules <- data.frame(
+  GeneID = names(membership(eco12_modules)),
+  module = as.vector(membership(eco12_modules)) 
+) %>% 
+  inner_join(eco12_node_tab, by = "GeneID")
+
+eco12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5)
+
+eco12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5) %>% 
+  ungroup() %>% 
+  summarise(sum = sum(n))
+eco12_modules_greater_3 <- eco12_network_modules %>%
+  group_by(module) %>%
+  count() %>%
+  arrange(-n) %>%
+  filter(n >= 3)
+eco12_network_modules <- eco12_network_modules %>%
+  filter(module %in% eco12_modules_greater_3$module)
+eco12_long = brain_eco12 %>% 
+  pivot_longer(!GeneID) %>% 
+  as_tibble() %>% 
+  # slice(-1) %>% 
+  separate(col = name, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample', 
+                    'tissue'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-') %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+eco12_high_var_modules = eco12_long %>% 
+  inner_join(eco12_network_modules,
+             by = 'GeneID')
+eco12_modules_mean_exp = eco12_high_var_modules %>% 
+  group_by(module, ecotemp) %>% 
+  summarise(mean_exp = mean(value)) %>% 
+  ungroup()
+
+eco12_module_peak_exp = eco12_modules_mean_exp %>% 
+  group_by(module) %>%
+  slice_max(order_by = mean_exp, n = 1) 
+# 
+# eco12_high_var_modules %>% 
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = eco12_modules_mean_exp,  
+#             # filter(module == 5 | module == 6), 
+#             aes(x = ecotemp, 
+#                 y = mean_exp, 
+#                 group = module), 
+#             size = 2)+
+#   facet_grid(~module) 
+
+
+
+
+
+
+eco12_subnetwork_edges = eco12_edge_table_select %>% 
+  # filter(from %in% names(neighbors_of_bait) &
+  #          to %in% names(neighbors_of_bait)) %>% 
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup()
+
+eco12_subnetwork_genes = c(eco12_subnetwork_edges$from, 
+                               eco12_subnetwork_edges$to) %>% 
+  unique()
+
+# length(eco12_subnetwork_genes)
+# dim(eco12_subnetwork_edges)
+
+
+eco12_subnetwork_nodes <- eco12_node_tab %>% 
+  filter(GeneID %in% eco12_subnetwork_genes) %>% 
+  left_join(eco12_network_modules, by = "GeneID") %>% 
+  left_join(eco12_module_peak_exp, by = "module") 
+
+eco12_subnetwork_nodes$module = as.character(eco12_subnetwork_nodes$module)
+
+# %>% 
+#   mutate(module_rename = case_when(
+#     module == '1' ~ '1', 
+#     module == '2' ~ '2', 
+#     module == '4' ~ '3', 
+#     module == '5' ~ '4', 
+#     module == '6' ~ '5', 
+#     module == '8' ~ '6'
+#   ))
+
+dim(eco12_subnetwork_nodes)
+
+
+eco12_subnetwork <- graph_from_data_frame(eco12_subnetwork_edges,
+                                              vertices = eco12_subnetwork_nodes,
+                                              directed = T)
+
+
+
+eco12_divergence_gene_network = eco12_subnetwork %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#023e8a') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+
+
+# Divergence amb vs hyb @12 degrees  --------------------------------------
+
 
