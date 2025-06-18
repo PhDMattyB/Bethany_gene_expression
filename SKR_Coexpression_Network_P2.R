@@ -1930,16 +1930,16 @@ brain_eco12 = read_csv('Brain_eco_div_12.csv')%>%
 
 row.names(brain_eco12) = brain_eco12$GeneID
 
-amb_plast_cor_mat = cor(t(brain_eco12[,-1]))
+eco12_cor_mat = cor(t(brain_eco12[,-1]))
 
 number_comparisons = ncol(brain_eco12) - 1
 
-eco12_cor_mat_upper = amb_plast_cor_mat
+eco12_cor_mat_upper = eco12_cor_mat
 eco12_cor_mat_upper[lower.tri(eco12_cor_mat_upper)] <- NA
 
 eco12_edge_table = eco12_cor_mat_upper %>% 
   as.data.frame() %>% 
-  mutate(from = row.names(amb_plast_cor_mat)) %>% 
+  mutate(from = row.names(eco12_cor_mat)) %>% 
   pivot_longer(cols = !from, 
                names_to = 'to', 
                values_to = 'r') %>% 
@@ -2111,18 +2111,18 @@ eco12_module_peak_exp = eco12_modules_mean_exp %>%
   group_by(module) %>%
   slice_max(order_by = mean_exp, n = 1) 
 # 
-# eco12_high_var_modules %>% 
+# eco12_high_var_modules %>%
 #   # filter(module == 5 | module == 6) %>%
 #   ggplot(aes(x = ecotemp, y = value)) +
 #   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
-#   geom_line(data = eco12_modules_mean_exp,  
-#             # filter(module == 5 | module == 6), 
-#             aes(x = ecotemp, 
-#                 y = mean_exp, 
-#                 group = module), 
+#   geom_line(data = eco12_modules_mean_exp,
+#             # filter(module == 5 | module == 6),
+#             aes(x = ecotemp,
+#                 y = mean_exp,
+#                 group = module),
 #             size = 2)+
-#   facet_grid(~module) 
-
+#   facet_grid(~module)
+# 
 
 
 
@@ -2208,4 +2208,611 @@ eco12_divergence_gene_network = eco12_subnetwork %>%
 
 # Divergence amb vs hyb @12 degrees  --------------------------------------
 
+
+brain_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier') %>% 
+  left_join(., 
+            brain_count_limma, 
+            by = 'GeneID') %>% 
+  select(GeneID, 
+         9:56) %>% 
+  as.data.frame()
+
+
+
+
+
+
+
+row.names(brain_amb_hyb_12) = brain_amb_hyb_12$GeneID
+
+amb_hyb_12_cor_mat = cor(t(brain_amb_hyb_12[,-1]))
+
+number_comparisons = ncol(brain_amb_hyb_12) - 1
+
+amb_hyb_12_cor_mat_upper = amb_hyb_12_cor_mat
+amb_hyb_12_cor_mat_upper[lower.tri(amb_hyb_12_cor_mat_upper)] <- NA
+
+amb_hyb_12_edge_table = amb_hyb_12_cor_mat_upper %>% 
+  as.data.frame() %>% 
+  mutate(from = row.names(amb_hyb_12_cor_mat)) %>% 
+  pivot_longer(cols = !from, 
+               names_to = 'to', 
+               values_to = 'r') %>% 
+  filter(is.na(r) == F) %>% 
+  filter(from != to) %>% 
+  mutate(t = r*sqrt((number_comparisons-2)/(1-r^2))) %>% 
+  mutate(p.value = case_when(
+    t > 0 ~ pt(t, df = number_comparisons-2, lower.tail = F),
+    t <= 0 ~ pt(t, df = number_comparisons-2, lower.tail = F)
+  )) %>% 
+  mutate(FDR = p.adjust(p.value, method = 'fdr'))
+
+
+amb_hyb_12_edge_table %>% 
+  filter(r > 0) %>% 
+  filter(FDR < 0.05) %>% 
+  slice_min(order_by = abs(r), n = 10)
+
+
+amb_hyb_12_edge_table %>% 
+  # slice_sample(n = 20000) %>% 
+  ggplot(aes(x = r)) +
+  geom_histogram(color = "white", bins = 100) +
+  geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+
+amb_hyb_12_edge_table_select = amb_hyb_12_edge_table %>% 
+  filter(r > 0.7 | r < -0.7)
+
+
+
+
+
+
+
+
+
+
+amb_hyb_12_node_tab = data.frame(
+  GeneID = c(amb_hyb_12_edge_table_select$from, 
+             amb_hyb_12_edge_table_select$to) %>% 
+    unique()
+) %>% 
+  left_join(annotation_ensemble_genes, 
+            by = c('GeneID')) %>% 
+  rename(functional_annotation = gene_name)
+
+
+amb_hyb_12_network = graph_from_data_frame(
+  amb_hyb_12_edge_table_select,
+  vertices = amb_hyb_12_node_tab,
+  directed = F
+)
+
+amb_hyb_12_modules = cluster_leiden(amb_hyb_12_network, 
+                               resolution = 1, 
+                               objective_function = "modularity")
+
+amb_hyb_12_optimization = purrr::map_dfc(
+  .x = seq(from = 0.25, to = 5, by = 0.25),
+  .f = optimize_resolution, 
+  network = amb_hyb_12_network) %>% 
+  t() %>% 
+  cbind(
+    resolution = seq(from = 0.25, to = 5, by = 0.25)
+  ) %>% 
+  as.data.frame() %>% 
+  rename(num_module = V1,
+         num_contained_gene = V2)
+
+
+amb_hyb_12_optimize_num_module <- amb_hyb_12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_module)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. modules\nw/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+amb_hyb_12_optimize_num_gene = amb_hyb_12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_contained_gene)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. genes in\nmodules w/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+wrap_plots(amb_hyb_12_optimize_num_module, 
+           amb_hyb_12_optimize_num_gene, nrow = 2)
+
+
+
+
+
+
+
+
+amb_hyb_12_network_modules <- data.frame(
+  GeneID = names(membership(amb_hyb_12_modules)),
+  module = as.vector(membership(amb_hyb_12_modules)) 
+) %>% 
+  inner_join(amb_hyb_12_node_tab, by = "GeneID")
+
+amb_hyb_12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5)
+
+amb_hyb_12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5) %>% 
+  ungroup() %>% 
+  summarise(sum = sum(n))
+amb_hyb_12_modules_greater_3 <- amb_hyb_12_network_modules %>%
+  group_by(module) %>%
+  count() %>%
+  arrange(-n) %>%
+  filter(n >= 3)
+amb_hyb_12_network_modules <- amb_hyb_12_network_modules %>%
+  filter(module %in% amb_hyb_12_modules_greater_3$module)
+amb_hyb_12_long = brain_amb_hyb_12 %>% 
+  pivot_longer(!GeneID) %>% 
+  as_tibble() %>% 
+  # slice(-1) %>% 
+  separate(col = name, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample', 
+                    'tissue'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-') %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+amb_hyb_12_high_var_modules = amb_hyb_12_long %>% 
+  inner_join(amb_hyb_12_network_modules,
+             by = 'GeneID')
+amb_hyb_12_modules_mean_exp = amb_hyb_12_high_var_modules %>% 
+  group_by(module, ecotemp) %>% 
+  summarise(mean_exp = mean(value)) %>% 
+  ungroup()
+
+amb_hyb_12_module_peak_exp = amb_hyb_12_modules_mean_exp %>% 
+  group_by(module) %>%
+  slice_max(order_by = mean_exp, n = 1) 
+# 
+# amb_hyb_12_high_var_modules %>% 
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = amb_hyb_12_modules_mean_exp,  
+#             # filter(module == 5 | module == 6), 
+#             aes(x = ecotemp, 
+#                 y = mean_exp, 
+#                 group = module), 
+#             size = 2)+
+#   facet_grid(~module) 
+
+
+
+
+
+
+amb_hyb_12_subnetwork_edges = amb_hyb_12_edge_table_select %>% 
+  # filter(from %in% names(neighbors_of_bait) &
+  #          to %in% names(neighbors_of_bait)) %>% 
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup()
+
+amb_hyb_12_subnetwork_genes = c(amb_hyb_12_subnetwork_edges$from, 
+                           amb_hyb_12_subnetwork_edges$to) %>% 
+  unique()
+
+# length(amb_hyb_12_subnetwork_genes)
+# dim(amb_hyb_12_subnetwork_edges)
+
+
+amb_hyb_12_subnetwork_nodes <- amb_hyb_12_node_tab %>% 
+  filter(GeneID %in% amb_hyb_12_subnetwork_genes) %>% 
+  left_join(amb_hyb_12_network_modules, by = "GeneID") %>% 
+  left_join(amb_hyb_12_module_peak_exp, by = "module") 
+
+amb_hyb_12_subnetwork_nodes$module = as.character(amb_hyb_12_subnetwork_nodes$module)
+
+# %>% 
+#   mutate(module_rename = case_when(
+#     module == '1' ~ '1', 
+#     module == '2' ~ '2', 
+#     module == '4' ~ '3', 
+#     module == '5' ~ '4', 
+#     module == '6' ~ '5', 
+#     module == '8' ~ '6'
+#   ))
+
+dim(amb_hyb_12_subnetwork_nodes)
+
+
+amb_hyb_12_subnetwork <- graph_from_data_frame(amb_hyb_12_subnetwork_edges,
+                                          vertices = amb_hyb_12_subnetwork_nodes,
+                                          directed = T)
+
+
+
+amb_hyb_12_divergence_gene_network = amb_hyb_12_subnetwork %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#023e8a') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+
+
+# Divergence geo vs hyb @12 degrees ---------------------------------------
+
+
+brain_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier') %>% 
+  left_join(., 
+            brain_count_limma, 
+            by = 'GeneID') %>% 
+  select(GeneID, 
+         9:56) %>% 
+  as.data.frame()
+
+
+
+
+
+
+
+row.names(brain_geo_hyb_12) = brain_geo_hyb_12$GeneID
+
+geo_hyb_12_cor_mat = cor(t(brain_geo_hyb_12[,-1]))
+
+number_comparisons = ncol(brain_geo_hyb_12) - 1
+
+geo_hyb_12_cor_mat_upper = geo_hyb_12_cor_mat
+geo_hyb_12_cor_mat_upper[lower.tri(geo_hyb_12_cor_mat_upper)] <- NA
+
+geo_hyb_12_edge_table = geo_hyb_12_cor_mat_upper %>% 
+  as.data.frame() %>% 
+  mutate(from = row.names(geo_hyb_12_cor_mat)) %>% 
+  pivot_longer(cols = !from, 
+               names_to = 'to', 
+               values_to = 'r') %>% 
+  filter(is.na(r) == F) %>% 
+  filter(from != to) %>% 
+  mutate(t = r*sqrt((number_comparisons-2)/(1-r^2))) %>% 
+  mutate(p.value = case_when(
+    t > 0 ~ pt(t, df = number_comparisons-2, lower.tail = F),
+    t <= 0 ~ pt(t, df = number_comparisons-2, lower.tail = F)
+  )) %>% 
+  mutate(FDR = p.adjust(p.value, method = 'fdr'))
+
+
+# geo_hyb_12_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
+
+
+# geo_hyb_12_edge_table %>% 
+#   # slice_sample(n = 20000) %>% 
+#   ggplot(aes(x = r)) +
+#   geom_histogram(color = "white", bins = 100) +
+#   geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
+
+
+geo_hyb_12_edge_table_select = geo_hyb_12_edge_table %>% 
+  filter(r > 0.7 | r < -0.7)
+
+
+
+
+
+
+
+
+
+
+geo_hyb_12_node_tab = data.frame(
+  GeneID = c(geo_hyb_12_edge_table_select$from, 
+             geo_hyb_12_edge_table_select$to) %>% 
+    unique()
+) %>% 
+  left_join(annotation_ensemble_genes, 
+            by = c('GeneID')) %>% 
+  rename(functional_annotation = gene_name)
+
+
+geo_hyb_12_network = graph_from_data_frame(
+  geo_hyb_12_edge_table_select,
+  vertices = geo_hyb_12_node_tab,
+  directed = F
+)
+
+geo_hyb_12_modules = cluster_leiden(geo_hyb_12_network, 
+                                    resolution = 1, 
+                                    objective_function = "modularity")
+
+geo_hyb_12_optimization = purrr::map_dfc(
+  .x = seq(from = 0.25, to = 5, by = 0.25),
+  .f = optimize_resolution, 
+  network = geo_hyb_12_network) %>% 
+  t() %>% 
+  cbind(
+    resolution = seq(from = 0.25, to = 5, by = 0.25)
+  ) %>% 
+  as.data.frame() %>% 
+  rename(num_module = V1,
+         num_contained_gene = V2)
+
+
+geo_hyb_12_optimize_num_module <- geo_hyb_12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_module)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. modules\nw/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+geo_hyb_12_optimize_num_gene = geo_hyb_12_optimization %>% 
+  ggplot(aes(x = resolution, y = num_contained_gene)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. genes in\nmodules w/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+wrap_plots(geo_hyb_12_optimize_num_module, 
+           geo_hyb_12_optimize_num_gene, nrow = 2)
+
+
+
+
+
+
+
+
+geo_hyb_12_network_modules <- data.frame(
+  GeneID = names(membership(geo_hyb_12_modules)),
+  module = as.vector(membership(geo_hyb_12_modules)) 
+) %>% 
+  inner_join(geo_hyb_12_node_tab, by = "GeneID")
+
+geo_hyb_12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5)
+
+geo_hyb_12_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5) %>% 
+  ungroup() %>% 
+  summarise(sum = sum(n))
+geo_hyb_12_modules_greater_3 <- geo_hyb_12_network_modules %>%
+  group_by(module) %>%
+  count() %>%
+  arrange(-n) %>%
+  filter(n >= 3)
+geo_hyb_12_network_modules <- geo_hyb_12_network_modules %>%
+  filter(module %in% geo_hyb_12_modules_greater_3$module)
+geo_hyb_12_long = brain_geo_hyb_12 %>% 
+  pivot_longer(!GeneID) %>% 
+  as_tibble() %>% 
+  # slice(-1) %>% 
+  separate(col = name, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample', 
+                    'tissue'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-') %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+geo_hyb_12_high_var_modules = geo_hyb_12_long %>% 
+  inner_join(geo_hyb_12_network_modules,
+             by = 'GeneID')
+geo_hyb_12_modules_mean_exp = geo_hyb_12_high_var_modules %>% 
+  group_by(module, ecotemp) %>% 
+  summarise(mean_exp = mean(value)) %>% 
+  ungroup()
+
+geo_hyb_12_module_peak_exp = geo_hyb_12_modules_mean_exp %>% 
+  group_by(module) %>%
+  slice_max(order_by = mean_exp, n = 1) 
+# 
+# geo_hyb_12_high_var_modules %>% 
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = geo_hyb_12_modules_mean_exp,  
+#             # filter(module == 5 | module == 6), 
+#             aes(x = ecotemp, 
+#                 y = mean_exp, 
+#                 group = module), 
+#             size = 2)+
+#   facet_grid(~module) 
+
+
+
+
+
+
+geo_hyb_12_subnetwork_edges = geo_hyb_12_edge_table_select %>% 
+  # filter(from %in% names(neighbors_of_bait) &
+  #          to %in% names(neighbors_of_bait)) %>% 
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup()
+
+geo_hyb_12_subnetwork_genes = c(geo_hyb_12_subnetwork_edges$from, 
+                                geo_hyb_12_subnetwork_edges$to) %>% 
+  unique()
+
+# length(geo_hyb_12_subnetwork_genes)
+# dim(geo_hyb_12_subnetwork_edges)
+
+
+geo_hyb_12_subnetwork_nodes <- geo_hyb_12_node_tab %>% 
+  filter(GeneID %in% geo_hyb_12_subnetwork_genes) %>% 
+  left_join(geo_hyb_12_network_modules, by = "GeneID") %>% 
+  left_join(geo_hyb_12_module_peak_exp, by = "module") %>% 
+  select(GeneID, 
+         functional_annotation.x, 
+         module, 
+         ecotemp, 
+         mean_exp)
+
+geo_hyb_12_subnetwork_nodes$module = as.character(geo_hyb_12_subnetwork_nodes$module)
+
+# %>% 
+#   mutate(module_rename = case_when(
+#     module == '1' ~ '1', 
+#     module == '2' ~ '2', 
+#     module == '4' ~ '3', 
+#     module == '5' ~ '4', 
+#     module == '6' ~ '5', 
+#     module == '8' ~ '6'
+#   ))
+
+dim(geo_hyb_12_subnetwork_nodes)
+
+
+geo_hyb_12_subnetwork <- graph_from_data_frame(geo_hyb_12_subnetwork_edges,
+                                               vertices = geo_hyb_12_subnetwork_nodes,
+                                               directed = T)
+
+
+
+geo_hyb_12_divergence_gene_network = geo_hyb_12_subnetwork %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#023e8a') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+
+# Combine the three graphs ------------------------------------------------
+
+
+## Need to output the Igraph files as Networks. 
+## These can then be put into Cytoscape to be merged
+## and to better visualize the network
+createNetworkFromIgraph(eco12_subnetwork)
+
+createNetworkFromIgraph(amb_hyb_12_subnetwork)
+
+createNetworkFromIgraph(geo_hyb_12_subnetwork)
 
