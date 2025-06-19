@@ -2149,7 +2149,8 @@ eco12_subnetwork_genes = c(eco12_subnetwork_edges$from,
 eco12_subnetwork_nodes <- eco12_node_tab %>% 
   filter(GeneID %in% eco12_subnetwork_genes) %>% 
   left_join(eco12_network_modules, by = "GeneID") %>% 
-  left_join(eco12_module_peak_exp, by = "module") 
+  left_join(eco12_module_peak_exp, by = "module") %>% 
+  mutate(NetworkID = 'SKRC_vs_SKRW_12')
 
 eco12_subnetwork_nodes$module = as.character(eco12_subnetwork_nodes$module)
 
@@ -2446,7 +2447,8 @@ amb_hyb_12_subnetwork_genes = c(amb_hyb_12_subnetwork_edges$from,
 amb_hyb_12_subnetwork_nodes <- amb_hyb_12_node_tab %>% 
   filter(GeneID %in% amb_hyb_12_subnetwork_genes) %>% 
   left_join(amb_hyb_12_network_modules, by = "GeneID") %>% 
-  left_join(amb_hyb_12_module_peak_exp, by = "module") 
+  left_join(amb_hyb_12_module_peak_exp, by = "module") %>% 
+  mutate(NetworkID = 'Amb_Hyb_12')
 
 amb_hyb_12_subnetwork_nodes$module = as.character(amb_hyb_12_subnetwork_nodes$module)
 
@@ -2566,7 +2568,8 @@ geo_hyb_12_edge_table = geo_hyb_12_cor_mat_upper %>%
 
 
 geo_hyb_12_edge_table_select = geo_hyb_12_edge_table %>% 
-  filter(r > 0.7 | r < -0.7)
+  filter(r > 0.7 | r < -0.7) %>% 
+  mutate(NetworkID = 'Geo_vs_Hyb_12')
 
 
 
@@ -2650,7 +2653,8 @@ geo_hyb_12_network_modules <- data.frame(
   GeneID = names(membership(geo_hyb_12_modules)),
   module = as.vector(membership(geo_hyb_12_modules)) 
 ) %>% 
-  inner_join(geo_hyb_12_node_tab, by = "GeneID")
+  inner_join(geo_hyb_12_node_tab, by = "GeneID") %>% 
+  mutate(NetworkID = 'Geo_vs_Hyb_12')
 
 geo_hyb_12_network_modules %>% 
   group_by(module) %>% 
@@ -2748,7 +2752,8 @@ geo_hyb_12_subnetwork_nodes <- geo_hyb_12_node_tab %>%
          functional_annotation.x, 
          module, 
          ecotemp, 
-         mean_exp)
+         mean_exp) %>% 
+  mutate(NetworkID = 'Geo_vs_Hyb_12')
 
 geo_hyb_12_subnetwork_nodes$module = as.character(geo_hyb_12_subnetwork_nodes$module)
 
