@@ -3251,7 +3251,7 @@ geo_hyb_18_edge_table = geo_hyb_18_cor_mat_upper %>%
 
 geo_hyb_18_edge_table_select = geo_hyb_18_edge_table %>% 
   filter(r > 0.7 | r < -0.7) %>% 
-  mutate(NetworkID = 'Geo_vs_Hyb_18')
+  filter(FDR <= 0.05)
 
 
 
@@ -3279,7 +3279,7 @@ geo_hyb_18_network = graph_from_data_frame(
 )
 
 geo_hyb_18_modules = cluster_leiden(geo_hyb_18_network, 
-                                    resolution = 1, 
+                                    resolution = 2, 
                                     objective_function = "modularity")
 
 geo_hyb_18_optimization = purrr::map_dfc(
@@ -3355,7 +3355,7 @@ geo_hyb_18_modules_greater_3 <- geo_hyb_18_network_modules %>%
   group_by(module) %>%
   count() %>%
   arrange(-n) %>%
-  filter(n >= 3)
+  filter(n >= 5)
 geo_hyb_18_network_modules <- geo_hyb_18_network_modules %>%
   filter(module %in% geo_hyb_18_modules_greater_3$module)
 geo_hyb_18_long = brain_geo_hyb_18 %>% 
