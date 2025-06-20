@@ -2931,11 +2931,11 @@ amb_hyb_18_edge_table = amb_hyb_18_cor_mat_upper %>%
   )) %>% 
   mutate(FDR = p.adjust(p.value, method = 'fdr'))
 
-
-amb_hyb_18_edge_table %>% 
-  filter(r > 0) %>% 
-  filter(FDR < 0.05) %>% 
-  slice_min(order_by = abs(r), n = 10)
+# 
+# amb_hyb_18_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
 
 
 # amb_hyb_18_edge_table %>% 
@@ -2951,7 +2951,8 @@ amb_hyb_18_edge_table %>%
 
 
 amb_hyb_18_edge_table_select = amb_hyb_18_edge_table %>% 
-  filter(r > 0.7 | r < -0.7)
+  filter(r > 0.7 | r < -0.7) %>% 
+  filter(FDR <= 0.05)
 
 
 
@@ -2979,7 +2980,7 @@ amb_hyb_18_network = graph_from_data_frame(
 )
 
 amb_hyb_18_modules = cluster_leiden(amb_hyb_18_network, 
-                                    resolution = 1, 
+                                    resolution = 1.75, 
                                     objective_function = "modularity")
 
 amb_hyb_18_optimization = purrr::map_dfc(
@@ -2995,35 +2996,35 @@ amb_hyb_18_optimization = purrr::map_dfc(
          num_contained_gene = V2)
 
 
-# amb_hyb_18_optimize_num_module <- amb_hyb_18_optimization %>% 
-#   ggplot(aes(x = resolution, y = num_module)) +
-#   geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
-#   geom_point(size = 3, alpha = 0.7) +
-#   geom_vline(xintercept = 1, size = 1, linetype = 4) +
-#   labs(x = "resolution parameter",
-#        y = "num. modules\nw/ >=5 genes") +
-#   theme_classic() +
-#   theme(
-#     text = element_text(size = 14),
-#     axis.text = element_text(color = "black")
-#   )
-# 
-# amb_hyb_18_optimize_num_gene = amb_hyb_18_optimization %>% 
-#   ggplot(aes(x = resolution, y = num_contained_gene)) +
-#   geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
-#   geom_point(size = 3, alpha = 0.7) +
-#   geom_vline(xintercept = 1, size = 1, linetype = 4) +
-#   labs(x = "resolution parameter",
-#        y = "num. genes in\nmodules w/ >=5 genes") +
-#   theme_classic() +
-#   theme(
-#     text = element_text(size = 14),
-#     axis.text = element_text(color = "black")
-#   )
-# 
-# wrap_plots(amb_hyb_18_optimize_num_module, 
-#            amb_hyb_18_optimize_num_gene, nrow = 2)
-# 
+amb_hyb_18_optimize_num_module <- amb_hyb_18_optimization %>%
+  ggplot(aes(x = resolution, y = num_module)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. modules\nw/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+amb_hyb_18_optimize_num_gene = amb_hyb_18_optimization %>%
+  ggplot(aes(x = resolution, y = num_contained_gene)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. genes in\nmodules w/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+wrap_plots(amb_hyb_18_optimize_num_module,
+           amb_hyb_18_optimize_num_gene, nrow = 2)
+
 
 
 
@@ -3037,24 +3038,24 @@ amb_hyb_18_network_modules <- data.frame(
 ) %>% 
   inner_join(amb_hyb_18_node_tab, by = "GeneID")
 
-amb_hyb_18_network_modules %>% 
-  group_by(module) %>% 
-  count() %>% 
-  arrange(-n) %>% 
-  filter(n >= 5)
+# amb_hyb_18_network_modules %>% 
+#   group_by(module) %>% 
+#   count() %>% 
+#   arrange(-n) %>% 
+#   filter(n >= 5)
 
 amb_hyb_18_network_modules %>% 
   group_by(module) %>% 
   count() %>% 
   arrange(-n) %>% 
   filter(n >= 5) %>% 
-  ungroup() %>% 
+  # ungroup() %>% 
   summarise(sum = sum(n))
 amb_hyb_18_modules_greater_3 <- amb_hyb_18_network_modules %>%
   group_by(module) %>%
   count() %>%
   arrange(-n) %>%
-  filter(n >= 3)
+  filter(n >= 5)
 amb_hyb_18_network_modules <- amb_hyb_18_network_modules %>%
   filter(module %in% amb_hyb_18_modules_greater_3$module)
 amb_hyb_18_long = brain_amb_hyb_18 %>% 
