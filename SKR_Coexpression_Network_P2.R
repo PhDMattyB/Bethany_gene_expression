@@ -3506,3 +3506,34 @@ createNetworkFromIgraph(geo_hyb_18_subnetwork)
 
 
 
+# Divergence network gene ontology overlap --------------------------------
+
+div_pure_hyb_12_GO = read_csv('Cyto_Div_Pure_vs_Hyb_12_intersection_Zebrafish_GeneNetOntology.csv') %>% 
+  select(-`chart color`) %>% 
+  select(description, 
+         `intersecting genes`, 
+         `p-value`, 
+         source, 
+         `term id`) %>% 
+  rename(intersecting_genes = `intersecting genes`, 
+         GO_term = `term id`)
+
+div_pure_hyb_18_GO = read_csv('Cyto_Div_Pure_vs_Hyb_18_intersection_Zebrafish_GeneNetOntology.csv') %>% 
+  select(-`chart color`) %>% 
+  select(description, 
+         `intersecting genes`, 
+         `p-value`, 
+         source, 
+         `term id`) %>% 
+  rename(intersecting_genes = `intersecting genes`, 
+         GO_term = `term id`)
+
+
+inner_join(div_pure_hyb_12_GO, 
+           div_pure_hyb_18_GO, 
+           by = 'intersecting_genes')
+
+inner_join(div_pure_hyb_12_GO, 
+           div_pure_hyb_18_GO, 
+           by = 'GO_term') %>% 
+  write_csv('GO_Div_Pure_vs_Hyb_both_temps.csv')
