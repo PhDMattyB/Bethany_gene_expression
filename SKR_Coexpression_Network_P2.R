@@ -3533,7 +3533,41 @@ inner_join(div_pure_hyb_12_GO,
            div_pure_hyb_18_GO, 
            by = 'intersecting_genes')
 
-inner_join(div_pure_hyb_12_GO, 
+div_pure_hyb_bothtemps = inner_join(div_pure_hyb_12_GO, 
            div_pure_hyb_18_GO, 
            by = 'GO_term') %>% 
-  write_csv('GO_Div_Pure_vs_Hyb_both_temps.csv')
+  select(-description.x, 
+         -description.y)
+
+
+
+div_pure_hyb_bothtemps %>% 
+  rowid_to_column() %>% 
+  rename(Network_ID = rowid) %>% 
+  # you can apply the previous to each row using map
+  mutate(split = map(intersecting_genes.x, ~ str_split(.x, "\\|")[[1]])) %>% 
+  # then unnest the column before further data prep
+  unnest(split) %>% 
+  mutate(split2 = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>% 
+  # then unnest the column before further data prep
+  unnest(split2) %>% 
+  select(GO_term,
+         Network_ID,
+         source.x, 
+         source.y, 
+         split, 
+         split2) 
+
+## try this
+df %>%
+  filter(year %in% 
+           (combn(unique(df$year), 2) %>%
+              t() %>% 
+              as.data.frame() %>%
+              mutate(common = pmap_lgl(., ~ length(intersect(df$var1[df$year == ..1], df$var2[df$year == ..2])) > 0)) %>%
+              filter(common) %>%
+              select(-common) %>%
+              unlist() %>%
+              unique()))  
+
+
