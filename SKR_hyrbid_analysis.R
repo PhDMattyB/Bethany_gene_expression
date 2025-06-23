@@ -468,6 +468,10 @@ transgressive2 = exp_pattern_12 %>%
   filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
   mutate(exp_pattern = 'Transgressive')
 
+# bind_rows(transgressive1, 
+#           transgressive2) %>% 
+#   write_csv('Brain_Transgressive_expression_12degrees.csv')
+
 exp_pattern_12_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
                                  dom_geo1,
@@ -560,6 +564,10 @@ transgressive1 = exp_pattern_18 %>%
 transgressive2 = exp_pattern_18 %>% 
   filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
   mutate(exp_pattern = 'Transgressive')
+
+bind_rows(transgressive1, 
+          transgressive2) %>% 
+  write_csv('Brain_Transgressive_expression_18degrees.csv')
 
 exp_pattern_18_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
