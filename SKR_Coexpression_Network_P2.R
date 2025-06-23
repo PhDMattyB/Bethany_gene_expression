@@ -3573,26 +3573,38 @@ pure_hyb_18_genes = div_pure_hyb_bothtemps %>%
          source.y, 
          split) 
 
+test = intersect(pure_hyb_12_genes, 
+          pure_hyb_18_genes)
 
-intersect(pure_hyb_12_genes, 
+test$source.x == test$source.y
+
+Div_Pure_Hyb_Both_Temp_Genes = intersect(pure_hyb_12_genes, 
           pure_hyb_18_genes) %>% 
-  group_by(Network_ID) %>% 
-  distinct(GO_term, 
+  group_by(Network_ID, 
            split) %>% 
-  arrange(Network_ID) %>% 
+  distinct(GO_term,
+           source.x,
+           split) %>% 
+  arrange(source.x, 
+          Network_ID, 
+          split) 
+
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  group_by(source.x) %>% 
+  summarize(n = n())
+
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  group_by(Network_ID) %>% 
+  summarize(n = n())
+
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  filter(source.x == 'Gene Ontology Biological Process') %>% View()
+
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  filter(source.x == 'Gene Ontology Cellular Component branch') %>% 
   View()
 
-
-## try this
-df %>%
-  filter(year %in% 
-           (combn(unique(df$year), 2) %>%
-              t() %>% 
-              as.data.frame() %>%
-              mutate(common = pmap_lgl(., ~ length(intersect(df$var1[df$year == ..1], df$var2[df$year == ..2])) > 0)) %>%
-              filter(common) %>%
-              select(-common) %>%
-              unlist() %>%
-              unique()))  
-
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  filter(source.x == 'Gene Ontology Molecular Function') %>% 
+  View()
 
