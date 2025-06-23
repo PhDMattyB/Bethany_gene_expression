@@ -3607,4 +3607,6 @@ Div_Pure_Hyb_Both_Temp_Genes %>%
 Div_Pure_Hyb_Both_Temp_Genes %>% 
   filter(source.x == 'Gene Ontology Molecular Function') %>% 
   View()
-
+Div_Pure_Hyb_Both_Temp_Genes %>% 
+  filter(source.x == 'KEGG') %>% 
+  View()
