@@ -4844,7 +4844,9 @@ geo_hyb_18_divergence_gene_network = geo_hyb_18_subnetwork %>%
 ## Need to output the Igraph files as Networks. 
 ## These can then be put into Cytoscape to be merged
 ## and to better visualize the network
-createNetworkFromIgraph(eco18_subnetwork)
+createNetworkFromIgraph(amb_hyb_12_subnetwork)
+
+createNetworkFromIgraph(geo_hyb_12_subnetwork)
 
 createNetworkFromIgraph(amb_hyb_18_subnetwork)
 
