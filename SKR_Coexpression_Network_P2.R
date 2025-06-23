@@ -3624,7 +3624,7 @@ Div_Pure_Hyb_Both_Temp_Genes %>%
 
 # Transgressive expression - Gene Network ---------------------------------
 
-# Transgressive expression 12 degrees -------------------------------------
+# Transgressive expression  -------------------------------------
 
 Gene_ID_12 = read_csv("Brain_Transgressive_expression_12degrees.csv")
 
@@ -3675,11 +3675,11 @@ amb_hyb_12_edge_table = amb_hyb_12_cor_mat_upper %>%
   )) %>% 
   mutate(FDR = p.adjust(p.value, method = 'fdr'))
 
-
-amb_hyb_12_edge_table %>% 
-  filter(r > 0) %>% 
-  filter(FDR < 0.05) %>% 
-  slice_min(order_by = abs(r), n = 10)
+# 
+# amb_hyb_12_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
 
 
 amb_hyb_12_edge_table %>% 
@@ -3850,12 +3850,40 @@ amb_hyb_12_module_peak_exp = amb_hyb_12_modules_mean_exp %>%
 
 
 
+# length(amb_hyb_12_subnetwork_genes)
+# dim(amb_hyb_12_subnetwork_edges)
+
+
+# amb_hyb_12_subnetwork_nodes <- amb_hyb_12_node_tab %>% 
+#   filter(GeneID %in% amb_hyb_12_subnetwork_genes) %>% 
+#   left_join(amb_hyb_12_network_modules, by = c('GeneID', 
+#                                                'functional_annotation')) %>% 
+#   left_join(amb_hyb_12_module_peak_exp, by = "module") %>% 
+#   na.omit() %>% 
+#   mutate(Network_ID = 'trans_amb_hyb_12')
+
+
+amb_hyb_12_subnetwork_nodes = amb_hyb_12_node_tab %>% 
+  filter(GeneID %in% amb_hyb_12_subnetwork_genes) %>% 
+  inner_join(amb_hyb_12_network_modules, by = c('GeneID', 
+                                               'functional_annotation')) %>% 
+  left_join(amb_hyb_12_module_peak_exp, by = "module") %>% 
+  na.omit() %>% 
+  mutate(Network_ID = 'trans_amb_hyb_12')
+
+
+
+amb_hyb_12_genes_in_net = amb_hyb_12_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
 
 
 
 amb_hyb_12_subnetwork_edges = amb_hyb_12_edge_table_select %>% 
-  # filter(from %in% names(neighbors_of_bait) &
-  #          to %in% names(neighbors_of_bait)) %>% 
+  filter(from %in% names(amb_hyb_12_genes_in_net) &
+           to %in% names(amb_hyb_12_genes_in_net)) %>%
   group_by(from) %>% 
   slice_max(order_by = r, n = 5) %>% 
   ungroup() %>% 
@@ -3866,17 +3894,6 @@ amb_hyb_12_subnetwork_edges = amb_hyb_12_edge_table_select %>%
 amb_hyb_12_subnetwork_genes = c(amb_hyb_12_subnetwork_edges$from, 
                                 amb_hyb_12_subnetwork_edges$to) %>% 
   unique()
-
-# length(amb_hyb_12_subnetwork_genes)
-# dim(amb_hyb_12_subnetwork_edges)
-
-
-amb_hyb_12_subnetwork_nodes <- amb_hyb_12_node_tab %>% 
-  filter(GeneID %in% amb_hyb_12_subnetwork_genes) %>% 
-  left_join(amb_hyb_12_network_modules, by = c('GeneID', 
-                                               'functional_annotation')) %>% 
-  left_join(amb_hyb_12_module_peak_exp, by = "module") 
-
 
 amb_hyb_12_subnetwork_nodes$module = as.character(amb_hyb_12_subnetwork_nodes$module)
 
@@ -3895,7 +3912,7 @@ dim(amb_hyb_12_subnetwork_nodes)
 
 amb_hyb_12_subnetwork <- graph_from_data_frame(amb_hyb_12_subnetwork_edges,
                                                vertices = amb_hyb_12_subnetwork_nodes,
-                                               directed = T)
+                                               directed = F)
 
 
 
@@ -4157,19 +4174,19 @@ geo_hyb_12_module_peak_exp = geo_hyb_12_modules_mean_exp %>%
 
 
 
-geo_hyb_12_subnetwork_edges = geo_hyb_12_edge_table_select %>% 
-  # filter(from %in% names(neighbors_of_bait) &
-  #          to %in% names(neighbors_of_bait)) %>% 
-  group_by(from) %>% 
-  slice_max(order_by = r, n = 5) %>% 
-  ungroup() %>% 
-  group_by(to) %>% 
-  slice_max(order_by = r, n = 5) %>% 
-  ungroup()
-
-geo_hyb_12_subnetwork_genes = c(geo_hyb_12_subnetwork_edges$from, 
-                                geo_hyb_12_subnetwork_edges$to) %>% 
-  unique()
+# geo_hyb_12_subnetwork_edges = geo_hyb_12_edge_table_select %>% 
+#   # filter(from %in% names(neighbors_of_bait) &
+#   #          to %in% names(neighbors_of_bait)) %>% 
+#   group_by(from) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup() %>% 
+#   group_by(to) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup()
+# 
+# geo_hyb_12_subnetwork_genes = c(geo_hyb_12_subnetwork_edges$from, 
+#                                 geo_hyb_12_subnetwork_edges$to) %>% 
+#   unique()
 
 # length(geo_hyb_12_subnetwork_genes)
 # dim(geo_hyb_12_subnetwork_edges)
@@ -4185,6 +4202,30 @@ geo_hyb_12_subnetwork_nodes <- geo_hyb_12_node_tab %>%
          ecotemp, 
          mean_exp) %>% 
   mutate(NetworkID = 'Trans_Geo_vs_Hyb_12')
+
+
+geo_hyb_12_genes_in_net = geo_hyb_12_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+
+geo_hyb_12_subnetwork_edges = geo_hyb_12_edge_table_select %>% 
+  filter(from %in% names(geo_hyb_12_genes_in_net) &
+           to %in% names(geo_hyb_12_genes_in_net)) %>%
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+geo_hyb_12_subnetwork_genes = c(geo_hyb_12_subnetwork_edges$from, 
+                                geo_hyb_12_subnetwork_edges$to) %>% 
+  unique()
+
 
 geo_hyb_12_subnetwork_nodes$module = as.character(geo_hyb_12_subnetwork_nodes$module)
 
@@ -4457,9 +4498,41 @@ amb_hyb_18_module_peak_exp = amb_hyb_18_modules_mean_exp %>%
 
 
 
+# amb_hyb_18_subnetwork_edges = amb_hyb_18_edge_table_select %>% 
+#   # filter(from %in% names(neighbors_of_bait) &
+#   #          to %in% names(neighbors_of_bait)) %>% 
+#   group_by(from) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup() %>% 
+#   group_by(to) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup()
+# 
+# amb_hyb_18_subnetwork_genes = c(amb_hyb_18_subnetwork_edges$from, 
+#                                 amb_hyb_18_subnetwork_edges$to) %>% 
+#   unique()
+
+# length(amb_hyb_18_subnetwork_genes)
+# dim(amb_hyb_18_subnetwork_edges)
+
+
+amb_hyb_18_subnetwork_nodes <- amb_hyb_18_node_tab %>% 
+  filter(GeneID %in% amb_hyb_18_subnetwork_genes) %>% 
+  left_join(amb_hyb_18_network_modules, by = "GeneID") %>% 
+  left_join(amb_hyb_18_module_peak_exp, by = "module") %>% 
+  mutate(NetworkID = 'Amb_Hyb_18')
+
+amb_hyb_18_genes_in_net = amb_hyb_18_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+
 amb_hyb_18_subnetwork_edges = amb_hyb_18_edge_table_select %>% 
-  # filter(from %in% names(neighbors_of_bait) &
-  #          to %in% names(neighbors_of_bait)) %>% 
+  filter(from %in% names(amb_hyb_18_genes_in_net) &
+           to %in% names(amb_hyb_18_genes_in_net)) %>%
   group_by(from) %>% 
   slice_max(order_by = r, n = 5) %>% 
   ungroup() %>% 
@@ -4471,15 +4544,7 @@ amb_hyb_18_subnetwork_genes = c(amb_hyb_18_subnetwork_edges$from,
                                 amb_hyb_18_subnetwork_edges$to) %>% 
   unique()
 
-# length(amb_hyb_18_subnetwork_genes)
-# dim(amb_hyb_18_subnetwork_edges)
 
-
-amb_hyb_18_subnetwork_nodes <- amb_hyb_18_node_tab %>% 
-  filter(GeneID %in% amb_hyb_18_subnetwork_genes) %>% 
-  left_join(amb_hyb_18_network_modules, by = "GeneID") %>% 
-  left_join(amb_hyb_18_module_peak_exp, by = "module") %>% 
-  mutate(NetworkID = 'Amb_Hyb_18')
 
 amb_hyb_18_subnetwork_nodes$module = as.character(amb_hyb_18_subnetwork_nodes$module)
 
@@ -4755,19 +4820,19 @@ geo_hyb_18_module_peak_exp = geo_hyb_18_modules_mean_exp %>%
 
 
 
-geo_hyb_18_subnetwork_edges = geo_hyb_18_edge_table_select %>% 
-  # filter(from %in% names(neighbors_of_bait) &
-  #          to %in% names(neighbors_of_bait)) %>% 
-  group_by(from) %>% 
-  slice_max(order_by = r, n = 5) %>% 
-  ungroup() %>% 
-  group_by(to) %>% 
-  slice_max(order_by = r, n = 5) %>% 
-  ungroup()
-
-geo_hyb_18_subnetwork_genes = c(geo_hyb_18_subnetwork_edges$from, 
-                                geo_hyb_18_subnetwork_edges$to) %>% 
-  unique()
+# geo_hyb_18_subnetwork_edges = geo_hyb_18_edge_table_select %>% 
+#   # filter(from %in% names(neighbors_of_bait) &
+#   #          to %in% names(neighbors_of_bait)) %>% 
+#   group_by(from) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup() %>% 
+#   group_by(to) %>% 
+#   slice_max(order_by = r, n = 5) %>% 
+#   ungroup()
+# 
+# geo_hyb_18_subnetwork_genes = c(geo_hyb_18_subnetwork_edges$from, 
+#                                 geo_hyb_18_subnetwork_edges$to) %>% 
+#   unique()
 
 # length(geo_hyb_18_subnetwork_genes)
 # dim(geo_hyb_18_subnetwork_edges)
@@ -4783,6 +4848,30 @@ geo_hyb_18_subnetwork_nodes <- geo_hyb_18_node_tab %>%
          ecotemp, 
          mean_exp) %>% 
   mutate(NetworkID = 'Geo_vs_Hyb_18')
+
+
+
+geo_hyb_18_genes_in_net = geo_hyb_18_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+
+geo_hyb_18_subnetwork_edges = geo_hyb_18_edge_table_select %>% 
+  filter(from %in% names(geo_hyb_18_genes_in_net) &
+           to %in% names(geo_hyb_18_genes_in_net)) %>%
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+geo_hyb_18_subnetwork_genes = c(geo_hyb_18_subnetwork_edges$from, 
+                                geo_hyb_18_subnetwork_edges$to) %>% 
+  unique()
 
 geo_hyb_18_subnetwork_nodes$module = as.character(geo_hyb_18_subnetwork_nodes$module)
 
