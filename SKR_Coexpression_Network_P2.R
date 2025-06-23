@@ -3828,7 +3828,8 @@ amb_hyb_12_high_var_modules = amb_hyb_12_long %>%
              by = 'GeneID')
 amb_hyb_12_modules_mean_exp = amb_hyb_12_high_var_modules %>% 
   group_by(module, ecotemp) %>% 
-  filter(ecotemp == 'SKRHYB_12') %>% 
+  filter(ecotemp %in% c('SKRHYB_12', 
+                        'SKRC_12')) %>% 
   summarise(mean_exp = mean(value)) %>% 
   ungroup()
 
@@ -4151,11 +4152,13 @@ geo_hyb_12_high_var_modules = geo_hyb_12_long %>%
 geo_hyb_12_modules_mean_exp = geo_hyb_12_high_var_modules %>% 
   group_by(module, ecotemp) %>% 
   summarise(mean_exp = mean(value)) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(ecotemp %in% c('SKRW_12', 
+                        'SKRHYB_12'))
 
 geo_hyb_12_module_peak_exp = geo_hyb_12_modules_mean_exp %>% 
   group_by(module) %>%
-  slice_max(order_by = mean_exp, n = 1) 
+  slice_max(order_by = mean_exp, n = 1)
 # 
 # geo_hyb_12_high_var_modules %>% 
 #   # filter(module == 5 | module == 6) %>%
@@ -4194,14 +4197,16 @@ geo_hyb_12_module_peak_exp = geo_hyb_12_modules_mean_exp %>%
 
 geo_hyb_12_subnetwork_nodes <- geo_hyb_12_node_tab %>% 
   filter(GeneID %in% geo_hyb_12_subnetwork_genes) %>% 
-  left_join(geo_hyb_12_network_modules, by = "GeneID") %>% 
+  left_join(geo_hyb_12_network_modules, by = c('GeneID', 
+                                               'functional_annotation')) %>% 
   left_join(geo_hyb_12_module_peak_exp, by = "module") %>% 
   select(GeneID, 
-         functional_annotation.x, 
+         functional_annotation, 
          module, 
          ecotemp, 
          mean_exp) %>% 
-  mutate(NetworkID = 'Trans_Geo_vs_Hyb_12')
+  mutate(NetworkID = 'Trans_Geo_vs_Hyb_12') %>% 
+  na.omit()
 
 
 geo_hyb_12_genes_in_net = geo_hyb_12_subnetwork_nodes %>% 
@@ -4474,6 +4479,8 @@ amb_hyb_18_high_var_modules = amb_hyb_18_long %>%
              by = 'GeneID')
 amb_hyb_18_modules_mean_exp = amb_hyb_18_high_var_modules %>% 
   group_by(module, ecotemp) %>% 
+  filter(ecotemp %in% c('SKRC_18', 
+                        'SKRHYB_18')) %>% 
   summarise(mean_exp = mean(value)) %>% 
   ungroup()
 
@@ -4518,9 +4525,11 @@ amb_hyb_18_module_peak_exp = amb_hyb_18_modules_mean_exp %>%
 
 amb_hyb_18_subnetwork_nodes <- amb_hyb_18_node_tab %>% 
   filter(GeneID %in% amb_hyb_18_subnetwork_genes) %>% 
-  left_join(amb_hyb_18_network_modules, by = "GeneID") %>% 
+  left_join(amb_hyb_18_network_modules, by = c('GeneID', 
+                                               'functional_annotation')) %>% 
   left_join(amb_hyb_18_module_peak_exp, by = "module") %>% 
-  mutate(NetworkID = 'Amb_Hyb_18')
+  mutate(NetworkID = 'Amb_Hyb_18') %>% 
+  na.omit()
 
 amb_hyb_18_genes_in_net = amb_hyb_18_subnetwork_nodes %>% 
   select(GeneID) %>% 
@@ -4796,6 +4805,8 @@ geo_hyb_18_high_var_modules = geo_hyb_18_long %>%
              by = 'GeneID')
 geo_hyb_18_modules_mean_exp = geo_hyb_18_high_var_modules %>% 
   group_by(module, ecotemp) %>% 
+  filter(ecotemp %in% c('SKRW_18', 
+                        'SKRHYB_18')) %>% 
   summarise(mean_exp = mean(value)) %>% 
   ungroup()
 
@@ -4840,14 +4851,16 @@ geo_hyb_18_module_peak_exp = geo_hyb_18_modules_mean_exp %>%
 
 geo_hyb_18_subnetwork_nodes <- geo_hyb_18_node_tab %>% 
   filter(GeneID %in% geo_hyb_18_subnetwork_genes) %>% 
-  left_join(geo_hyb_18_network_modules, by = "GeneID") %>% 
+  left_join(geo_hyb_18_network_modules, by = c('GeneID', 
+                                               'functional_annotation')) %>% 
   left_join(geo_hyb_18_module_peak_exp, by = "module") %>% 
   select(GeneID, 
-         functional_annotation.x, 
+         functional_annotation, 
          module, 
          ecotemp, 
          mean_exp) %>% 
-  mutate(NetworkID = 'Geo_vs_Hyb_18')
+  mutate(NetworkID = 'Geo_vs_Hyb_18') %>% 
+  na.omit()
 
 
 
