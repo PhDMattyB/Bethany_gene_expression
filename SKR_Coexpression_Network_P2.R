@@ -3541,22 +3541,47 @@ div_pure_hyb_bothtemps = inner_join(div_pure_hyb_12_GO,
 
 
 
-div_pure_hyb_bothtemps %>% 
+pure_hyb_12_genes = div_pure_hyb_bothtemps %>% 
   rowid_to_column() %>% 
   rename(Network_ID = rowid) %>% 
   # you can apply the previous to each row using map
   mutate(split = map(intersecting_genes.x, ~ str_split(.x, "\\|")[[1]])) %>% 
   # then unnest the column before further data prep
   unnest(split) %>% 
-  mutate(split2 = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>% 
+  # mutate(split2 = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>% 
   # then unnest the column before further data prep
-  unnest(split2) %>% 
+  # unnest(split2) %>% 
   select(GO_term,
          Network_ID,
          source.x, 
          source.y, 
-         split, 
-         split2) 
+         split) 
+
+pure_hyb_18_genes = div_pure_hyb_bothtemps %>% 
+  rowid_to_column() %>% 
+  rename(Network_ID = rowid) %>% 
+  # you can apply the previous to each row using map
+  # mutate(split = map(intersecting_genes.x, ~ str_split(.x, "\\|")[[1]])) %>% 
+  # then unnest the column before further data prep
+  # unnest(split) %>% 
+  mutate(split = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>%
+  # then unnest the column before further data prep
+  unnest(split) %>%
+  select(GO_term,
+         Network_ID,
+         source.x, 
+         source.y, 
+         split) 
+
+
+intersect(pure_hyb_12_genes, 
+          pure_hyb_18_genes) %>% 
+  group_by(Network_ID) %>% 
+  distinct(GO_term, 
+           split) %>% 
+  arrange(Network_ID) %>% 
+  View()
+
 
 ## try this
 df %>%
