@@ -5032,17 +5032,17 @@ div_pure_hyb_18_GO %>%
   select(GO_term) %>%
   distinct()
 
-div_pure_hyb_18_GO %>% 
-  filter(source == 'Gene Ontology Biological Process')%>% 
-  View()
-div_pure_hyb_18_GO %>% 
-  filter(source == 'Gene Ontology Biological Process') %>% 
-  select(GO_term) %>% 
-  distinct()
-
-div_pure_hyb_18_GO %>% 
-  filter(split == 'zbtb8a') %>% 
-  View()
+# div_pure_hyb_18_GO %>% 
+#   filter(source == 'Gene Ontology Biological Process')%>% 
+#   View()
+# div_pure_hyb_18_GO %>% 
+#   filter(source == 'Gene Ontology Biological Process') %>% 
+#   select(GO_term) %>% 
+#   distinct()
+# 
+# div_pure_hyb_18_GO %>% 
+#   filter(split == 'zbtb8a') %>% 
+#   View()
 
 get_rid = div_pure_hyb_18_GO %>% 
   group_by(split) %>% 
@@ -5050,7 +5050,7 @@ get_rid = div_pure_hyb_18_GO %>%
   filter(n > 1) %>% 
   filter(str_detect(split, '^ENSGA'))
 
-div_pure_hyb_18_GO %>% 
+High_overlap_genes = div_pure_hyb_18_GO %>% 
   select(split, 
          Network_ID, 
          GO_term,
@@ -5061,8 +5061,13 @@ div_pure_hyb_18_GO %>%
   anti_join(., 
             get_rid) %>% 
   arrange(desc(n)) %>% 
-  mutate(percent_overlap = (n/42)*100) %>% 
-  View()
+  mutate(percent_overlap = (n/42)*100)
+# %>% 
+#   View()
+
+div_pure_hyb_18_GO %>% 
+  filter(split %in% High_overlap_genes$split) %>% 
+  arrange(split) %>% View()
 
 
 # Overlap between networks ------------------------------------------------
@@ -5084,6 +5089,23 @@ Pure_hyb_div_temp_overlap = read_csv('Cyto_trans_pure_hyb_temp_overlap_intersect
          `p-value`, 
          split) %>% 
   filter(source != 'Human Phenotype Ontology')
+
+Pure_hyb_div_temp_overlap %>% 
+  select(`term id`) %>%
+  distinct()
+
+Pure_hyb_div_temp_overlap %>% 
+  select(split, 
+         Network_ID, 
+         `term id`,
+         `term name`) %>% 
+  group_by(split) %>% 
+  summarize(n = n()) %>% 
+  filter(n > 1) %>% 
+  # anti_join(., 
+  #           get_rid) %>% 
+  arrange(desc(n)) %>% 
+  mutate(percent_overlap = (n/8)*100)
 
 Pure_hyb_div_temp_overlap %>% 
   group_by(Network_ID) %>% 
