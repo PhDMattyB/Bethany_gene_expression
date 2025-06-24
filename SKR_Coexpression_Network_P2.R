@@ -5028,6 +5028,9 @@ div_pure_hyb_18_GO %>%
   select(source) %>% 
   distinct()
 
+div_pure_hyb_18_GO %>% 
+  select(GO_term) %>%
+  distinct()
 
 div_pure_hyb_18_GO %>% 
   filter(source == 'Gene Ontology Biological Process')%>% 
@@ -5040,6 +5043,27 @@ div_pure_hyb_18_GO %>%
 div_pure_hyb_18_GO %>% 
   filter(split == 'zbtb8a') %>% 
   View()
+
+get_rid = div_pure_hyb_18_GO %>% 
+  group_by(split) %>% 
+  summarize(n = n()) %>% 
+  filter(n > 1) %>% 
+  filter(str_detect(split, '^ENSGA'))
+
+div_pure_hyb_18_GO %>% 
+  select(split, 
+         Network_ID, 
+         GO_term,
+         description) %>% 
+  group_by(split) %>% 
+  summarize(n = n()) %>% 
+  filter(n > 10) %>% 
+  anti_join(., 
+            get_rid) %>% 
+  arrange(desc(n)) %>% 
+  mutate(percent_overlap = (n/42)*100) %>% 
+  View()
+
 
 # Overlap between networks ------------------------------------------------
 
