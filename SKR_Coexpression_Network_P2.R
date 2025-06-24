@@ -4982,6 +4982,30 @@ div_pure_hyb_12_GO = read_csv('Cyto_trans_pure_hyb_12_intersection_zebrafish.csv
   filter(source != 'Human Phenotype Ontology')
 
 div_pure_hyb_12_GO %>% 
+  select(GO_term) %>%
+  distinct()
+
+get_rid = div_pure_hyb_12_GO %>% 
+  group_by(split) %>% 
+  summarize(n = n()) %>% 
+  # filter(n > 1) %>% 
+  filter(str_detect(split, '^ENSGA'))
+
+div_pure_hyb_12_GO %>% 
+  select(split, 
+         Network_ID, 
+         GO_term,
+         description) %>% 
+  group_by(split) %>% 
+  summarize(n = n()) %>% 
+  # filter(n > 10) %>% 
+  anti_join(.,
+            get_rid) %>%
+  filter(n > 1) %>%
+  arrange(desc(n)) %>% 
+  mutate(percent_overlap = (n/6)*100)
+
+div_pure_hyb_12_GO %>% 
   select(source) %>% 
   distinct()
 
