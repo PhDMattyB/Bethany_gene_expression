@@ -4956,6 +4956,8 @@ createNetworkFromIgraph(geo_hyb_18_subnetwork)
 
 # Divergence transgressive expression network gene ontology overlap --------------------------------
 
+
+## Pure vs hyb @ 12 degree divergence
 div_pure_hyb_12_GO = read_csv('Cyto_trans_pure_hyb_12_intersection_zebrafish.csv') %>% 
   select(-`chart color`) %>% 
   select(description, 
@@ -4964,8 +4966,40 @@ div_pure_hyb_12_GO = read_csv('Cyto_trans_pure_hyb_12_intersection_zebrafish.csv
          source, 
          `term id`) %>% 
   rename(intersecting_genes = `intersecting genes`, 
-         GO_term = `term id`)
+         GO_term = `term id`)%>% 
+  rowid_to_column() %>% 
+  rename(Network_ID = rowid) %>% 
+  # you can apply the previous to each row using map
+  mutate(split = map(intersecting_genes, ~ str_split(.x, "\\|")[[1]])) %>% 
+  # then unnest the column before further data prep
+  unnest(split) %>% 
+  select(source, 
+         GO_term,
+         Network_ID,
+         split, 
+         `p-value`, 
+         description) %>% 
+  filter(source != 'Human Phenotype Ontology')
 
+div_pure_hyb_12_GO %>% 
+  select(source) %>% 
+  distinct()
+
+div_pure_hyb_12_GO %>% 
+  filter(source == 'Gene Ontology Cellular Component branch') %>% 
+  View()
+
+div_pure_hyb_12_GO %>% 
+  filter(source == 'KEGG') %>% 
+  View()
+
+div_pure_hyb_12_GO %>% 
+  filter(source == 'WikiPathways') %>% 
+  View()
+
+
+
+## Pure vs hyb @ 18 degrees divergence
 div_pure_hyb_18_GO = read_csv('Cyto_trans_Pure_hyb_18_intersection_zebrafish.csv') %>% 
   select(-`chart color`) %>% 
   select(description, 
@@ -4974,105 +5008,20 @@ div_pure_hyb_18_GO = read_csv('Cyto_trans_Pure_hyb_18_intersection_zebrafish.csv
          source, 
          `term id`) %>% 
   rename(intersecting_genes = `intersecting genes`, 
-         GO_term = `term id`)
-
-
-inner_join(div_pure_hyb_12_GO, 
-           div_pure_hyb_18_GO, 
-           by = 'intersecting_genes')
-
-div_pure_hyb_bothtemps = inner_join(div_pure_hyb_12_GO, 
-                                    div_pure_hyb_18_GO, 
-                                    by = 'GO_term') %>% 
-  select(-description.x, 
-         -description.y)
-
-
-
-pure_hyb_12_genes = div_pure_hyb_bothtemps %>% 
+         GO_term = `term id`) %>% 
   rowid_to_column() %>% 
   rename(Network_ID = rowid) %>% 
   # you can apply the previous to each row using map
-  mutate(split = map(intersecting_genes.x, ~ str_split(.x, "\\|")[[1]])) %>% 
+  mutate(split = map(intersecting_genes, ~ str_split(.x, "\\|")[[1]])) %>% 
   # then unnest the column before further data prep
   unnest(split) %>% 
-  # mutate(split2 = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>% 
-  # then unnest the column before further data prep
-  # unnest(split2) %>% 
-  select(GO_term,
+  select(source, 
+         GO_term,
          Network_ID,
-         source.x, 
-         source.y, 
-         split) %>% 
-  filter(source.x != 'Human Phenotype Ontology')
-
-pure_hyb_18_genes = div_pure_hyb_bothtemps %>% 
-  rowid_to_column() %>% 
-  rename(Network_ID = rowid) %>% 
-  # you can apply the previous to each row using map
-  # mutate(split = map(intersecting_genes.x, ~ str_split(.x, "\\|")[[1]])) %>% 
-  # then unnest the column before further data prep
-  # unnest(split) %>% 
-  mutate(split = map(intersecting_genes.y, ~ str_split(.x, "\\|")[[1]])) %>%
-  # then unnest the column before further data prep
-  unnest(split) %>%
-  select(GO_term,
-         Network_ID,
-         source.x, 
-         source.y, 
-         split) %>% 
-  filter(source.x != 'Human Phenotype Ontology')
-
-test = intersect(pure_hyb_12_genes, 
-                 pure_hyb_18_genes)
-
-test$source.x == test$source.y
-
-Div_Pure_Hyb_Both_Temp_Genes = intersect(pure_hyb_12_genes, 
-                                         pure_hyb_18_genes) %>% 
-  group_by(Network_ID, 
-           split) %>% 
-  distinct(GO_term,
-           source.x,
-           split) %>% 
-  arrange(source.x, 
-          Network_ID, 
-          split) %>% 
-  filter(source.x != 'Human Phenotype Ontology')
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  group_by(source.x) %>% 
-  summarize(n = n())
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  group_by(Network_ID) %>% 
-  summarize(n = n())
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'Gene Ontology Biological Process') %>% View()
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'Gene Ontology Cellular Component branch') %>% 
-  View()
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'Gene Ontology Molecular Function') %>% 
-  View()
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'KEGG') %>% 
-  View()
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'Reactome pathways') %>% 
-  View()
-
-Div_Pure_Hyb_Both_Temp_Genes %>% 
-  filter(source.x == 'WikiPathways') %>% 
-  View()
-
-
-
-
+         split, 
+         `p-value`, 
+         description) %>% 
+  filter(source != 'Human Phenotype Ontology')
 
 
 
