@@ -5021,10 +5021,25 @@ div_pure_hyb_18_GO = read_csv('Cyto_trans_Pure_hyb_18_intersection_zebrafish.csv
          split, 
          `p-value`, 
          description) %>% 
-  filter(source != 'Human Phenotype Ontology')
+  filter(source != 'Human Phenotype Ontology', 
+         source != 'Transfac transcription factor binding site predictions')
+
+div_pure_hyb_18_GO %>% 
+  select(source) %>% 
+  distinct()
 
 
+div_pure_hyb_18_GO %>% 
+  filter(source == 'Gene Ontology Biological Process')%>% 
+  View()
+div_pure_hyb_18_GO %>% 
+  filter(source == 'Gene Ontology Biological Process') %>% 
+  select(GO_term) %>% 
+  distinct()
 
+div_pure_hyb_18_GO %>% 
+  filter(split == 'zbtb8a') %>% 
+  View()
 
 # Overlap between networks ------------------------------------------------
 
