@@ -718,22 +718,22 @@ plast_amb_edge_table = plast_amb_cor_mat_upper %>%
   mutate(FDR = p.adjust(p.value, method = 'fdr'))
 
 
-plast_amb_edge_table %>% 
-  filter(r > 0) %>% 
-  filter(FDR < 0.05) %>% 
-  slice_min(order_by = abs(r), n = 10)
+# plast_amb_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
 
 
-plast_amb_edge_table %>% 
-  # slice_sample(n = 20000) %>% 
-  ggplot(aes(x = r)) +
-  geom_histogram(color = "white", bins = 100) +
-  geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
+# plast_amb_edge_table %>% 
+#   # slice_sample(n = 20000) %>% 
+#   ggplot(aes(x = r)) +
+#   geom_histogram(color = "white", bins = 100) +
+#   geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
 
 
 plast_amb_edge_table_select = plast_amb_edge_table %>% 
@@ -764,7 +764,7 @@ plast_amb_network = graph_from_data_frame(
 )
 
 plast_amb_modules = cluster_leiden(plast_amb_network, 
-                                resolution = 1.5, 
+                                resolution = 1.75, 
                                 objective_function = "modularity")
 
 
@@ -843,7 +843,7 @@ plast_amb_modules_greater_3 <- plast_amb_network_modules %>%
   group_by(module) %>%
   count() %>%
   arrange(-n) %>%
-  filter(n >= 3)
+  filter(n >= 5)
 
 plast_amb_network_modules <- plast_amb_network_modules %>%
   filter(module %in% plast_amb_modules_greater_3$module)
@@ -884,6 +884,8 @@ plast_amb_modules_mean_exp = plast_amb_high_var_modules %>%
 
 plast_amb_module_peak_exp = plast_amb_modules_mean_exp %>% 
   group_by(module) %>%
+  filter(ecotemp %in% c('SKRC_12', 
+                        'SKRC_18')) %>% 
   slice_max(order_by = mean_exp, n = 1) 
 
 plast_amb_high_var_modules %>% 
@@ -899,107 +901,107 @@ plast_amb_high_var_modules %>%
   facet_grid(~module) 
 
 
-
+##
 # Ambient plasticity - heatmap --------------------------------------------
+# 
+# plast_amb_modules_mean_exp$mean_exp %>% summary()
+# 
+# quantile(plast_amb_modules_mean_exp$mean_exp, 0.95)
 
-plast_amb_modules_mean_exp$mean_exp %>% summary()
-
-quantile(plast_amb_modules_mean_exp$mean_exp, 0.95)
-
-plast_amb_modules_mean_exp = plast_amb_modules_mean_exp %>% 
-  mutate(mean_exp_clipped = case_when(
-    mean_exp > 6.94 ~ 6.94, 
-    mean_exp < -6.94 ~ -6.94, 
-    T ~ mean_exp
-  ))
-
-plast_amb_modules_mean_exp_reordered = plast_amb_modules_mean_exp %>% 
-  full_join(plast_amb_module_peak_exp %>% 
-              select(module,
-                     mean_exp), 
-            by = 'module') 
-# %>% 
-#   mutate(module_rename = case_when(
-#     module == '1' ~ '1', 
-#     module == '2' ~ '2', 
-#     module == '4' ~ '3', 
-#     module == '5' ~ '4', 
-#     module == '6' ~ '5', 
-#     module == '8' ~ '6'
+# plast_amb_modules_mean_exp = plast_amb_modules_mean_exp %>% 
+#   mutate(mean_exp_clipped = case_when(
+#     mean_exp > 6.94 ~ 6.94, 
+#     mean_exp < -6.94 ~ -6.94, 
+#     T ~ mean_exp
 #   ))
-
-# plast_amb_modules_mean_exp_reordered %>% 
-#   group_by(module) %>% 
-#   summarize(n = n()) %>% View()
-
-plast_amb_heatmap = plast_amb_modules_mean_exp_reordered %>% 
-  separate(col = ecotemp, 
-           into = c('ecotype', 
-                    'temp'), 
-           sep = '_', 
-           remove = F) %>% 
-  ggplot(aes(x = temp, 
-             y = as.factor(module)))+
-  facet_grid(.~ ecotype, 
-             scales = "free", 
-             space = "free") +
-  geom_tile(aes(fill = mean_exp_clipped), 
-            color = 'grey80')+
-  scale_fill_gradientn(colors = rev(brewer.pal(11, "RdBu")),
-                       limits = c(-6.94, 6.94),
-                       breaks = c(-6.94, 0, 6.94),
-                       labels = c("< -6.94", "0", "> 6.94"))+
-  labs(x = NULL,
-       y = "Module",
-       fill = "Normalized expression")+
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black"),
-    # axis.text.x = element_blank(),
-    axis.text.x = element_text(size = 14),
-    strip.text = element_blank(),
-    legend.position = "bottom",
-    panel.spacing = unit(0.5, "lines") 
-  )
-
-heat_strip1 = expand.grid(
-  ecotype = unique(metadata$ecotype),
-  temp = unique(metadata$temp),
-  stringsAsFactors = F
-) %>% 
-  mutate(ecotype = factor(ecotype, levels = c(
-    "SKRC",
-    "SKRHYB",
-    "SKRW"))) %>% 
-  mutate(temp = factor(temp, levels = c(
-    "12",
-    "18"))) %>% 
-  ggplot(aes(x = ecotype, 
-             y = 1)) +
-  facet_grid(.~ ecotype, 
-             scales = "free", 
-             space = "free") +
-  geom_tile(aes(fill = ecotype)) +
-  scale_fill_manual(values = brewer.pal(8, "Set2")) +
-  guides(fill = guide_legend(nrow = 1)) +
-  theme_void() +
-  theme(
-    legend.position = "bottom",
-    strip.text = element_blank(),
-    text = element_text(size = 14),
-    panel.spacing = unit(0.5, "lines"),
-    legend.key.height = unit(0.75, "lines")
-  )
-
-wrap_plots(plast_amb_heatmap, 
-           heat_strip1, 
-           nrow = 2, 
-           heights = c(1, 0.08, 0.08), 
-           guides = "collect") &
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical"
-  )
+# 
+# plast_amb_modules_mean_exp_reordered = plast_amb_modules_mean_exp %>% 
+#   full_join(plast_amb_module_peak_exp %>% 
+#               select(module,
+#                      mean_exp), 
+#             by = 'module') 
+# # %>% 
+# #   mutate(module_rename = case_when(
+# #     module == '1' ~ '1', 
+# #     module == '2' ~ '2', 
+# #     module == '4' ~ '3', 
+# #     module == '5' ~ '4', 
+# #     module == '6' ~ '5', 
+# #     module == '8' ~ '6'
+# #   ))
+# 
+# # plast_amb_modules_mean_exp_reordered %>% 
+# #   group_by(module) %>% 
+# #   summarize(n = n()) %>% View()
+# 
+# plast_amb_heatmap = plast_amb_modules_mean_exp_reordered %>% 
+#   separate(col = ecotemp, 
+#            into = c('ecotype', 
+#                     'temp'), 
+#            sep = '_', 
+#            remove = F) %>% 
+#   ggplot(aes(x = temp, 
+#              y = as.factor(module)))+
+#   facet_grid(.~ ecotype, 
+#              scales = "free", 
+#              space = "free") +
+#   geom_tile(aes(fill = mean_exp_clipped), 
+#             color = 'grey80')+
+#   scale_fill_gradientn(colors = rev(brewer.pal(11, "RdBu")),
+#                        limits = c(-6.94, 6.94),
+#                        breaks = c(-6.94, 0, 6.94),
+#                        labels = c("< -6.94", "0", "> 6.94"))+
+#   labs(x = NULL,
+#        y = "Module",
+#        fill = "Normalized expression")+
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black"),
+#     # axis.text.x = element_blank(),
+#     axis.text.x = element_text(size = 14),
+#     strip.text = element_blank(),
+#     legend.position = "bottom",
+#     panel.spacing = unit(0.5, "lines") 
+#   )
+# 
+# heat_strip1 = expand.grid(
+#   ecotype = unique(metadata$ecotype),
+#   temp = unique(metadata$temp),
+#   stringsAsFactors = F
+# ) %>% 
+#   mutate(ecotype = factor(ecotype, levels = c(
+#     "SKRC",
+#     "SKRHYB",
+#     "SKRW"))) %>% 
+#   mutate(temp = factor(temp, levels = c(
+#     "12",
+#     "18"))) %>% 
+#   ggplot(aes(x = ecotype, 
+#              y = 1)) +
+#   facet_grid(.~ ecotype, 
+#              scales = "free", 
+#              space = "free") +
+#   geom_tile(aes(fill = ecotype)) +
+#   scale_fill_manual(values = brewer.pal(8, "Set2")) +
+#   guides(fill = guide_legend(nrow = 1)) +
+#   theme_void() +
+#   theme(
+#     legend.position = "bottom",
+#     strip.text = element_blank(),
+#     text = element_text(size = 14),
+#     panel.spacing = unit(0.5, "lines"),
+#     legend.key.height = unit(0.75, "lines")
+#   )
+# 
+# wrap_plots(plast_amb_heatmap, 
+#            heat_strip1, 
+#            nrow = 2, 
+#            heights = c(1, 0.08, 0.08), 
+#            guides = "collect") &
+#   theme(
+#     legend.position = "bottom",
+#     legend.box = "vertical"
+#   )
 
 
 # Ambient plasticity - network --------------------------------------------
@@ -1024,27 +1026,41 @@ plast_amb_subnetwork_genes = c(plast_amb_subnetwork_edges$from,
 
 plast_amb_subnetwork_nodes <- plast_amb_node_tab %>% 
   filter(GeneID %in% plast_amb_subnetwork_genes) %>% 
-  left_join(plast_amb_network_modules, by = "GeneID") %>% 
-  left_join(plast_amb_module_peak_exp, by = "module") 
+  left_join(plast_amb_network_modules, by = c('GeneID', 
+                                            'functional_annotation')) %>% 
+  left_join(plast_amb_module_peak_exp, by = "module") %>%
+  mutate(NetworkID = 'SKRC_Temp_Plasticity') %>% 
+  na.omit()
 
 plast_amb_subnetwork_nodes$module = as.character(plast_amb_subnetwork_nodes$module)
 
-# %>% 
-#   mutate(module_rename = case_when(
-#     module == '1' ~ '1', 
-#     module == '2' ~ '2', 
-#     module == '4' ~ '3', 
-#     module == '5' ~ '4', 
-#     module == '6' ~ '5', 
-#     module == '8' ~ '6'
-#   ))
+plast_amb_genes_in_net = plast_amb_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+plast_amb_subnetwork_edges = plast_amb_edge_table_select %>% 
+  filter(from %in% names(plast_amb_genes_in_net) &
+           to %in% names(plast_amb_genes_in_net)) %>%
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+plast_amb_subnetwork_genes = c(plast_amb_subnetwork_edges$from, 
+                                plast_amb_subnetwork_edges$to) %>% 
+  unique()
 
 dim(plast_amb_subnetwork_nodes)
 
 
 plast_amb_subnetwork <- graph_from_data_frame(plast_amb_subnetwork_edges,
                                           vertices = plast_amb_subnetwork_nodes,
-                                          directed = T)
+                                          directed = F)
 
 
 
@@ -1119,24 +1135,24 @@ plast_geo_edge_table = plast_geo_cor_mat_upper %>%
     t <= 0 ~ pt(t, df = number_comparisons-2, lower.tail = F)
   )) %>% 
   mutate(FDR = p.adjust(p.value, method = 'fdr'))
-
-
-plast_geo_edge_table %>% 
-  filter(r > 0) %>% 
-  filter(FDR < 0.05) %>% 
-  slice_min(order_by = abs(r), n = 10)
-
-
-plast_geo_edge_table %>% 
-  # slice_sample(n = 20000) %>% 
-  ggplot(aes(x = r)) +
-  geom_histogram(color = "white", bins = 100) +
-  geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
+# 
+# 
+# plast_geo_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
+# 
+# 
+# plast_geo_edge_table %>% 
+#   # slice_sample(n = 20000) %>% 
+#   ggplot(aes(x = r)) +
+#   geom_histogram(color = "white", bins = 100) +
+#   geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
 
 
 plast_geo_edge_table_select = plast_geo_edge_table %>% 
@@ -1162,54 +1178,54 @@ plast_geo_network = graph_from_data_frame(
 )
 
 plast_geo_modules = cluster_leiden(plast_geo_network, 
-                                   resolution = 1.5, 
+                                   resolution = 2, 
                                    objective_function = "modularity")
 
 
 
 
-plast_geo_optimization = purrr::map_dfc(
-  .x = seq(from = 0.25, to = 5, by = 0.25),
-  .f = optimize_resolution, 
-  network = plast_geo_network) %>% 
-  t() %>% 
-  cbind(
-    resolution = seq(from = 0.25, to = 5, by = 0.25)
-  ) %>% 
-  as.data.frame() %>% 
-  rename(num_module = V1,
-         num_contained_gene = V2)
-
-
-plast_geo_optimize_num_module <- plast_geo_optimization %>% 
-  ggplot(aes(x = resolution, y = num_module)) +
-  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
-  geom_point(size = 3, alpha = 0.7) +
-  geom_vline(xintercept = 2, size = 1, linetype = 4) +
-  labs(x = "resolution parameter",
-       y = "num. modules\nw/ >=5 genes") +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
-
-plast_geo_optimize_num_gene = plast_geo_optimization %>% 
-  ggplot(aes(x = resolution, y = num_contained_gene)) +
-  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
-  geom_point(size = 3, alpha = 0.7) +
-  geom_vline(xintercept = 2, size = 1, linetype = 4) +
-  labs(x = "resolution parameter",
-       y = "num. genes in\nmodules w/ >=5 genes") +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
-
-wrap_plots(plast_geo_optimize_num_module, 
-           plast_geo_optimize_num_gene, nrow = 2)
-
+# plast_geo_optimization = purrr::map_dfc(
+#   .x = seq(from = 0.25, to = 5, by = 0.25),
+#   .f = optimize_resolution, 
+#   network = plast_geo_network) %>% 
+#   t() %>% 
+#   cbind(
+#     resolution = seq(from = 0.25, to = 5, by = 0.25)
+#   ) %>% 
+#   as.data.frame() %>% 
+#   rename(num_module = V1,
+#          num_contained_gene = V2)
+# 
+# 
+# plast_geo_optimize_num_module <- plast_geo_optimization %>% 
+#   ggplot(aes(x = resolution, y = num_module)) +
+#   geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+#   geom_point(size = 3, alpha = 0.7) +
+#   geom_vline(xintercept = 2, size = 1, linetype = 4) +
+#   labs(x = "resolution parameter",
+#        y = "num. modules\nw/ >=5 genes") +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
+# 
+# plast_geo_optimize_num_gene = plast_geo_optimization %>% 
+#   ggplot(aes(x = resolution, y = num_contained_gene)) +
+#   geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+#   geom_point(size = 3, alpha = 0.7) +
+#   geom_vline(xintercept = 2, size = 1, linetype = 4) +
+#   labs(x = "resolution parameter",
+#        y = "num. genes in\nmodules w/ >=5 genes") +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
+# 
+# wrap_plots(plast_geo_optimize_num_module, 
+#            plast_geo_optimize_num_gene, nrow = 2)
+# 
 
 
 
@@ -1241,7 +1257,7 @@ plast_geo_modules_greater_3 <- plast_geo_network_modules %>%
   group_by(module) %>%
   count() %>%
   arrange(-n) %>%
-  filter(n >= 3)
+  filter(n >= 5)
 
 plast_geo_network_modules <- plast_geo_network_modules %>%
   filter(module %in% plast_geo_modules_greater_3$module)
@@ -1282,19 +1298,21 @@ plast_geo_modules_mean_exp = plast_geo_high_var_modules %>%
 
 plast_geo_module_peak_exp = plast_geo_modules_mean_exp %>% 
   group_by(module) %>%
+  filter(ecotemp %in% c('SKRW_12', 
+                        'SKRW_18')) %>% 
   slice_max(order_by = mean_exp, n = 1) 
 
-plast_geo_high_var_modules %>% 
-  # filter(module == 5 | module == 6) %>%
-  ggplot(aes(x = ecotemp, y = value)) +
-  geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
-  geom_line(data = plast_geo_modules_mean_exp,  
-            # filter(module == 5 | module == 6), 
-            aes(x = ecotemp, 
-                y = mean_exp, 
-                group = module), 
-            size = 2)+
-  facet_grid(~module) 
+# plast_geo_high_var_modules %>% 
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = plast_geo_modules_mean_exp,  
+#             # filter(module == 5 | module == 6), 
+#             aes(x = ecotemp, 
+#                 y = mean_exp, 
+#                 group = module), 
+#             size = 2)+
+#   facet_grid(~module) 
 
 
 
@@ -1402,18 +1420,18 @@ wrap_plots(plast_geo_heatmap,
 
 # geo plasticity - network --------------------------------------------
 
-plast_geo_subnetwork_edges = plast_geo_edge_table_select %>% 
+plast_geo_subnetwork_edges = plast_geo_edge_table_select %>%
   # filter(from %in% names(neighbors_of_bait) &
-  #          to %in% names(neighbors_of_bait)) %>% 
-  group_by(from) %>% 
-  slice_max(order_by = r, n = 3) %>% 
-  ungroup() %>% 
-  group_by(to) %>% 
-  slice_max(order_by = r, n = 3) %>% 
+  #          to %in% names(neighbors_of_bait)) %>%
+  group_by(from) %>%
+  slice_max(order_by = r, n = 3) %>%
+  ungroup() %>%
+  group_by(to) %>%
+  slice_max(order_by = r, n = 3) %>%
   ungroup()
 
-plast_geo_subnetwork_genes = c(plast_geo_subnetwork_edges$from, 
-                               plast_geo_subnetwork_edges$to) %>% 
+plast_geo_subnetwork_genes = c(plast_geo_subnetwork_edges$from,
+                               plast_geo_subnetwork_edges$to) %>%
   unique()
 
 # length(subnetwork_genes)
@@ -1422,20 +1440,35 @@ plast_geo_subnetwork_genes = c(plast_geo_subnetwork_edges$from,
 
 plast_geo_subnetwork_nodes <- plast_geo_node_tab %>% 
   filter(GeneID %in% plast_geo_subnetwork_genes) %>% 
-  left_join(plast_geo_network_modules, by = "GeneID") %>% 
-  left_join(plast_geo_module_peak_exp, by = "module") 
+  left_join(plast_geo_network_modules, by = c( "GeneID", 
+                                               'functional_annotation')) %>% 
+  mutate(NetworkID = 'Geo_Temp_Plasticity') %>% 
+  left_join(plast_geo_module_peak_exp, by = "module") %>% 
+  na.omit()
 
 plast_geo_subnetwork_nodes$module = as.character(plast_geo_subnetwork_nodes$module)
 
-# %>% 
-#   mutate(module_rename = case_when(
-#     module == '1' ~ '1', 
-#     module == '2' ~ '2', 
-#     module == '4' ~ '3', 
-#     module == '5' ~ '4', 
-#     module == '6' ~ '5', 
-#     module == '8' ~ '6'
-#   ))
+plast_geo_genes_in_net = plast_geo_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+plast_geo_subnetwork_edges = plast_geo_edge_table_select %>% 
+  filter(from %in% names(plast_geo_genes_in_net) &
+           to %in% names(plast_geo_genes_in_net)) %>%
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+plast_geo_subnetwork_genes = c(plast_geo_subnetwork_edges$from, 
+                               plast_geo_subnetwork_edges$to) %>% 
+  unique()
+
 
 dim(plast_geo_subnetwork_nodes)
 
@@ -1518,23 +1551,23 @@ plast_hyb_edge_table = plast_hyb_cor_mat_upper %>%
   )) %>% 
   mutate(FDR = p.adjust(p.value, method = 'fdr'))
 
-
-plast_hyb_edge_table %>% 
-  filter(r > 0) %>% 
-  filter(FDR < 0.05) %>% 
-  slice_min(order_by = abs(r), n = 10)
-
-
-plast_hyb_edge_table %>% 
-  # slice_sample(n = 20000) %>% 
-  ggplot(aes(x = r)) +
-  geom_histogram(color = "white", bins = 100) +
-  geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
+# 
+# plast_hyb_edge_table %>% 
+#   filter(r > 0) %>% 
+#   filter(FDR < 0.05) %>% 
+#   slice_min(order_by = abs(r), n = 10)
+# 
+# 
+# plast_hyb_edge_table %>% 
+#   # slice_sample(n = 20000) %>% 
+#   ggplot(aes(x = r)) +
+#   geom_histogram(color = "white", bins = 100) +
+#   geom_vline(xintercept = 0.7, color = "tomato1", size = 1.2) +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
 
 
 plast_hyb_edge_table_select = plast_hyb_edge_table %>% 
@@ -1560,53 +1593,53 @@ plast_hyb_network = graph_from_data_frame(
 )
 
 plast_hyb_modules = cluster_leiden(plast_hyb_network, 
-                                   resolution = 1.5, 
+                                   resolution = 2, 
                                    objective_function = "modularity")
 
 
 
 
-plast_hyb_optimization = purrr::map_dfc(
-  .x = seq(from = 0.25, to = 5, by = 0.25),
-  .f = optimize_resolution, 
-  network = plast_hyb_network) %>% 
-  t() %>% 
-  cbind(
-    resolution = seq(from = 0.25, to = 5, by = 0.25)
-  ) %>% 
-  as.data.frame() %>% 
-  rename(num_module = V1,
-         num_contained_gene = V2)
-
-
-plast_hyb_optimize_num_module <- plast_hyb_optimization %>% 
-  ggplot(aes(x = resolution, y = num_module)) +
-  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
-  geom_point(size = 3, alpha = 0.7) +
-  geom_vline(xintercept = 2, size = 1, linetype = 4) +
-  labs(x = "resolution parameter",
-       y = "num. modules\nw/ >=5 genes") +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
-
-plast_hyb_optimize_num_gene = plast_hyb_optimization %>% 
-  ggplot(aes(x = resolution, y = num_contained_gene)) +
-  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
-  geom_point(size = 3, alpha = 0.7) +
-  geom_vline(xintercept = 2, size = 1, linetype = 4) +
-  labs(x = "resolution parameter",
-       y = "num. genes in\nmodules w/ >=5 genes") +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(color = "black")
-  )
-
-wrap_plots(plast_hyb_optimize_num_module, 
-           plast_hyb_optimize_num_gene, nrow = 2)
+# plast_hyb_optimization = purrr::map_dfc(
+#   .x = seq(from = 0.25, to = 5, by = 0.25),
+#   .f = optimize_resolution, 
+#   network = plast_hyb_network) %>% 
+#   t() %>% 
+#   cbind(
+#     resolution = seq(from = 0.25, to = 5, by = 0.25)
+#   ) %>% 
+#   as.data.frame() %>% 
+#   rename(num_module = V1,
+#          num_contained_gene = V2)
+# 
+# 
+# plast_hyb_optimize_num_module <- plast_hyb_optimization %>% 
+#   ggplot(aes(x = resolution, y = num_module)) +
+#   geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+#   geom_point(size = 3, alpha = 0.7) +
+#   geom_vline(xintercept = 2, size = 1, linetype = 4) +
+#   labs(x = "resolution parameter",
+#        y = "num. modules\nw/ >=5 genes") +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
+# 
+# plast_hyb_optimize_num_gene = plast_hyb_optimization %>% 
+#   ggplot(aes(x = resolution, y = num_contained_gene)) +
+#   geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+#   geom_point(size = 3, alpha = 0.7) +
+#   geom_vline(xintercept = 2, size = 1, linetype = 4) +
+#   labs(x = "resolution parameter",
+#        y = "num. genes in\nmodules w/ >=5 genes") +
+#   theme_classic() +
+#   theme(
+#     text = element_text(size = 14),
+#     axis.text = element_text(color = "black")
+#   )
+# 
+# wrap_plots(plast_hyb_optimize_num_module, 
+#            plast_hyb_optimize_num_gene, nrow = 2)
 
 
 
@@ -1620,26 +1653,26 @@ plast_hyb_network_modules <- data.frame(
 ) %>% 
   inner_join(plast_hyb_node_tab, by = "GeneID")
 
-plast_hyb_network_modules %>% 
-  group_by(module) %>% 
-  count() %>% 
-  arrange(-n) %>% 
-  filter(n >= 5)
-
-plast_hyb_network_modules %>% 
-  group_by(module) %>% 
-  count() %>% 
-  arrange(-n) %>% 
-  filter(n >= 5) %>% 
-  ungroup() %>% 
-  summarise(sum = sum(n))
+# plast_hyb_network_modules %>% 
+#   group_by(module) %>% 
+#   count() %>% 
+#   arrange(-n) %>% 
+#   filter(n >= 5)
+# 
+# plast_hyb_network_modules %>% 
+#   group_by(module) %>% 
+#   count() %>% 
+#   arrange(-n) %>% 
+#   filter(n >= 5) %>% 
+#   ungroup() %>% 
+#   summarise(sum = sum(n))
 
 # 
 plast_hyb_modules_greater_3 <- plast_hyb_network_modules %>%
   group_by(module) %>%
   count() %>%
   arrange(-n) %>%
-  filter(n >= 3)
+  filter(n >= 5)
 
 plast_hyb_network_modules <- plast_hyb_network_modules %>%
   filter(module %in% plast_hyb_modules_greater_3$module)
@@ -1680,20 +1713,22 @@ plast_hyb_modules_mean_exp = plast_hyb_high_var_modules %>%
 
 plast_hyb_module_peak_exp = plast_hyb_modules_mean_exp %>% 
   group_by(module) %>%
+  filter(ecotemp %in% c('SKRHYB_12', 
+                        'SKRHYB_18')) %>% 
   slice_max(order_by = mean_exp, n = 1) 
 
-plast_hyb_high_var_modules %>% 
-  # filter(module == 5 | module == 6) %>%
-  ggplot(aes(x = ecotemp, y = value)) +
-  geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
-  geom_line(data = plast_hyb_modules_mean_exp,  
-            # filter(module == 5 | module == 6), 
-            aes(x = ecotemp, 
-                y = mean_exp, 
-                group = module), 
-            size = 2)+
-  facet_grid(~module) 
-
+# plast_hyb_high_var_modules %>% 
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = plast_hyb_modules_mean_exp,  
+#             # filter(module == 5 | module == 6), 
+#             aes(x = ecotemp, 
+#                 y = mean_exp, 
+#                 group = module), 
+#             size = 2)+
+#   facet_grid(~module) 
+# 
 
 
 # hyb plasticity - heatmap --------------------------------------------
@@ -1820,20 +1855,35 @@ plast_hyb_subnetwork_genes = c(plast_hyb_subnetwork_edges$from,
 
 plast_hyb_subnetwork_nodes <- plast_hyb_node_tab %>% 
   filter(GeneID %in% plast_hyb_subnetwork_genes) %>% 
-  left_join(plast_hyb_network_modules, by = "GeneID") %>% 
-  left_join(plast_hyb_module_peak_exp, by = "module") 
+  left_join(plast_hyb_network_modules, by = c("GeneID", 
+                                              'functional_annotation') ) %>% 
+  left_join(plast_hyb_module_peak_exp, by = "module") %>% 
+  mutate(NetworkID = 'HYB_Temp_Plasticity') %>% 
+  na.omit()
 
 plast_hyb_subnetwork_nodes$module = as.character(plast_hyb_subnetwork_nodes$module)
 
-# %>% 
-#   mutate(module_rename = case_when(
-#     module == '1' ~ '1', 
-#     module == '2' ~ '2', 
-#     module == '4' ~ '3', 
-#     module == '5' ~ '4', 
-#     module == '6' ~ '5', 
-#     module == '8' ~ '6'
-#   ))
+plast_hyb_genes_in_net = plast_hyb_subnetwork_nodes %>% 
+  select(GeneID) %>% 
+  unique() %>% 
+  pivot_wider(names_from = GeneID, 
+              values_from = GeneID)
+
+
+plast_hyb_subnetwork_edges = plast_hyb_edge_table_select %>% 
+  filter(from %in% names(plast_hyb_genes_in_net) &
+           to %in% names(plast_hyb_genes_in_net)) %>%
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 5) %>% 
+  ungroup()
+
+plast_hyb_subnetwork_genes = c(plast_hyb_subnetwork_edges$from, 
+                               plast_hyb_subnetwork_edges$to) %>% 
+  unique()
+
 
 dim(plast_hyb_subnetwork_nodes)
 
