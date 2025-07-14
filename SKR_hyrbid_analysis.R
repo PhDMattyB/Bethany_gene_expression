@@ -423,7 +423,7 @@ brain_common_genes = inner_join(brain_edge,
 
 ### 12 degree inheritance pattern
 exp_pattern_12 = brain_common_genes %>% 
-  select(GeneID, 
+  dplyr::select(GeneID, 
          am_hyb_12, 
          geo_hyb_12)
 Nothing = exp_pattern_12 %>% 
@@ -520,7 +520,7 @@ Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph,
 
 ### 18 degree inheritance pattern
 exp_pattern_18 = brain_common_genes %>% 
-  select(GeneID, 
+  dplyr::select(GeneID, 
          am_hyb_18, 
          geo_hyb_18)
 Nothing = exp_pattern_18 %>% 
@@ -565,9 +565,9 @@ transgressive2 = exp_pattern_18 %>%
   filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
   mutate(exp_pattern = 'Transgressive')
 
-bind_rows(transgressive1, 
-          transgressive2) %>% 
-  write_csv('Brain_Transgressive_expression_18degrees.csv')
+# bind_rows(transgressive1, 
+#           transgressive2) %>% 
+#   write_csv('Brain_Transgressive_expression_18degrees.csv')
 
 exp_pattern_18_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
@@ -603,8 +603,8 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 12 - Hybrid 12', 
-       y = 'Ambient 12 - Hybrid 12', 
+  labs(x = 'Geothermal 18 - Hybrid 18', 
+       y = 'Ambient 18 - Hybrid 18', 
        title = 'B)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
@@ -630,7 +630,7 @@ liver_common_genes = inner_join(liver_edge,
 
 ### 12 degree inheritance pattern
 liver_pattern_12 = liver_common_genes %>% 
-  select(GeneID, 
+  dplyr::select(GeneID, 
          am_hyb_12, 
          geo_hyb_12)
 Nothing = liver_pattern_12 %>% 
@@ -723,7 +723,7 @@ liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph,
 
 ### 18 degree inheritance pattern
 liver_pattern_18 = liver_common_genes %>% 
-  select(GeneID, 
+  dplyr::select(GeneID, 
          am_hyb_18, 
          geo_hyb_18)
 Nothing = liver_pattern_18 %>% 
@@ -801,8 +801,8 @@ liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 12 - Hybrid 12', 
-       y = 'Ambient 12 - Hybrid 12', 
+  labs(x = 'Geothermal 18 - Hybrid 18', 
+       y = 'Ambient 18 - Hybrid 18', 
        title = 'D)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
@@ -818,7 +818,7 @@ liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph,
 
 Inherit_deez_nuts = (Inheritance_pattern_12 + Inheritance_pattern_18)/(liver_Inheritance_pattern_12+liver_Inheritance_pattern_18)
 
-ggsave('Hybrid_inheritance_pattern.tiff', 
+ggsave('Hybrid_inheritance_pattern_fixed.tiff', 
        plot = Inherit_deez_nuts, 
        dpi = 'retina', 
        units = 'cm', 
