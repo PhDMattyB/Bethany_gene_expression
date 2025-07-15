@@ -15,13 +15,13 @@ library(tidyverse)
 theme_set(theme_bw())
 
 
-example_pal = c('#e36414', 
-                '#0077b6',
-                '#c1121f',
-                '#8338ec')
+example_pal = c('#fee440', 
+                '#1d58ab',
+                '#00bbf9',
+                '#9b5de5')
 
 
-ggplot()+
+example_plot = ggplot()+
   geom_rect(data = data.frame(xmin = c(-0.32,
                                        -2, 
                                        -0.32, 
@@ -90,3 +90,6 @@ ggplot()+
   geom_vline(xintercept = c(0.32, -0.32))+
   theme(panel.grid = element_blank(), 
         legend.position = 'none')
+
+
+ggsave('')

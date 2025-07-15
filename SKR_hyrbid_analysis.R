@@ -482,11 +482,17 @@ exp_pattern_12_graph = bind_rows(dom_amb1,
                            transgressive2, 
                            Nothing)
 
-inheritance_pal = c('#ff9e00',
-                    '#669bbc',
-                    '#c1121f', 
-                    '#adb5bd', 
-                    '#7400b8')
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+inheritance_pal = c('#fee440', 
+                '#1d58ab',
+                '#00bbf9',
+                '#adb5bd',
+                '#9b5de5')
 
 
 Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph, 
@@ -506,8 +512,8 @@ Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 12 - Hybrid 12', 
-       y = 'Ambient 12 - Hybrid 12',
+  labs(x = 'Hybrid 12 - Geothermal 12', 
+       y = 'Hybrid 12 - Ambient 12',
        title = 'A)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
@@ -579,11 +585,17 @@ exp_pattern_18_graph = bind_rows(dom_amb1,
                                  transgressive2, 
                                  Nothing)
 
-inheritance_pal = c('#ff9e00',
-                    '#669bbc',
-                    '#c1121f', 
-                    '#adb5bd', 
-                    '#7400b8')
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+inheritance_pal = c('#fee440', 
+                    '#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
 
 
 Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph, 
@@ -603,8 +615,8 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 18 - Hybrid 18', 
-       y = 'Ambient 18 - Hybrid 18', 
+  labs(x = 'Hybrid 18 - Geothermal 18', 
+       y = 'Hybrid 18 - Ambient 18', 
        title = 'B)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
@@ -685,11 +697,17 @@ liver_pattern_12_graph = bind_rows(dom_amb1,
                                  transgressive2, 
                                  Nothing)
 
-inheritance_pal = c('#ff9e00',
-                    '#669bbc',
-                    '#c1121f', 
-                    '#adb5bd', 
-                    '#7400b8')
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+inheritance_pal = c('#fee440', 
+                    '#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
 
 
 liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph, 
@@ -709,8 +727,8 @@ liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 12 - Hybrid 12', 
-       y = 'Ambient 12 - Hybrid 12',
+  labs(x = 'Hybrid 12 - Geothermal 12', 
+       y = 'Hybrid 12 - Ambient 12',
        title = 'C)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
@@ -779,9 +797,14 @@ liver_pattern_18_graph = bind_rows(dom_amb1,
                                  Nothing)
 
 liv_inheritance_pal = c('#669bbc',
-                    '#c1121f', 
-                    '#adb5bd', 
+                    '#c1121f',
+                    '#adb5bd',
                     '#7400b8')
+
+liv_inheritance_pal = c('#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
 
 
 liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph, 
@@ -801,8 +824,8 @@ liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Geothermal 18 - Hybrid 18', 
-       y = 'Ambient 18 - Hybrid 18', 
+  labs(x = 'Hybrid 18 - Geothermal 18', 
+       y = 'Hybrid 18 - Ambient 18', 
        title = 'D)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
