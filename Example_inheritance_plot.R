@@ -74,22 +74,28 @@ example_plot = ggplot()+
   annotate("text", 
            x = c(-1.15, 1.15), 
            y = c(0,0), 
-           label = "Pure strain 2 dominant", 
+           label = "Geothermal dominant", 
            size = 2, 
            fontface = 'bold')+
   annotate("text", 
            x = c(0, 0), 
            y = c(1.15, -1.15), 
-           label = "Pure strain 1 dominant", 
+           label = "Ambient dominant", 
            angle = 90, 
            size = 2, 
            fontface = 'bold')+
-  labs(x = 'log2(hybrid) - log2(pure strain 1)', 
-       y = 'log2(hybrid) - log2(pure strain 2)')+
+  labs(x = 'log2(hybrid) - log2(Geothermal)', 
+       y = 'log2(hybrid) - log2(Ambient)', 
+       title = 'A)')+
   geom_hline(yintercept = c(0.32, -0.32))+
   geom_vline(xintercept = c(0.32, -0.32))+
   theme(panel.grid = element_blank(), 
         legend.position = 'none')
 
 
-ggsave('')
+ggsave('Example_inheritance_plot.tiff', 
+       plot = example_plot, 
+       units = 'cm', 
+       width = 10, 
+       height = 10, 
+       dpi = 'retina')

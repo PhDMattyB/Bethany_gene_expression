@@ -514,7 +514,7 @@ Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph,
              linetype = 'dashed')+
   labs(x = 'Hybrid 12 - Geothermal 12', 
        y = 'Hybrid 12 - Ambient 12',
-       title = 'A)')+
+       title = 'B)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -617,7 +617,7 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
              linetype = 'dashed')+
   labs(x = 'Hybrid 18 - Geothermal 18', 
        y = 'Hybrid 18 - Ambient 18', 
-       title = 'B)')+
+       title = 'C)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -729,7 +729,7 @@ liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph,
              linetype = 'dashed')+
   labs(x = 'Hybrid 12 - Geothermal 12', 
        y = 'Hybrid 12 - Ambient 12',
-       title = 'C)')+
+       title = 'D)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -826,7 +826,7 @@ liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph,
              linetype = 'dashed')+
   labs(x = 'Hybrid 18 - Geothermal 18', 
        y = 'Hybrid 18 - Ambient 18', 
-       title = 'D)')+
+       title = 'E)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = liv_inheritance_pal)+
