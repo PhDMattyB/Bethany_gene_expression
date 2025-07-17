@@ -254,10 +254,10 @@ Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12,
          ecotype)
 
 Trans_amb_hyb_12_snps %>% 
-  # group_by(GeneID, 
-  #          ecotype) %>% 
-  group_by(GeneID) %>% 
-  summarize(n = n()) 
+  group_by(GeneID,
+           ecotype) %>%
+  # group_by(GeneID) %>% 
+  summarize(n = n()) %>% View()
 
 
 Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
@@ -480,6 +480,121 @@ anti_join(Trans_geo_hyb_18_snps,
                  'REF', 
                  'ALT', 
                  'ecotype')) 
+
+
+# divergence at 12 degrees ------------------------------------------------
+
+div_12_snps = inner_join(Trans_amb_hyb_12_snps, 
+                            Trans_geo_hyb_12_snps, 
+                            by = c('gene_ensembl', 
+                                   'CHR', 
+                                   'GeneID', 
+                                   'start.x', 
+                                   'end.x', 
+                                   'BP.x', 
+                                   'REF', 
+                                   'ALT', 
+                                   'ecotype'),
+                            relationship = 'many-to-many') 
+
+div_12_snps %>% 
+  group_by(GeneID, 
+           ecotype) %>% 
+  summarize(n = n()) 
+
+## trangressive expressed snps Unique to ambient 
+anti_join(Trans_amb_hyb_12_snps, 
+          Trans_geo_hyb_12_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+# %>% 
+#   dplyr::select(GeneID, 
+#                 BP.x, 
+#                 REF, 
+#                 ALT)
+
+## trasngresssive expressed snps unique to geo
+anti_join(Trans_geo_hyb_12_snps, 
+          Trans_amb_hyb_12_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+# %>% 
+#   dplyr::select(GeneID, 
+#                 BP.x, 
+#                 REF, 
+#                 ALT)
+
+
+
+# divergence at 18 degrees ------------------------------------------------
+
+div_18_snps = inner_join(Trans_amb_hyb_18_snps, 
+                         Trans_geo_hyb_18_snps, 
+                         by = c('gene_ensembl', 
+                                'CHR', 
+                                'GeneID', 
+                                'start.x', 
+                                'end.x', 
+                                'BP.x', 
+                                'REF', 
+                                'ALT', 
+                                'ecotype'),
+                         relationship = 'many-to-many') 
+
+div_18_snps %>% 
+  group_by(GeneID, 
+           ecotype) %>% 
+  summarize(n = n()) 
+
+## trangressive expressed snps Unique to ambient 
+anti_join(Trans_amb_hyb_18_snps, 
+          Trans_geo_hyb_18_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+# %>% 
+#   dplyr::select(GeneID, 
+#                 BP.x, 
+#                 REF, 
+#                 ALT)
+
+## trasngresssive expressed snps unique to geo
+anti_join(Trans_geo_hyb_18_snps, 
+          Trans_amb_hyb_18_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+# %>% 
+#   dplyr::select(GeneID, 
+#                 BP.x, 
+#                 REF, 
+#                 ALT)
 
 
 
