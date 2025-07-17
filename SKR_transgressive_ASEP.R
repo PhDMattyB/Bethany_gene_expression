@@ -598,3 +598,33 @@ anti_join(Trans_geo_hyb_18_snps,
 
 
 
+# BIG OVERLAP -------------------------------------------------------------
+
+inner_join(amb_plast_snps, 
+           geo_plast_snps, 
+           by = c('gene_ensembl', 
+                  'CHR', 
+                  'GeneID', 
+                  'start.x', 
+                  'end.x', 
+                  'BP.x', 
+                  'REF', 
+                  'ALT', 
+                  'ecotype')) %>% View()
+inner_join(div_12_snps, 
+           div_18_snps, 
+           by = c('gene_ensembl', 
+                  'CHR', 
+                  'GeneID', 
+                  'start.x', 
+                  'end.x', 
+                  'BP.x', 
+                  'REF', 
+                  'ALT', 
+                  'ecotype'))
+
+
+# plot expression changes per ecotype!!!! ---------------------------------
+
+
+  
