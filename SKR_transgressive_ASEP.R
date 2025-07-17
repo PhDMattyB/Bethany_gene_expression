@@ -647,6 +647,8 @@ inner_join(div_12_snps,
 
 # plot expression changes per ecotype!!!! ---------------------------------
 
+theme_set(theme_bw())
+
 Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
   dplyr::select(GeneID, 
                 logFC, 
@@ -668,27 +670,74 @@ Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps%>%
                 REF, 
                 ALT, 
                 ecotype, 
+                effect,
                 temp) %>% 
   mutate(ecotemp = 'Ambient 18 degrees')
 
 
 Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
-  filter(GeneID %in% Trans_amb_hyb_18_snps$GeneID)
+  filter(GeneID %in% Trans_amb_hyb_18_snps$GeneID) %>% 
+  arrange(GeneID) %>% 
+  rowid_to_column() %>% 
+  rename(allele_id = rowid) %>% 
+  unite(col = Gene_allele_id, 
+        c(GeneID, 
+          allele_id), 
+        sep = '-', 
+        remove = F) %>% 
+  unite(col = ensembl_allele_id, 
+        c(gene_ensembl, 
+          allele_id), 
+        sep = '-', 
+        remove = F)
 
 Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps %>% 
-  filter(GeneID %in% Trans_amb_hyb_12_snps$GeneID)
+  filter(GeneID %in% Trans_amb_hyb_12_snps$GeneID) %>% 
+  arrange(GeneID) %>% 
+  rowid_to_column() %>% 
+  rename(allele_id = rowid)%>% 
+  unite(col = Gene_allele_id, 
+        c(GeneID, 
+          allele_id), 
+        sep = '-', 
+        remove = F)%>% 
+  unite(col = ensembl_allele_id, 
+        c(gene_ensembl, 
+          allele_id), 
+        sep = '-', 
+        remove = F)
 
 trans_amb_hyb =  bind_rows(Trans_amb_hyb_12_snps_plot, 
                                Trans_amb_hyb_18_snps_plot) %>% 
    arrange(GeneID, 
            CHR, 
-           BP.x) 
+           BP.x)  
 
+trans_exp_plot = c('#457b9d',
+                   '#c1121f')
 
-View(trans_amb_hyb)
-
-trans_amb_hyb %>% 
+trans_amb_hyp_allele_plast = trans_amb_hyb %>% 
   ggplot(aes(x = temp, 
-             y = logFC))+
-  geom_jitter(aes(col = ecotype)) +
-  facet_grid(~GeneID)
+             y = logFC, 
+             group = ecotype,
+             col = ecotype))+
+  geom_line(col = 'black')+
+  geom_point() +
+  scale_color_manual(values = trans_exp_plot)+
+  facet_grid(~Gene_allele_id)+
+  theme(panel.grid = element_blank(), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none', 
+        strip.background = element_rect(fill = 'white'), 
+        strip.text = element_text(face = 'bold'))
+
+
+ggsave('Amb_hyb_12_transgressive_ASEP.tiff', 
+       plot = trans_amb_hyp_allele_plast, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
