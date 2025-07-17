@@ -235,7 +235,7 @@ annotation_data$BP = as.character(annotation_data$BP)
 #            by = c('CHR', 
 #                   'BP'))
 
-inner_join(Trans_amb_hyb_12, 
+Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12, 
            ecotype_snps_fixed, 
            by = 'GeneID', 
            relationship = 'many-to-many') %>% 
@@ -251,17 +251,14 @@ inner_join(Trans_amb_hyb_12,
          REF, 
          ALT, 
          other_affected_genes, 
-         ecotype) %>% View()
+         ecotype)
 
-inner_join(Trans_amb_hyb_12, 
-           ecotype_snps,  
-           by = c('CHR', 
-                  'BP'))
+Trans_amb_hyb_12_snps %>% 
+  # group_by(GeneID, 
+  #          ecotype) %>% 
+  group_by(GeneID) %>% 
+  summarize(n = n()) 
 
-inner_join(Trans_amb_hyb_12, 
-           brain_12_snps, 
-           by = c('CHR', 
-                  'BP'))
 
 Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
@@ -270,12 +267,34 @@ Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)
+  rename(gene_ensembl = GeneID)%>% 
+  inner_join(., 
+             annotation_data) %>% 
+  rename(GeneID = gene_name)
 
-inner_join(Trans_geo_hyb_12, 
-           brain_12_snps, 
-           by = 'gene_ensembl')
+trans_geo_hyb_12_snps = inner_join(Trans_geo_hyb_12, 
+           ecotype_snps_fixed, 
+           by = 'GeneID', 
+           relationship = 'many-to-many')%>% 
+  dplyr::select(gene_ensembl, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                GeneID,
+                feature.x, 
+                start.x, 
+                end.x, 
+                BP.x, 
+                REF, 
+                ALT, 
+                other_affected_genes, 
+                ecotype)
 
+trans_geo_hyb_12_snps %>% 
+  # group_by(GeneID, 
+  #          ecotype) %>% 
+  group_by(GeneID) %>% 
+  summarize(n = n()) 
 
 ## lets try 18 degrees and see what happens
 
@@ -288,14 +307,35 @@ Trans_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv') %>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)
+  rename(gene_ensembl = GeneID)%>% 
+  inner_join(., 
+             annotation_data) %>% 
+  rename(GeneID = gene_name)
   
-inner_join(Trans_amb_hyb_18, 
-           brain_18_snps, 
-           by = 'gene_ensembl')
+Trans_amb_hyb_18_snps = inner_join(Trans_amb_hyb_18, 
+           ecotype_snps_fixed, 
+           by = 'GeneID', 
+           relationship = 'many-to-many')%>% 
+  dplyr::select(gene_ensembl, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                GeneID,
+                feature.x, 
+                start.x, 
+                end.x, 
+                BP.x, 
+                REF, 
+                ALT, 
+                other_affected_genes, 
+                ecotype)
 
-semi_join(Trans_amb_hyb_18, 
-          brain_18_snps)
+Trans_amb_hyb_18_snps %>% 
+  # group_by(GeneID, 
+  #          ecotype) %>% 
+  group_by(GeneID) %>% 
+  summarize(n = n()) 
+
 
 Trans_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
@@ -304,15 +344,34 @@ Trans_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)
+  rename(gene_ensembl = GeneID)%>% 
+  inner_join(., 
+             annotation_data) %>% 
+  rename(GeneID = gene_name)
 
-inner_join(Trans_geo_hyb_18, 
-           brain_18_snps, 
-           by = 'gene_ensembl')
+Trans_geo_hyb_18_snps = inner_join(Trans_geo_hyb_18, 
+           ecotype_snps_fixed, 
+           by = 'GeneID', 
+           relationship = 'many-to-many')%>% 
+  dplyr::select(gene_ensembl, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                GeneID,
+                feature.x, 
+                start.x, 
+                end.x, 
+                BP.x, 
+                REF, 
+                ALT, 
+                other_affected_genes, 
+                ecotype)
 
-semi_join(Trans_geo_hyb_18, 
-          brain_18_snps)
-
+Trans_geo_hyb_18_snps %>% 
+  # group_by(GeneID, 
+  #          ecotype) %>% 
+  group_by(GeneID) %>% 
+  summarize(n = n()) 
 
 
 
