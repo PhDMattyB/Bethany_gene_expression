@@ -677,7 +677,8 @@ Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps%>%
 
 Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
   filter(GeneID %in% Trans_amb_hyb_18_snps$GeneID) %>% 
-  arrange(GeneID) %>% 
+  arrange(gene_ensembl, 
+          GeneID) %>% 
   rowid_to_column() %>% 
   rename(allele_id = rowid) %>% 
   unite(col = Gene_allele_id, 
@@ -693,7 +694,8 @@ Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>%
 
 Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps %>% 
   filter(GeneID %in% Trans_amb_hyb_12_snps$GeneID) %>% 
-  arrange(GeneID) %>% 
+  arrange(gene_ensembl, 
+          GeneID) %>% 
   rowid_to_column() %>% 
   rename(allele_id = rowid)%>% 
   unite(col = Gene_allele_id, 
@@ -709,7 +711,7 @@ Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps %>%
 
 trans_amb_hyb =  bind_rows(Trans_amb_hyb_12_snps_plot, 
                                Trans_amb_hyb_18_snps_plot) %>% 
-   arrange(GeneID, 
+   arrange(Gene_allele_id, 
            CHR, 
            BP.x)  
 
@@ -717,6 +719,8 @@ trans_exp_plot = c('#457b9d',
                    '#c1121f')
 
 trans_amb_hyp_allele_plast = trans_amb_hyb %>% 
+  arrange(CHR, 
+          BP.x) %>% 
   ggplot(aes(x = temp, 
              y = logFC, 
              group = ecotype,
@@ -728,7 +732,8 @@ trans_amb_hyp_allele_plast = trans_amb_hyb %>%
   theme(panel.grid = element_blank(), 
         axis.title.x = element_blank(), 
         axis.title.y = element_text(size = 14), 
-        axis.text = element_text(size = 12), 
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
         legend.position = 'none', 
         strip.background = element_rect(fill = 'white'), 
         strip.text = element_text(face = 'bold'))
@@ -738,6 +743,28 @@ ggsave('Amb_hyb_12_transgressive_ASEP.tiff',
        plot = trans_amb_hyp_allele_plast, 
        dpi = 'retina', 
        units = 'cm', 
-       width = 20, 
+       width = 100, 
        height = 10)
 
+
+trans_amb_hyb %>% 
+  filter(GeneID == 'gstr') %>% 
+  arrange(Gene_allele_id) %>% 
+  View()
+
+trans_amb_hyb %>% 
+  filter(GeneID == 'cpne3') %>% 
+  arrange(Gene_allele_id) %>% 
+  View()
+
+trans_amb_hyb %>% 
+  filter(GeneID == 'PITPNM2') %>% 
+  arrange(Gene_allele_id) %>% 
+  View()
+
+Trans_amb_hyb_12_snps_plot %>% 
+  filter(GeneID == 'gstr') %>% 
+  View()
+
+Trans_amb_hyb_18_snps_plot %>% 
+  filter(GeneID == 'gstr') %>% View()
