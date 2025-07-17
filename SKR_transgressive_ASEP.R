@@ -377,24 +377,31 @@ Trans_geo_hyb_18_snps %>%
 
 # Compare ASEP between groups ---------------------------------------------
 
-Trans_amb_hyb_12_snps = read_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
-Trans_amb_hyb_18_snps = read_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
-Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
-Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
+Trans_amb_hyb_12_snps = read_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv') %>% 
+  mutate(temp = '12')
+Trans_amb_hyb_18_snps = read_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv') %>% 
+  mutate(temp = '18')
+Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv') %>% 
+  mutate(temp = '12')
+Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv') %>% 
+  mutate(temp = '18')
 
+
+
+# Ambient plastic ASEP ----------------------------------------------------
 ## ambient plasticit ASEP
 amb_plast_snps = inner_join(Trans_amb_hyb_12_snps, 
-           Trans_amb_hyb_18_snps, 
-           by = c('gene_ensembl', 
-                  'CHR', 
-                  'GeneID', 
-                  'start.x', 
-                  'end.x', 
-                  'BP.x', 
-                  'REF', 
-                  'ALT', 
-                  'ecotype'),
-           relationship = 'many-to-many') 
+                            Trans_amb_hyb_18_snps, 
+                            by = c('gene_ensembl', 
+                                   'CHR', 
+                                   'GeneID', 
+                                   'start.x', 
+                                   'end.x', 
+                                   'BP.x', 
+                                   'REF', 
+                                   'ALT', 
+                                   'ecotype'),
+                            relationship = 'many-to-many') 
 
 amb_plast_snps %>% 
   group_by(GeneID, 
@@ -417,6 +424,53 @@ anti_join(Trans_amb_hyb_12_snps,
 ## trasngresssive expressed snps unique to 18 degrees
 anti_join(Trans_amb_hyb_18_snps, 
           Trans_amb_hyb_12_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+
+
+# Geothermal plastic ASEP -------------------------------------------------
+
+geo_plast_snps = inner_join(Trans_geo_hyb_12_snps, 
+                            Trans_geo_hyb_18_snps, 
+                            by = c('gene_ensembl', 
+                                   'CHR', 
+                                   'GeneID', 
+                                   'start.x', 
+                                   'end.x', 
+                                   'BP.x', 
+                                   'REF', 
+                                   'ALT', 
+                                   'ecotype'),
+                            relationship = 'many-to-many') 
+
+geo_plast_snps %>% 
+  group_by(GeneID, 
+           ecotype) %>% 
+  summarize(n = n()) 
+
+## trangressive expressed snps Unique to 12 degress
+anti_join(Trans_geo_hyb_12_snps, 
+          Trans_geo_hyb_18_snps, 
+          by = c('gene_ensembl', 
+                 'CHR', 
+                 'GeneID', 
+                 'start.x', 
+                 'end.x', 
+                 'BP.x', 
+                 'REF', 
+                 'ALT', 
+                 'ecotype')) 
+
+## trasngresssive expressed snps unique to 18 degrees
+anti_join(Trans_geo_hyb_18_snps, 
+          Trans_geo_hyb_12_snps, 
           by = c('gene_ensembl', 
                  'CHR', 
                  'GeneID', 
