@@ -114,7 +114,8 @@ ecotype_snps_fixed = ecotype_snps %>%
          ALT, 
          relationship, 
          feature, 
-         other_affected_genes, 
+         other_affected_genes,
+         effect,
          ecotype) %>% 
   na.omit() %>% 
   separate(relationship, 
@@ -221,14 +222,14 @@ Trans_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv')%>%
            annotation_data) %>% 
   rename(GeneID = gene_name)
 
-Trans_amb_hyb_12$BP = as.character(Trans_amb_hyb_12$BP)
-
-## combine with the 12 degree SNPS with allele specific expression
-
-
-
-# ecotype_snps$BP = as.character(ecotype_snps$BP)
-annotation_data$BP = as.character(annotation_data$BP)
+# Trans_amb_hyb_12$BP = as.character(Trans_amb_hyb_12$BP)
+# 
+# ## combine with the 12 degree SNPS with allele specific expression
+# 
+# 
+# 
+# # ecotype_snps$BP = as.character(ecotype_snps$BP)
+# annotation_data$BP = as.character(annotation_data$BP)
 
 # inner_join(ecotype_snps, 
 #            annotation_data, 
@@ -251,13 +252,18 @@ Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12,
          REF, 
          ALT, 
          other_affected_genes, 
+         effect,
          ecotype)
+
+# Trans_amb_hyb_12_snps %>% 
+#   write_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
+
 
 Trans_amb_hyb_12_snps %>% 
   group_by(GeneID,
            ecotype) %>%
   # group_by(GeneID) %>% 
-  summarize(n = n()) %>% View()
+  summarize(n = n()) 
 
 
 Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
@@ -288,7 +294,12 @@ trans_geo_hyb_12_snps = inner_join(Trans_geo_hyb_12,
                 REF, 
                 ALT, 
                 other_affected_genes, 
+                effect,
                 ecotype)
+
+# trans_geo_hyb_12_snps %>%
+#   write_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
+
 
 trans_geo_hyb_12_snps %>% 
   # group_by(GeneID, 
@@ -328,7 +339,12 @@ Trans_amb_hyb_18_snps = inner_join(Trans_amb_hyb_18,
                 REF, 
                 ALT, 
                 other_affected_genes, 
+                effect,
                 ecotype)
+
+# Trans_amb_hyb_18_snps %>%
+#   write_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
+
 
 Trans_amb_hyb_18_snps %>% 
   # group_by(GeneID, 
@@ -364,8 +380,13 @@ Trans_geo_hyb_18_snps = inner_join(Trans_geo_hyb_18,
                 BP.x, 
                 REF, 
                 ALT, 
-                other_affected_genes, 
+                other_affected_genes,
+                effect,
                 ecotype)
+
+# Trans_geo_hyb_18_snps %>%
+#   write_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
+
 
 Trans_geo_hyb_18_snps %>% 
   # group_by(GeneID, 
@@ -610,7 +631,7 @@ inner_join(amb_plast_snps,
                   'BP.x', 
                   'REF', 
                   'ALT', 
-                  'ecotype')) %>% View()
+                  'ecotype'))  
 inner_join(div_12_snps, 
            div_18_snps, 
            by = c('gene_ensembl', 
@@ -626,5 +647,48 @@ inner_join(div_12_snps,
 
 # plot expression changes per ecotype!!!! ---------------------------------
 
+Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                BP.x, 
+                REF, 
+                ALT, 
+                ecotype, 
+                effect,
+                temp) %>% 
+  mutate(ecotemp = 'Ambient 12 degrees')
+Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps%>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                BP.x, 
+                REF, 
+                ALT, 
+                ecotype, 
+                temp) %>% 
+  mutate(ecotemp = 'Ambient 18 degrees')
 
-  
+
+Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
+  filter(GeneID %in% Trans_amb_hyb_18_snps$GeneID)
+
+Trans_amb_hyb_18_snps_plot = Trans_amb_hyb_18_snps %>% 
+  filter(GeneID %in% Trans_amb_hyb_12_snps$GeneID)
+
+trans_amb_hyb =  bind_rows(Trans_amb_hyb_12_snps_plot, 
+                               Trans_amb_hyb_18_snps_plot) %>% 
+   arrange(GeneID, 
+           CHR, 
+           BP.x) 
+
+
+View(trans_amb_hyb)
+
+trans_amb_hyb %>% 
+  ggplot(aes(x = temp, 
+             y = logFC))+
+  geom_jitter(aes(col = ecotype)) +
+  facet_grid(~GeneID)
