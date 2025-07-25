@@ -46,6 +46,10 @@ liver_common_genes = read_csv('Liver_DEG_Common_edger_limma.csv')
 # Brain temp plast --------------------------------------------------------
 brain_limma_all = read_csv('Brain_LIMMA_model_results_all.csv')
 
+brain_limma_all %>% 
+  dplyr::select(GeneID) %>% 
+  write_tsv('brain_limma_gene_list.txt')
+
 ## All genes 
 
 brain_eco12_neutral = read_csv('Brain_eco_div_12.csv') %>% 
@@ -474,6 +478,146 @@ ggplot(data = Liver_plast_hyb_clean,
   geom_point()+
   scale_y_reverse()
 
+
+
+#liver hybrid vs pure divergence and plasticity ----------------------------------------------
+  
+liv_neutral_amb_hyb_12 = read_csv('liver_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+liv_significant_amb_hyb_12 = read_csv('liver_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+liv_neutral_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+liv_significant_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+liv_neutral_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+liv_significant_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+liv_neutral_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')
+liv_significant_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')
+
+liver_amb_hyb_12_clean = bind_rows(liv_significant_amb_hyb_12, 
+                                   liv_neutral_amb_hyb_12)
+
+# liver_amb_hyb_18_clean = bind_rows(significant_amb_hyb_18,
+#                                    neutral_amb_hyb_18)
+
+liver_geo_hyb_12_clean = bind_rows(liv_significant_geo_hyb_12, 
+                                   liv_neutral_geo_hyb_12)
+# liver_geo_hyb_18_clean = bind_rows(significant_geo_hyb_18, 
+#                                    neutral_geo_hyb_18)
+
+
+ggplot(data = liver_amb_hyb_12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+# ggplot(data = liver_amb_hyb_18_clean, 
+#        aes(x = logFC, 
+#            y = adj.P.Val, 
+#            col = status))+
+#   geom_point()+
+#   scale_y_reverse()
+
+ggplot(data = liver_geo_hyb_12_clean, 
+       aes(x = logFC, 
+           y = adj.P.Val, 
+           col = status))+
+  geom_point()+
+  scale_y_reverse()
+
+# ggplot(data = liver_geo_hyb_18_clean, 
+#        aes(x = logFC, 
+#            y = adj.P.Val, 
+#            col = status))+
+#   geom_point()+
+#   scale_y_reverse()
+
+
+# ggplot(data = liver_plast_hyb_clean, 
+#        aes(x = logFC, 
+#            y = adj.P.Val, 
+#            col = status))+
+#   geom_point()+
+#   scale_y_reverse()
+
+
+
+
+## quantify overlap in divergence at same temperature
+liv_div_pure_hyb_12 = inner_join(liv_significant_amb_hyb_12, 
+                             liv_significant_geo_hyb_12, 
+                             by = 'GeneID')
+
+
+
+
+# amb_hyb_12_only = anti_join(significant_amb_hyb_12, 
+#           amb_hyb_div_common, 
+#           by = 'GeneID')
+# 
+# amb_hyb_18_only = anti_join(significant_amb_hyb_18, 
+#                             amb_hyb_div_common, 
+#                             by = 'GeneID')
+
+
+# geo_hyb_div_common = inner_join(significant_geo_hyb_12, 
+#                                 significant_geo_hyb_18, 
+#                                 by = 'GeneID')
+
+# geo_hyb_12_only = anti_join(significant_geo_hyb_12, 
+#                             geo_hyb_div_common, 
+#                             by = 'GeneID')
+# 
+# geo_hyb_18_only = anti_join(significant_geo_hyb_18, 
+#                             geo_hyb_div_common, 
+#                             by = 'GeneID')
+
+
+
+# Div_eco_temp = inner_join(amb_hyb_div_common, 
+#                           geo_hyb_div_common, 
+#                           by = 'GeneID')
+# 
+# amb_hyb_div_common_temp = anti_join(amb_hyb_div_common,
+#                                     Div_eco_temp,
+#                                     by = 'GeneID')
+# 
+# geo_hyb_div_common_temp = anti_join(geo_hyb_div_common,
+#                                     Div_eco_temp,
+#                                     by = 'GeneID')
+# 
+# amb_hyb_12_only = anti_join(significant_amb_hyb_12, 
+#                             Div_eco_temp, 
+#                             by = 'GeneID')
+# amb_hyb_18_only = anti_join(significant_amb_hyb_18, 
+#                             Div_eco_temp, 
+#                             by = 'GeneID')
+# 
+# 
+# geo_hyb_12_only = anti_join(significant_geo_hyb_12, 
+#                             Div_eco_temp, 
+#                             by = 'GeneID')
+# geo_hyb_18_only = anti_join(significant_geo_hyb_18, 
+#                             Div_eco_temp, 
+#                             by = 'GeneID')
 
 # stickleback v5 annotation -----------------------------------------------
 
