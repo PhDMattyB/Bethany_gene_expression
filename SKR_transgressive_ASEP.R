@@ -649,6 +649,12 @@ inner_join(div_12_snps,
 
 theme_set(theme_bw())
 
+
+# plasticity of Trans amb vs hyb  --------------------------------------------------
+
+
+## transgressive expression between ambient and hybrids 
+
 Trans_amb_hyb_12_snps_plot = Trans_amb_hyb_12_snps %>% 
   dplyr::select(GeneID, 
                 logFC, 
@@ -762,9 +768,108 @@ trans_amb_hyb %>%
   arrange(Gene_allele_id) %>% 
   View()
 
-Trans_amb_hyb_12_snps_plot %>% 
-  filter(GeneID == 'gstr') %>% 
-  View()
 
-Trans_amb_hyb_18_snps_plot %>% 
-  filter(GeneID == 'gstr') %>% View()
+
+# Plasticity of trans geo vs hyb ------------------------------------------
+
+Trans_geo_hyb_12_snps_plot = Trans_geo_hyb_12_snps %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                BP.x, 
+                REF, 
+                ALT, 
+                ecotype, 
+                effect,
+                temp) %>% 
+  mutate(ecotemp = 'geothermal 12 degrees')
+Trans_geo_hyb_18_snps_plot = Trans_geo_hyb_18_snps%>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val, 
+                CHR, 
+                BP.x, 
+                REF, 
+                ALT, 
+                ecotype, 
+                effect,
+                temp) %>% 
+  mutate(ecotemp = 'geothermal 18 degrees')
+
+
+Trans_geo_hyb_12_snps_plot = Trans_geo_hyb_12_snps %>% 
+  filter(GeneID %in% Trans_geo_hyb_18_snps$GeneID) %>% 
+  arrange(gene_ensembl, 
+          GeneID) %>% 
+  rowid_to_column() %>% 
+  rename(allele_id = rowid) %>% 
+  unite(col = Gene_allele_id, 
+        c(GeneID, 
+          allele_id), 
+        sep = '-', 
+        remove = F) %>% 
+  unite(col = ensembl_allele_id, 
+        c(gene_ensembl, 
+          allele_id), 
+        sep = '-', 
+        remove = F)
+
+Trans_geo_hyb_18_snps_plot = Trans_geo_hyb_18_snps %>% 
+  filter(GeneID %in% Trans_geo_hyb_12_snps$GeneID) %>% 
+  arrange(gene_ensembl, 
+          GeneID) %>% 
+  rowid_to_column() %>% 
+  rename(allele_id = rowid)%>% 
+  unite(col = Gene_allele_id, 
+        c(GeneID, 
+          allele_id), 
+        sep = '-', 
+        remove = F)%>% 
+  unite(col = ensembl_allele_id, 
+        c(gene_ensembl, 
+          allele_id), 
+        sep = '-', 
+        remove = F)
+
+trans_geo_hyb =  bind_rows(Trans_geo_hyb_12_snps_plot, 
+                           Trans_geo_hyb_18_snps_plot) %>% 
+  arrange(Gene_allele_id, 
+          CHR, 
+          BP.x)  
+
+trans_exp_plot = c('#457b9d',
+                   '#c1121f')
+
+trans_geo_hyp_allele_plast = trans_geo_hyb %>% 
+  arrange(CHR, 
+          BP.x) %>% 
+  ggplot(aes(x = temp, 
+             y = logFC, 
+             group = ecotype,
+             col = ecotype))+
+  geom_line(col = 'black')+
+  geom_point() +
+  scale_color_manual(values = trans_exp_plot)+
+  facet_grid(~Gene_allele_id)+
+  theme(panel.grid = element_blank(), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_text(size = 14), 
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        legend.position = 'none', 
+        strip.background = element_rect(fill = 'white'), 
+        strip.text = element_text(face = 'bold'))
+
+
+ggsave('geo_hyb_12_transgressive_ASEP.tiff', 
+       plot = trans_geo_hyp_allele_plast, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 10)
+
+
+
+
+
