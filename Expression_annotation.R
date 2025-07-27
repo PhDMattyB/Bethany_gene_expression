@@ -62,13 +62,13 @@ gene_annotation = read_tsv('stickleback_v5_ensembl_genes.gff3.gz',
 
 
 gene_metadata = gene_annotation %>% 
-  filter(feature == 'gene') %>% 
+  # filter(feature == 'gene') %>% 
   select(position,
          chromosome,
          feature)
 
 ensemlbe_annotation_data = gene_annotation %>% 
-  filter(feature == 'gene') %>% 
+  # filter(feature == 'gene') %>% 
   pull(gene_id) %>% 
   as_tibble() %>% 
   separate(value, 
@@ -111,7 +111,7 @@ brain_goi_names = brain_goi %>%
   rename(ensemble_name = gene_name)
 # brain eco*temp qvalue FDR -----------------------------------------------------
 
-brain_ecotemp_pvalues <- goi$ecow_temp18_pval
+brain_ecotemp_pvalues <- brain_goi$ecow_temp18_pval
 
 ## qvalue FDR
 brain_ecotemp_qvalues = qvalue_truncp(p = brain_ecotemp_pvalues)
@@ -151,7 +151,7 @@ brain_qvalue_ecotemp = bind_cols(brain_goi_names,
   select(-trash)
 
 brain_qvalue_ecotemp%>% 
-  select(gene_name) %>% 
+  # select(gene_name) %>% 
   # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
   write_tsv('BRAIN_qvalue_FDR_Expression_gene_names_ecotemp_pval0.05.txt')
 
@@ -177,7 +177,7 @@ brain_BH_ecotemp = bind_cols(brain_goi_names,
   select(-trash)
 
 brain_BH_ecotemp%>% 
-  select(gene_name) %>% 
+  # select(gene_name) %>% 
   # write_csv('Expression_gene_names_ecotemp_pval0.01.csv')
   write_tsv('BRAIN_BH_FDR_Expression_gene_names_ecotemp_pval0.05.txt')
 
@@ -635,11 +635,11 @@ liver_ecotemp_qvalue = bind_cols(liver_goi_names,
   select(-trash)
 
 liver_ecotemp_BH %>% 
-  select(gene_name) %>% 
+  # select(gene_name) %>% 
   write_tsv('~/Parsons_Postdoc/Bethany_gene_expression/LIVER_BH_FDR_GLMER_ecotemp_pval0.05.txt')
 
 liver_ecotemp_qvalue %>% 
-  select(gene_name) %>% 
+  # select(gene_name) %>% 
   write_tsv('~/Parsons_Postdoc/Bethany_gene_expression/LIVER_qvalue_FDR_GLMER_ecotemp_pval0.05.txt')
 
 
@@ -701,3 +701,6 @@ Brain_liver_BH_intersect %>%
 
 Brain_liver_BH_intersect %>% 
   filter(gene_name == 'glula')
+
+
+
