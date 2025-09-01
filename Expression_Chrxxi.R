@@ -61,3 +61,6 @@ ggplot(data = liver_exp_xxi,
            col = status))+
   geom_point()+
   scale_y_reverse()
+
+
+
