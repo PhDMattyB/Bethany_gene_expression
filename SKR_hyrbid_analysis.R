@@ -21,7 +21,7 @@ liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
 
 metadata = names(brain_exp) %>% 
   as_tibble() %>% 
-  slice(-1) %>% 
+  dplyr::slice(-1) %>% 
   separate(col = value, 
            into = c('ecotype', 
                     'temp', 
