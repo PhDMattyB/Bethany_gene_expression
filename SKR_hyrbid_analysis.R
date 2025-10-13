@@ -864,4 +864,73 @@ ggplot(data = mean_data,
 
 
 
+# Brain DEG ---------------------------------------------------------------
+
+library(UpSetR)
+
+brain_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05)
+
+brain_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)
+
+brain_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)
+
+brain_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)
+
+
+
+brain_amb_geo_12 = read_csv('Brain_eco_div_12.csv')%>% 
+  filter(adj.P.Val <= 0.05)
+
+brain_amb_geo_18 = read_csv('Brain_eco_div_18.csv')%>% 
+  filter(adj.P.Val <= 0.05)
+
+
+
+# Brain Plasticity --------------------------------------------------------------
+
+brain_amb_plast = read_csv('Brain_ambient_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Ambient = GeneID)
+
+brain_geo_plast = read_csv('Brain_geothermal_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Geothermal')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal = GeneID)
+
+brain_hyb_plast = read_csv('Brain_hybrid_plastic.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Hybrid')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Hybrid = GeneID)
+
+
+brain_plast_df <- reduce(list(data.frame(brain_amb_plast$GeneID, set1=1),
+                        data.frame(brain_geo_plast$GeneID, set2=1),
+                        data.frame(brain_hyb_plast$GeneID, set3=1)
+), cross_join)
+
+brain_plast_df <- reduce(list(data.frame(brain_amb_plast),
+                              data.frame(brain_geo_plast),
+                              data.frame(brain_hyb_plast)
+), cross_join)
+
+brain_plast_df[is.na(brain_plast_df)] <- 0
+
+
+upset(fromList(brain_plast_df))
+
+
+
+# Brain hyb divergence ----------------------------------------------------
+
+
+# brain ecotype divergence ------------------------------------------------
+
 

@@ -149,20 +149,20 @@ metadata = names(brain_exp) %>%
         remove = F)
 
 
-# brain_long = brain_count_limma %>% 
-#   # rename(gene_ID = `...1`) %>% 
-#   pivot_longer(cols = !GeneID, 
-#                names_to = "library", 
-#                values_to = "tpm") %>% 
-#   mutate(logTPM = log10(tpm + 1)) 
+brain_long = brain_count_limma %>%
+  # rename(gene_ID = `...1`) %>%
+  pivot_longer(cols = !GeneID,
+               names_to = "library",
+               values_to = "tpm") %>%
+  mutate(logTPM = log10(tpm + 1))
 
 
-# brain_long_wide = brain_long %>% 
-#   select(GeneID, 
-#          library, 
-#          logTPM) %>% 
-#   pivot_wider(names_from = library, 
-#               values_from = logTPM)
+brain_long_wide = brain_long %>%
+  select(GeneID,
+         library,
+         logTPM) %>%
+  pivot_wider(names_from = library,
+              values_from = logTPM)
 
 
 
@@ -216,7 +216,8 @@ brain_PCA_coord %>%
   theme(panel.grid = element_blank(),
     text = element_text(size= 14),
     axis.text = element_text(color = "black"), 
-    legend.position = 'none')
+    # legend.position = 'none'
+    )
 
 ggsave('Brain_PCA_All_DEG_Axes1_2.tiff', 
        plot = last_plot(),

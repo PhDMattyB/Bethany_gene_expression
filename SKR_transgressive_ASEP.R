@@ -425,9 +425,20 @@ amb_plast_snps = inner_join(Trans_amb_hyb_12_snps,
                             relationship = 'many-to-many') 
 
 amb_plast_snps %>% 
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype, 
+                logFC.x, 
+                logFC.y) %>% 
+  arrange(BP.x) %>% 
+  View()
   group_by(GeneID, 
            ecotype) %>% 
-  summarize(n = n()) 
+  summarize(n = n(), 
+            logfc_12 = mean(logFC.x), 
+            logfc_18 = mean(logFC.y)) %>% 
+  arrange(ecotype) %>% View()
 
 ## trangressive expressed snps Unique to 12 degress
 anti_join(Trans_amb_hyb_12_snps, 
@@ -440,7 +451,11 @@ anti_join(Trans_amb_hyb_12_snps,
                   'BP.x', 
                   'REF', 
                   'ALT', 
-                  'ecotype')) 
+                  'ecotype')) %>% 
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype)
 
 ## trasngresssive expressed snps unique to 18 degrees
 anti_join(Trans_amb_hyb_18_snps, 
@@ -453,7 +468,11 @@ anti_join(Trans_amb_hyb_18_snps,
                  'BP.x', 
                  'REF', 
                  'ALT', 
-                 'ecotype')) 
+                 'ecotype')) %>% 
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype)
 
 
 # Geothermal plastic ASEP -------------------------------------------------
@@ -474,6 +493,14 @@ geo_plast_snps = inner_join(Trans_geo_hyb_12_snps,
 geo_plast_snps %>% 
   group_by(GeneID, 
            ecotype) %>% 
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype, 
+                logFC.x, 
+                logFC.y) %>% 
+  arrange(BP.x) %>% 
+  View()
   summarize(n = n()) 
 
 ## trangressive expressed snps Unique to 12 degress
@@ -520,7 +547,15 @@ div_12_snps = inner_join(Trans_amb_hyb_12_snps,
 
 div_12_snps %>% 
   group_by(GeneID, 
-           ecotype) %>% 
+           ecotype) %>%
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype, 
+                logFC.x, 
+                logFC.y) %>% 
+  arrange(BP.x) %>% 
+  View()
   summarize(n = n()) 
 
 ## trangressive expressed snps Unique to ambient 
@@ -579,6 +614,14 @@ div_18_snps = inner_join(Trans_amb_hyb_18_snps,
 div_18_snps %>% 
   group_by(GeneID, 
            ecotype) %>% 
+  dplyr::select(CHR, 
+                BP.x, 
+                GeneID,
+                ecotype, 
+                logFC.x, 
+                logFC.y) %>% 
+  arrange(BP.x) %>% 
+  View()
   summarize(n = n()) 
 
 ## trangressive expressed snps Unique to ambient 
@@ -836,7 +879,8 @@ trans_geo_hyb =  bind_rows(Trans_geo_hyb_12_snps_plot,
                            Trans_geo_hyb_18_snps_plot) %>% 
   arrange(Gene_allele_id, 
           CHR, 
-          BP.x)  
+          BP.x) %>% 
+  get_dupes(Gene_allele_id)
 
 trans_exp_plot = c('#457b9d',
                    '#c1121f')
