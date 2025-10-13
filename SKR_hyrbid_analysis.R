@@ -868,17 +868,7 @@ ggplot(data = mean_data,
 
 library(UpSetR)
 
-brain_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
-  filter(adj.P.Val <= 0.05)
 
-brain_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv')%>% 
-  filter(adj.P.Val <= 0.05)
-
-brain_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
-  filter(adj.P.Val <= 0.05)
-
-brain_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv')%>% 
-  filter(adj.P.Val <= 0.05)
 
 
 
@@ -890,7 +880,7 @@ brain_amb_geo_18 = read_csv('Brain_eco_div_18.csv')%>%
 
 
 
-# Brain Plasticity --------------------------------------------------------------
+# Brain Plasticity upset --------------------------------------------------------------
 
 brain_amb_plast = read_csv('Brain_ambient_plastic.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
@@ -910,27 +900,106 @@ brain_hyb_plast = read_csv('Brain_hybrid_plastic.csv') %>%
   dplyr::select(GeneID) %>% 
   rename(Hybrid = GeneID)
 
-
-brain_plast_df <- reduce(list(data.frame(brain_amb_plast$GeneID, set1=1),
-                        data.frame(brain_geo_plast$GeneID, set2=1),
-                        data.frame(brain_hyb_plast$GeneID, set3=1)
-), cross_join)
-
 brain_plast_df <- reduce(list(data.frame(brain_amb_plast),
                               data.frame(brain_geo_plast),
-                              data.frame(brain_hyb_plast)
-), cross_join)
+                              data.frame(brain_hyb_plast)), 
+                         cross_join)
 
 brain_plast_df[is.na(brain_plast_df)] <- 0
 
-
-upset(fromList(brain_plast_df))
-
+brain_plasticity_upset_plot = upset(fromList(brain_plast_df))
 
 
-# Brain hyb divergence ----------------------------------------------------
+
+# Liver plasticity upset --------------------------------------------------
+liver_amb_plast = read_csv('Liver_ambient_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Ambient = GeneID)
+
+liver_geo_plast = read_csv('Liver_geothermal_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Geothermal')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal = GeneID)
+
+liver_hyb_plast = read_csv('Liver_hybrid_plastic.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Hybrid')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Hybrid = GeneID)
+
+liver_plast_df <- reduce(list(data.frame(liver_amb_plast),
+                              data.frame(liver_geo_plast),
+                              data.frame(liver_hyb_plast)), 
+                         cross_join)
+
+liver_plast_df[is.na(liver_plast_df)] <- 0
+
+liver_plasticity_upset_plot = upset(fromList(liver_plast_df))
 
 
+
+# Brain hyb divergence upset ----------------------------------------------------
+brain_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05)%>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Ambient_vs_Hybrid_12 = GeneID) %>% 
+  as.list()
+
+brain_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)%>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Ambient_vs_Hybrid_18 = GeneID) %>% 
+  as.list()
+
+brain_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)%>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal_vs_Hybrid_12 = GeneID) %>% 
+  as.list()
+
+brain_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05)%>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal_vs_Hybrid_12 = GeneID) %>% 
+  as.list()
+
+brain_div_df <- reduce(list(data.frame(brain_amb_hyb_12),
+                              data.frame(brain_amb_hyb_18), 
+                            data.frame(brain_geo_hyb_12), 
+                            data.frame(brain_geo_hyb_18)),
+                         cross_join)
+
+# reduce(list(data.frame(brain_div_df),
+#             data.frame(brain_geo_hyb_12)), 
+#        cross_join)
+# data.frame(brain_geo_hyb_12), 
+# data.frame(brain_geo_hyb_18)
+
+div_list <- list(
+  Ambient_vs_Hybrid_12 = brain_amb_hyb_12$Ambient_vs_Hybrid_12, 
+  Ambient_vs_Hybrid_18 = brain_amb_hyb_18$Ambient_vs_Hybrid_18, 
+  Geothermal_vs_Hyrbid_12 = brain_geo_hyb_12$Geothermal_vs_Hybrid_12, 
+  Geothermal_vs_Hybrid_18 = brain_geo_hyb_18$Geothermal_vs_Hybrid_12)
+
+# my_list = list(data1 = data.frame(brain_amb_hyb_12), 
+#     data2 = data.frame(brain_amb_hyb_18), 
+#      data3 = data.frame(brain_geo_hyb_12), 
+#      data4 = data.frame(brain_geo_hyb_18))
+
+div_comb_mat <- make_comb_mat(div_list)
+# my_names <- set_name(comb_mat)
+
+UpSet(div_comb_mat)
+
+
+ 
 # brain ecotype divergence ------------------------------------------------
 
 
