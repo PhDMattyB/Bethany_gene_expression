@@ -811,6 +811,13 @@ trans_amb_hyb %>%
   arrange(Gene_allele_id) %>% 
   View()
 
+Trans_amb_hyb_12_snps_plot %>% 
+  group_by(ecotype) %>%  
+  summarize(n = n()) 
+
+Trans_amb_hyb_18_snps_plot %>% 
+  group_by(ecotype) %>%  
+  summarize(n = n()) 
 
 
 # Plasticity of trans geo vs hyb ------------------------------------------
@@ -839,6 +846,15 @@ Trans_geo_hyb_18_snps_plot = Trans_geo_hyb_18_snps%>%
                 effect,
                 temp) %>% 
   mutate(ecotemp = 'geothermal 18 degrees')
+
+
+Trans_geo_hyb_12_snps_plot %>% 
+  group_by(ecotype) %>%  
+           summarize(n = n()) 
+
+Trans_geo_hyb_18_snps_plot %>% 
+  group_by(ecotype) %>%  
+  summarize(n = n()) 
 
 
 Trans_geo_hyb_12_snps_plot = Trans_geo_hyb_12_snps %>% 

@@ -971,7 +971,8 @@ brain_plast_comb_mat <- make_comb_mat(brain_plast_list)
 brain_plasticity_upset_plot = UpSet(brain_plast_comb_mat)
 
 
-
+ggsave('Brain_Plasticity_upset.tiff', 
+       plot = brain_plasticity_upset_plot)
 
 # Liver plasticity upset --------------------------------------------------
 liver_amb_plast = read_csv('Liver_ambient_plastic.csv')%>% 
@@ -1136,6 +1137,4 @@ liver_div_comb_mat <- make_comb_mat(liver_div_list)
 UpSet(liver_div_comb_mat)
 
  
-# brain ecotype divergence ------------------------------------------------
-
 
