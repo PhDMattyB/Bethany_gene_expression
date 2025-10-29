@@ -114,20 +114,9 @@ brain_count_limma = inner_join(brain_exp,
 
 
 
-# liver_exp = read_tsv('Liver_Normalized_expression.txt')
-# liver_exp_gene = read_tsv("Liver_Normalized_expression_gene_list.txt")
-# 
-# liver_exp = bind_cols(liver_exp_gene, 
-#                       liver_exp)
-# 
-# 
-# liver_limma = read_tsv("Liver_limma_gene_list.txt")
-# 
-# liver_count_limma = inner_join(liver_exp, 
-#                                liver_limma, 
-#                                by = 'GeneID')
 
-metadata = names(brain_exp) %>% 
+
+brain_metadata = names(brain_exp) %>% 
   as_tibble() %>% 
   slice(-1) %>% 
   separate(col = value, 
@@ -164,9 +153,55 @@ brain_long_wide = brain_long %>%
   pivot_wider(names_from = library,
               values_from = logTPM)
 
+liver_exp = read_tsv('Liver_Normalized_expression.txt')
+liver_exp_gene = read_tsv("Liver_Normalized_expression_gene_list.txt")
+
+liver_exp = bind_cols(liver_exp_gene,
+                      liver_exp)
+liver_metadata = names(liver_exp) %>% 
+  as_tibble() %>% 
+  slice(-1) %>% 
+  separate(col = value, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample', 
+                    'tissue'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-') %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+# 
+liver_limma = read_tsv("Liver_limma_gene_list.txt")
+
+liver_count_limma = inner_join(liver_exp,
+                               liver_limma,
+                               by = 'GeneID')
+
+liver_long = liver_count_limma %>%
+  # rename(gene_ID = `...1`) %>%
+  pivot_longer(cols = !GeneID,
+               names_to = "library",
+               values_to = "tpm") %>%
+  mutate(logTPM = log10(tpm + 1))
 
 
-# PCA ---------------------------------------------------------------------
+liver_long_wide = liver_long %>%
+  select(GeneID,
+         library,
+         logTPM) %>%
+  pivot_wider(names_from = library,
+              values_from = logTPM)
+
+
+# brain PCA ---------------------------------------------------------------------
 
 
 brain_pca_data = brain_long_wide %>% 
@@ -180,7 +215,7 @@ head(pc_importance, 20)
 brain_PCA_coord = brain_pca$x[, 1:10] %>% 
   as.data.frame() %>% 
   mutate(value = row.names(.)) %>% 
-  full_join(metadata %>% 
+  full_join(brain_metadata %>% 
               select(value,
                      sample_num, 
                      ecotemp, 
@@ -245,7 +280,8 @@ brain_PCA_coord %>%
              col = 'black')+
   theme(panel.grid = element_blank(),
         text = element_text(size= 14),
-        axis.text = element_text(color = "black"))
+        axis.text = element_text(color = "black"), 
+        legend.position = 'none')
 
 ggsave('Brain_PCA_All_DEG_Axes2_3.tiff', 
        plot = last_plot(),
@@ -253,6 +289,96 @@ ggsave('Brain_PCA_All_DEG_Axes2_3.tiff',
        width = 4, 
        height = 3)
 
+
+
+
+
+# liver pca ---------------------------------------------------------------
+
+liver_pca_data = liver_long_wide %>% 
+  select(-GeneID)
+
+liver_pca = prcomp(t(liver_count_limma[,-1]))
+pc_importance = as.data.frame(t(summary(liver_pca)$importance))
+head(pc_importance, 20)
+
+
+liver_PCA_coord = liver_pca$x[, 1:10] %>% 
+  as.data.frame() %>% 
+  mutate(value = row.names(.)) %>% 
+  full_join(liver_metadata %>% 
+              select(value,
+                     sample_num, 
+                     ecotemp, 
+                     ecotype, 
+                     temp, 
+                     family), by = "value")
+
+PCA_cols = c('#559fe4', 
+             '#f94144',
+             '#086375', 
+             '#fee440',
+             '#1565c0', 
+             '#a0001c')
+
+
+liver_PCA_coord %>% 
+  ggplot(aes(x = PC1, y = PC2)) +
+  geom_point(aes(fill = ecotemp), 
+             color = "grey20", 
+             shape = 21, 
+             size = 3, 
+             alpha = 0.8) +
+  # scale_color_manual(values = PCA_cols)+
+  scale_fill_manual(values = PCA_cols)+
+  labs(x = paste("PC1 (", pc_importance[1, 2] %>% signif(3)*100, "% of Variance)", sep = ""), 
+       y = paste("PC2 (", pc_importance[2, 2] %>% signif(3)*100, "% of Variance)", "  ", sep = ""),
+       fill = NULL) +  
+  theme_bw() +
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  theme(panel.grid = element_blank(),
+        text = element_text(size= 14),
+        axis.text = element_text(color = "black"), 
+        legend.position = 'none'
+  )
+
+ggsave('liver_PCA_All_DEG_Axes1_2.tiff', 
+       plot = last_plot(),
+       dpi = 'retina', 
+       width = 4, 
+       height = 3)
+
+
+liver_PCA_coord %>% 
+  ggplot(aes(x = PC2, y = PC3)) +
+  geom_point(aes(fill = ecotemp), 
+             color = "grey20", 
+             shape = 21, 
+             size = 3, 
+             alpha = 0.8) +
+  # scale_color_manual(values = PCA_cols)+
+  scale_fill_manual(values = PCA_cols)+
+  labs(x = paste("PC2 (", pc_importance[2, 2] %>% signif(3)*100, "% of Variance)", sep = ""), 
+       y = paste("PC3 (", pc_importance[3, 2] %>% signif(3)*100, "% of Variance)", "  ", sep = ""),
+       fill = NULL) +  
+  theme_bw() +
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  theme(panel.grid = element_blank(),
+        text = element_text(size= 14),
+        axis.text = element_text(color = "black"), 
+        legend.position = 'none')
+
+ggsave('liver_PCA_All_DEG_Axes2_3.tiff', 
+       plot = last_plot(),
+       dpi = 'retina', 
+       width = 4, 
+       height = 3)
 
 
 
