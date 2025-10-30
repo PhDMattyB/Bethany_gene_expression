@@ -1015,41 +1015,19 @@ liver_geo_hyb_18_clean = bind_rows(liv_significant_geo_hyb_18,
 
 ggplot(data = liver_amb_hyb_12_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))
 
-# ggplot(data = liver_amb_hyb_18_clean, 
-#        aes(x = logFC, 
-#            y = adj.P.Val, 
-#            col = status))+
-#   geom_point()+
-#   scale_y_reverse()
+ggplot(data = liver_amb_hyb_18_clean,
+       aes(x = logFC,
+           y = adj.P.Val))
 
 ggplot(data = liver_geo_hyb_12_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))
 
-# ggplot(data = liver_geo_hyb_18_clean, 
-#        aes(x = logFC, 
-#            y = adj.P.Val, 
-#            col = status))+
-#   geom_point()+
-#   scale_y_reverse()
-
-
-# ggplot(data = liver_plast_hyb_clean, 
-#        aes(x = logFC, 
-#            y = adj.P.Val, 
-#            col = status))+
-#   geom_point()+
-#   scale_y_reverse()
-
-
+ggplot(data = liver_geo_hyb_18_clean,
+       aes(x = logFC,
+           y = adj.P.Val))
 
 
 ## quantify overlap in divergence at same temperature
