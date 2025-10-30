@@ -499,7 +499,7 @@ Brain_geo_hyb_18_volplot = ggplot(data = brain_geo_hyb_clean18,
 
 hybrid_div_volplots = Brain_amb_hyb_12_volplot+Brain_amb_hyb_18_volplot+Brain_geo_hyb_12_volplot+Brain_geo_hyb_18_volplot
 
-ggsave('Hybrid_divergence_Volcanoe_Plot.tiff', 
+ggsave('Hybrid_divergence_Volcanoe_Plot.svg', 
        plot = hybrid_div_volplots, 
        dpi = 'retina', 
        units = 'cm', 
@@ -670,36 +670,61 @@ Liver_limma_all = read_csv('Liver_LIMMA_model_results_all.csv')
 
 Liver_eco12_neutral = read_csv('Liver_eco_div_12.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral') %>% 
+  mutate(Regulated = 'Neutral')
 Liver_eco18_neutral = read_csv('Liver_eco_div_18.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral') %>% 
+  mutate(Regulated = 'Neutral')
 Liver_plast_amb_neutral = read_csv('Liver_ambient_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral') %>% 
+  mutate(Regulated = 'Neutral')
 Liver_plast_geo_neutral = read_csv('Liver_geothermal_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral') %>% 
+  mutate(Regulated = 'Neutral')
 Liver_plast_hyb_neutral = read_csv('Liver_hybrid_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral') %>% 
+  mutate(Regulated = 'Neutral')
 
 ##  Liver significantly differentially expressed genes
 Liver_eco12 = read_csv('Liver_eco_div_12.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 Liver_eco18 = read_csv('Liver_eco_div_18.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 Liver_plast_amb = read_csv('Liver_ambient_plastic.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 Liver_plast_geo = read_csv('Liver_geothermal_plastic.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 Liver_plast_hyb = read_csv('Liver_hybrid_plastic.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 
 Liver_eco12_clean = bind_rows(Liver_eco12, 
@@ -761,21 +786,70 @@ inner_join(Liver_plast_amb,
 ## 38 that are plastic between all three ecotypes
 
 # Liver quick volcano plots -----------------------------------------------------
+volcano_cols = c('#127475',
+                 '#dedbd2', 
+                 '#f2542d')
+vol_plots_no_DEG = c('#dedbd2')
+
+# liver eco div vol plots -------------------------------------------------
 
 
-ggplot(data = Liver_eco12_clean, 
+liver_eco_div_12_volplot = ggplot(data = Liver_eco12_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = vol_plots_no_DEG)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'A) Geothermal - ambient divergence 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    # legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
 
-ggplot(data = Liver_eco18_clean, 
+liver_eco_div_18_volplot = ggplot(data = Liver_eco18_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = vol_plots_no_DEG)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'B) Geothermal - ambient divergence 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+liver_eco_div_volplot = liver_eco_div_12_volplot+liver_eco_div_18_volplot
+
+# liver plasticity vol plots ----------------------------------------------
+
 
 ggplot(data = Liver_plast_amb_clean, 
        aes(x = logFC, 
