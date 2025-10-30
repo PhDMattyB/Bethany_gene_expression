@@ -74,6 +74,26 @@ brain_plast_hyb_neutral = read_csv('Brain_hybrid_plastic.csv') %>%
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
 
+brain_amb_hyb_div_12_neutral = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+brain_amb_hyb_div_18_neutral = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+
+
+brain_geo_hyb_div_12_neutral = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+brain_geo_hyb_div_18_neutral = read_csv('Brain_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+
+
 ##  brain significantly differentially expressed genes
 brain_eco12 = read_csv('Brain_eco_div_12_significant.csv') %>% 
   mutate(status = 'Outlier') %>% 
@@ -106,6 +126,34 @@ brain_plast_hyb = read_csv('Brain_hybrid_plastic_significant.csv')%>%
     logFC <= 0 ~ "Down-regulated"
   ))
 
+brain_amb_hyb_div_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+brain_amb_hyb_div_18 = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+brain_geo_hyb_div_12 = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+brain_geo_hyb_div_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 brain_eco12_clean = bind_rows(brain_eco12, 
                               brain_eco12_neutral)
@@ -121,6 +169,18 @@ brain_plast_geo_clean = bind_rows(brain_plast_geo,
 
 brain_plast_hyb_clean = bind_rows(brain_plast_hyb, 
                                   brain_plast_hyb_neutral)
+
+brain_amb_hyb_clean12 = bind_rows(brain_amb_hyb_div_12, 
+                                brain_amb_hyb_div_12_neutral)
+brain_amb_hyb_clean18 = bind_rows(brain_amb_hyb_div_18, 
+                                  brain_amb_hyb_div_18_neutral)
+
+brain_geo_hyb_clean12 = bind_rows(brain_geo_hyb_div_12, 
+                                  brain_geo_hyb_div_12_neutral)
+
+brain_geo_hyb_clean18 = bind_rows(brain_geo_hyb_div_18, 
+                                  brain_geo_hyb_div_18_neutral)
+
 
 
 # brain overlap differential exppression ----------------------------------------
@@ -176,6 +236,10 @@ volcano_cols = c('#127475',
                  '#dedbd2', 
                  '#f2542d')
 
+
+# eco divergence vol plots ------------------------------------------------
+
+
 Brain_eco_div12_volplot = ggplot(data = brain_eco12_clean, 
        aes(x = logFC, 
            y = adj.P.Val))+
@@ -230,30 +294,222 @@ Brain_eco_div18_volplot = ggplot(data = brain_eco18_clean,
 
 Brain_eco_div_vol_plot = Brain_eco_div12_volplot + Brain_eco_div18_volplot
 
-ggplot(data = brain_plast_amb_clean, 
+ggsave('EcoDiv_Volcanoe_Plot.svg', 
+       plot = Brain_eco_div_vol_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 10)
+
+
+# plasticity vol plots ----------------------------------------------------
+
+
+Brain_amb_plast_volplot = ggplot(data = brain_plast_amb_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'A) Ambient plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
 
-ggplot(data = brain_plast_geo_clean, 
+Brain_geo_plast_volplot = ggplot(data = brain_plast_geo_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'B) Geothermal plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
 
 
-ggplot(data = brain_plast_hyb_clean, 
+Brain_hyb_plast_volplot = ggplot(data = brain_plast_hyb_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'C) Hybrid plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+  
+plasticity_volplot = Brain_amb_plast_volplot+Brain_geo_plast_volplot+Brain_hyb_plast_volplot
+
+ggsave('Plasticity_Volcanoe_Plot.svg', 
+       plot = plasticity_volplot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 40, 
+       height = 10)
+
+# hybrid divergence vol plots ---------------------------------------------
+
+Brain_amb_hyb_12_volplot = ggplot(data = brain_amb_hyb_clean12, 
+                                 aes(x = logFC, 
+                                     y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'A) Ambient - Hybrid divergence 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+Brain_amb_hyb_18_volplot = ggplot(data = brain_amb_hyb_clean18, 
+                                  aes(x = logFC, 
+                                      y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'B) Ambient - Hybrid divergence 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
 
 
+Brain_geo_hyb_12_volplot = ggplot(data = brain_geo_hyb_clean12, 
+                                  aes(x = logFC, 
+                                      y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'C) Geothermal - Hybrid divergence 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
 
+Brain_geo_hyb_18_volplot = ggplot(data = brain_geo_hyb_clean18, 
+                                  aes(x = logFC, 
+                                      y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'D) Geothermal - Hybrid divergence 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+hybrid_div_volplots = Brain_amb_hyb_12_volplot+Brain_amb_hyb_18_volplot+Brain_geo_hyb_12_volplot+Brain_geo_hyb_18_volplot
+
+ggsave('Hybrid_divergence_Volcanoe_Plot.tiff', 
+       plot = hybrid_div_volplots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 40, 
+       height = 20)
+
+# Big ass volcano plot plot -----------------------------------------------
+Brain_eco_div_vol_plot/plasticity_volplot/hybrid_div_volplots
+
+(Brain_eco_div12_volplot + Brain_eco_div18_volplot)/(Brain_amb_plast_volplot+Brain_geo_plast_volplot+Brain_hyb_plast_volplot)/(Brain_amb_hyb_12_volplot+Brain_amb_hyb_18_volplot)/(Brain_geo_hyb_12_volplot+Brain_geo_hyb_18_volplot)
 
 
 # brain hybrid vs pure divergence and plasticity ----------------------------------------------
