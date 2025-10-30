@@ -302,6 +302,66 @@ ggsave('EcoDiv_Volcanoe_Plot.svg',
        height = 10)
 
 
+
+# overlap plastic gene expression -----------------------------------------
+
+brain_plast_amb = read_csv('Brain_ambient_plastic_significant.csv')%>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+brain_plast_geo = read_csv('Brain_geothermal_plastic_significant.csv')%>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+brain_plast_hyb = read_csv('Brain_hybrid_plastic_significant.csv')%>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+
+inner_join(brain_plast_amb, 
+           brain_plast_geo, 
+           by = 'GeneID') %>% 
+  select(GeneID,
+         logFC.x, 
+         Regulated.x,
+         logFC.y, 
+         Regulated.y) %>% 
+  filter(Regulated.x == 'Up-regulated')
+
+inner_join(brain_plast_amb, 
+           brain_plast_geo, 
+           by = 'GeneID') %>% 
+  inner_join(., 
+             brain_plast_hyb, 
+             by = 'GeneID') %>%
+  select(GeneID, 
+         Regulated.x, 
+         Regulated.y, 
+         Regulated) %>% 
+  filter(Regulated == 'Up-regulated')
+
+inner_join(brain_plast_amb, 
+           brain_plast_hyb, 
+           by = 'GeneID') %>% 
+  select(GeneID, 
+         Regulated.x, 
+         Regulated.y) %>% 
+  filter(Regulated.x == 'Up-regulated')
+
+inner_join(brain_plast_geo, 
+           brain_plast_hyb, 
+           by = 'GeneID') %>% 
+  select(GeneID, 
+         Regulated.x, 
+         Regulated.y) %>% 
+  filter(Regulated.x == 'Up-regulated')
+
 # plasticity vol plots ----------------------------------------------------
 
 
