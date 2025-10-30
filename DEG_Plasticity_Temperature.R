@@ -506,10 +506,6 @@ ggsave('Hybrid_divergence_Volcanoe_Plot.tiff',
        width = 40, 
        height = 20)
 
-# Big ass volcano plot plot -----------------------------------------------
-Brain_eco_div_vol_plot/plasticity_volplot/hybrid_div_volplots
-
-(Brain_eco_div12_volplot + Brain_eco_div18_volplot)/(Brain_amb_plast_volplot+Brain_geo_plast_volplot+Brain_hyb_plast_volplot)/(Brain_amb_hyb_12_volplot+Brain_amb_hyb_18_volplot)/(Brain_geo_hyb_12_volplot+Brain_geo_hyb_18_volplot)
 
 
 # brain hybrid vs pure divergence and plasticity ----------------------------------------------
