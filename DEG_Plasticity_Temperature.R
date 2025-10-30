@@ -1013,21 +1013,128 @@ liver_geo_hyb_18_clean = bind_rows(liv_significant_geo_hyb_18,
                                    liv_neutral_geo_hyb_18)
 
 
-ggplot(data = liver_amb_hyb_12_clean, 
+liver_amb_hyb_div_12_volplot = ggplot(data = liver_amb_hyb_12_clean, 
        aes(x = logFC, 
-           y = adj.P.Val))
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'A) Ambient - Hybrid divergence 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    # axis.title.y = element_blank()
+    )
 
-ggplot(data = liver_amb_hyb_18_clean,
+liver_amb_hyb_div_18_volplot = ggplot(data = liver_amb_hyb_18_clean,
        aes(x = logFC,
-           y = adj.P.Val))
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = vol_plots_no_DEG)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'B) Ambient - Hybrid divergence 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    axis.title.y = element_blank()
+  )
 
-ggplot(data = liver_geo_hyb_12_clean, 
+liver_geo_hyb_div_12_volplot = ggplot(data = liver_geo_hyb_12_clean, 
        aes(x = logFC, 
-           y = adj.P.Val))
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'C) Geothermal - Hybrid divergence 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    # axis.title.y = element_blank()
+  )
 
-ggplot(data = liver_geo_hyb_18_clean,
+
+liver_geo_hyb_div_18_volplot = ggplot(data = liver_geo_hyb_18_clean,
        aes(x = logFC,
-           y = adj.P.Val))
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = vol_plots_no_DEG)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'D) Geothermal - Hybrid divergence 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    axis.title.y = element_blank()
+  )
+
+liver_hyb_div_volplot = (liver_amb_hyb_div_12_volplot+liver_amb_hyb_div_18_volplot)/(liver_geo_hyb_div_12_volplot+liver_geo_hyb_div_18_volplot)
+
+
+ggsave('Liver_Hybrid_divergence_Volcanoe_Plot.tiff', 
+       plot = liver_hyb_div_volplot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 40, 
+       height = 20)
 
 
 ## quantify overlap in divergence at same temperature
