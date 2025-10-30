@@ -815,7 +815,7 @@ liver_eco_div_12_volplot = ggplot(data = Liver_eco12_clean,
              size = 1, 
              linetype = 'dashed')+
   theme(
-    # legend.position = 'none', 
+    legend.position = 'none',
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
         axis.text = element_text(size = 12))
@@ -843,78 +843,174 @@ liver_eco_div_18_volplot = ggplot(data = Liver_eco18_clean,
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
-        axis.text = element_text(size = 12))
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
 
 
 liver_eco_div_volplot = liver_eco_div_12_volplot+liver_eco_div_18_volplot
 
+ggsave('Liver_EcoDiv_Volcanoe_Plot.svg', 
+       plot = liver_eco_div_volplot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 10)
+
 # liver plasticity vol plots ----------------------------------------------
 
 
-ggplot(data = Liver_plast_amb_clean, 
+liver_amb_plast_volplot = ggplot(data = Liver_plast_amb_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'A) Ambient plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12))
 
-ggplot(data = Liver_plast_geo_clean, 
+
+liver_geo_plast_volplot = ggplot(data = Liver_plast_geo_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'B) Geothermal plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    axis.title.y = element_blank())
 
 
-ggplot(data = Liver_plast_hyb_clean, 
+liver_hyb_plast_volplot = ggplot(data = Liver_plast_hyb_clean, 
        aes(x = logFC, 
-           y = adj.P.Val, 
-           col = status))+
-  geom_point()+
-  scale_y_reverse()
+           y = adj.P.Val))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             aes(col = Regulated))+
+  scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = 'Adjusted p-value', 
+       title = 'C) Hybrid plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(
+    legend.position = 'none',
+    panel.grid = element_blank(), 
+    axis.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    axis.title.y = element_blank())
 
+liver_plasticity_volplots = liver_amb_plast_volplot+liver_geo_plast_volplot+liver_hyb_plast_volplot
 
+ggsave('Liver_Plasticity_Volcanoe_Plot.svg', 
+       plot = liver_plasticity_volplots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 40, 
+       height = 10)
 
 #liver hybrid vs pure divergence and plasticity ----------------------------------------------
   
 liv_neutral_amb_hyb_12 = read_csv('liver_amb_hyb_12_div.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+
 liv_significant_amb_hyb_12 = read_csv('liver_amb_hyb_12_div.csv') %>% 
-  filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  filter(adj.P.Val <= 0.05)  %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 liv_neutral_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
 liv_significant_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 liv_neutral_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
 liv_significant_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 liv_neutral_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
-  mutate(status = 'Neutral')
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
 liv_significant_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
-  mutate(status = 'Outlier')
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
 
 liver_amb_hyb_12_clean = bind_rows(liv_significant_amb_hyb_12, 
                                    liv_neutral_amb_hyb_12)
 
-# liver_amb_hyb_18_clean = bind_rows(significant_amb_hyb_18,
-#                                    neutral_amb_hyb_18)
+liver_amb_hyb_18_clean = bind_rows(liv_significant_amb_hyb_18,
+                                   liv_neutral_amb_hyb_18)
 
 liver_geo_hyb_12_clean = bind_rows(liv_significant_geo_hyb_12, 
                                    liv_neutral_geo_hyb_12)
-# liver_geo_hyb_18_clean = bind_rows(significant_geo_hyb_18, 
-#                                    neutral_geo_hyb_18)
+liver_geo_hyb_18_clean = bind_rows(liv_significant_geo_hyb_18,
+                                   liv_neutral_geo_hyb_18)
 
 
 ggplot(data = liver_amb_hyb_12_clean, 
