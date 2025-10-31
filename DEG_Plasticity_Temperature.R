@@ -14,6 +14,8 @@ library(patchwork)
 library(edgeR)
 
 theme_set(theme_bw())
+anno_data = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/Gene_expression_annotation_data.txt')
+
 
 metadata = names(brain_exp) %>% 
   as_tibble() %>% 
@@ -189,7 +191,16 @@ brain_geo_hyb_clean18 = bind_rows(brain_geo_hyb_div_18,
 
 inner_join(brain_eco12, 
            brain_eco18, 
-           by = 'GeneID') 
+           by = 'GeneID') %>%
+  dplyr::select(GeneID,
+                Regulated.x) %>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% View()
+
+
+
 ## only 2 genes are differentially divergent between ecotypes
 ## across the two temperatures. 
 
@@ -359,8 +370,11 @@ inner_join(brain_plast_geo,
            by = 'GeneID') %>% 
   select(GeneID, 
          Regulated.x, 
-         Regulated.y) %>% 
-  filter(Regulated.x == 'Up-regulated')
+         Regulated.y) 
+# %>% 
+#   filter(Regulated.x == 'Up-regulated')
+
+
 
 # plasticity vol plots ----------------------------------------------------
 
@@ -802,6 +816,47 @@ Liver_plast_geo_clean = bind_rows(Liver_plast_geo,
 Liver_plast_hyb_clean = bind_rows(Liver_plast_hyb, 
                                   Liver_plast_hyb_neutral)
 
+
+
+# liver plasticity overlap ------------------------------------------------
+
+Liver_plast_amb
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_geo, 
+           by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y)
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_hyb, 
+           by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y)
+
+inner_join(Liver_plast_hyb, 
+           Liver_plast_geo, 
+           by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y)
+
+inner_join(Liver_plast_amb, 
+           Liver_plast_geo, 
+           by = 'GeneID') %>% 
+  inner_join(., 
+             Liver_plast_hyb, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y, 
+                Regulated) %>% 
+  rename(ensemble_name = 'GeneID') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% View()
 
 # Liver overlap differential exppression ----------------------------------------
 

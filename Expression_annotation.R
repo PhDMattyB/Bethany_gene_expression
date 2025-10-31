@@ -97,7 +97,8 @@ annotation_data = bind_cols(gene_metadata,
                             ensemble_annotation_genes)
 
 
-
+annotation_data %>% 
+  write_tsv('Gene_expression_annotation_data.txt')
 
 # eco*temp qvalue  -----------------------------------------------------------
 
