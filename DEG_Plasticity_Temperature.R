@@ -1337,6 +1337,44 @@ liv_div_pure_hyb_12 = inner_join(liv_significant_amb_hyb_12,
 
 
 
+# liver geo amb vs hyb - overlap ------------------------------------------
+liv_significant_amb_hyb_12 = read_csv('liver_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05)  %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+
+liv_significant_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+
+liv_significant_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+
+liv_significant_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(status = 'Outlier')%>% 
+  mutate(Regulated = case_when(
+    logFC >=0 ~ "Up-regulated",
+    logFC <= 0 ~ "Down-regulated"
+  ))
+
+
+
+# liver other random code -------------------------------------------------
+
+
 
 # amb_hyb_12_only = anti_join(significant_amb_hyb_12, 
 #           amb_hyb_div_common, 
