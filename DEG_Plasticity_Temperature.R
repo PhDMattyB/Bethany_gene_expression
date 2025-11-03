@@ -185,6 +185,84 @@ brain_geo_hyb_clean18 = bind_rows(brain_geo_hyb_div_18,
 
 
 
+# pure ecotype vs hybrid ecotype summary stats ----------------------------
+brain_amb_hyb_clean12 %>%
+  filter(Regulated == 'Down-regulated')
+
+brain_amb_hyb_clean18 %>% 
+  filter(status == 'Outlier') %>% 
+  filter(Regulated == 'Down-regulated')
+
+brain_amb_hyb_div_12 %>% 
+  inner_join(., 
+             brain_amb_hyb_div_18, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y) %>% 
+  filter(Regulated.x == 'Down-regulated')
+
+brain_geo_hyb_div_12 %>% 
+  filter(Regulated == 'Down-regulated')
+
+brain_geo_hyb_div_18 %>% 
+  filter(Regulated == 'Down-regulated')
+
+brain_geo_hyb_div_12 %>% 
+  inner_join(., 
+             brain_geo_hyb_div_18, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y) %>% 
+  filter(Regulated.x == 'Down-regulated')
+
+
+brain_amb_hyb_div_12 %>% 
+  inner_join(., 
+             brain_geo_hyb_div_12, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y) %>% 
+  filter(Regulated.x == 'Down-regulated')
+brain_amb_hyb_div_18 %>% 
+  inner_join(., 
+             brain_geo_hyb_div_18, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y) %>% 
+  filter(Regulated.x == 'Down-regulated')
+
+
+brain_amb_hyb_div_12 %>% 
+  inner_join(., 
+             brain_geo_hyb_div_12, 
+             by = 'GeneID') %>% 
+  inner_join(., 
+             brain_amb_hyb_div_18, 
+             by = 'GeneID') %>% 
+  inner_join(., 
+             brain_geo_hyb_div_18, 
+             by = 'GeneID') %>% 
+  dplyr::select(GeneID, 
+                Regulated.x, 
+                Regulated.y, 
+                Regulated.x.x, 
+                Regulated.y.y) %>% 
+  filter(Regulated.x == 'Down-regulated') %>% 
+  dplyr::select(GeneID) %>%
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv("SKR_geo_amb_hyb_div_both_temps_downreg.txt", 
+            col_names = F)
+
+
+
 # brain overlap differential exppression ----------------------------------------
 
 
@@ -856,7 +934,7 @@ inner_join(Liver_plast_amb,
   rename(ensemble_name = 'GeneID') %>% 
   inner_join(., 
              anno_data, 
-             by = 'ensemble_name') %>% View()
+             by = 'ensemble_name') %>% View
 
 # Liver overlap differential exppression ----------------------------------------
 
