@@ -423,9 +423,11 @@ brain_common_genes = inner_join(brain_edge,
 
 ### 12 degree inheritance pattern
 exp_pattern_12 = brain_common_genes %>% 
-  dplyr::select(GeneID, 
-         am_hyb_12, 
-         geo_hyb_12)
+  dplyr::select(GeneID,
+                logFC.am_hyb_12, 
+                logFC.geo_hyb_12) %>% 
+  rename(am_hyb_12 = logFC.am_hyb_12, 
+         geo_hyb_12 = logFC.geo_hyb_12)
 Nothing = exp_pattern_12 %>% 
   filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
   filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
@@ -468,9 +470,9 @@ transgressive2 = exp_pattern_12 %>%
   filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
   mutate(exp_pattern = 'Transgressive')
 
-# bind_rows(transgressive1, 
-#           transgressive2) %>% 
-#   write_csv('Brain_Transgressive_expression_12degrees.csv')
+# bind_rows(transgressive1,
+#           transgressive2) %>%
+#   write_csv('Brain_Transgressive_expression_12degrees_FIXED.csv')
 
 exp_pattern_12_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
@@ -527,8 +529,10 @@ Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph,
 ### 18 degree inheritance pattern
 exp_pattern_18 = brain_common_genes %>% 
   dplyr::select(GeneID, 
-         am_hyb_18, 
-         geo_hyb_18)
+                logFC.am_hyb_18, 
+                logFC.geo_hyb_18) %>% 
+  rename(am_hyb_18 = logFC.am_hyb_18, 
+         geo_hyb_18 = logFC.geo_hyb_18)
 Nothing = exp_pattern_18 %>% 
   filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
   filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
@@ -628,6 +632,47 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
 
 
 
+# transgressive deep dive -------------------------------------------------
+
+transgressive1_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive1_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+inner_join(transgressive1_12, 
+           transgressive1_18, 
+           by = 'GeneID')
+anti_join(transgressive1_12, 
+          transgressive1_18, 
+          by = "GeneID")
+anti_join(transgressive1_18, 
+          transgressive1_12, 
+          by = "GeneID")
+
+
+inner_join(transgressive2_12, 
+           transgressive2_18, 
+           by = 'GeneID')
+
+anti_join(transgressive2_12, 
+          transgressive2_18, 
+          by = "GeneID")
+anti_join(transgressive2_18, 
+          transgressive2_12, 
+          by = "GeneID")
+
+
 # Liver inheritance pattern -----------------------------------------------
 
 
@@ -643,8 +688,10 @@ liver_common_genes = inner_join(liver_edge,
 ### 12 degree inheritance pattern
 liver_pattern_12 = liver_common_genes %>% 
   dplyr::select(GeneID, 
-         am_hyb_12, 
-         geo_hyb_12)
+         logFC.am_hyb_12, 
+         logFC.geo_hyb_12) %>% 
+  rename(am_hyb_12 = logFC.am_hyb_12, 
+         geo_hyb_12 = logFC.geo_hyb_12)
 Nothing = liver_pattern_12 %>% 
   filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
   filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
@@ -742,8 +789,10 @@ liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph,
 ### 18 degree inheritance pattern
 liver_pattern_18 = liver_common_genes %>% 
   dplyr::select(GeneID, 
-         am_hyb_18, 
-         geo_hyb_18)
+         logFC.am_hyb_18, 
+         logFC.geo_hyb_18) %>% 
+  rename(am_hyb_18 = logFC.am_hyb_18, 
+         geo_hyb_18 = logFC.geo_hyb_18)
 Nothing = liver_pattern_18 %>% 
   filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
   filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
@@ -785,6 +834,43 @@ transgressive1 = liver_pattern_18 %>%
 transgressive2 = liver_pattern_18 %>% 
   filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
   mutate(liver_pattern = 'Transgressive')
+
+
+# transgressive temp overlap ----------------------------------------------
+transgressive1_12 = liver_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+transgressive2_12 = liver_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+
+transgressive1_18 = liver_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+transgressive2_18 = liver_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(liver_pattern = 'Transgressive')
+
+inner_join(transgressive1_12, 
+           transgressive1_18, 
+           by = "GeneID")
+
+inner_join(transgressive2_12, 
+           transgressive2_18, 
+           by = "GeneID")
+
+inner_join(transgressive1_12, 
+           transgressive1_18, 
+           by = 'GeneID') %>% 
+  inner_join(., 
+             transgressive2_12, 
+             by = 'GeneID')
+
+# liver transgressive graph -----------------------------------------------
+
 
 liver_pattern_18_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
