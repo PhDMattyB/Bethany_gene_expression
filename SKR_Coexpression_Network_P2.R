@@ -5633,3 +5633,97 @@ Pure_hyb_div_temp_overlap %>%
   group_by(Network_ID) %>% 
   filter(source == 'WikiPathways') %>% 
   View()
+
+
+
+# TRANS pure vs hyb 12 intersection ---------------------------------------
+
+Trans_12 <- createIgraphFromNetwork("Trans pure vs hyb 12 - intersection")
+
+Trans12_Graph = Trans_12 %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#669bbc') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  geom_node_text(aes(label = functional_annotation), 
+                 repel = T, 
+                 max.overlap = Inf)+
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+ggsave('Transgressive_expression_12_pure_vs_hyb_network.svg', 
+       plot = Trans12_Graph, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
+
+# TRANS pure vs hyb 18 intersection ---------------------------------------
+
+Trans_18 <- createIgraphFromNetwork("Trans pure vs hyb 18 - intersection")
+
+Trans18_Graph = Trans_18 %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#c1121f') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  geom_node_text(aes(label = functional_annotation), 
+                 repel = T, 
+                 max.overlap = Inf)+
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+ggsave('Transgressive_expression_18_pure_vs_hyb_network.svg', 
+       plot = Trans18_Graph, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
