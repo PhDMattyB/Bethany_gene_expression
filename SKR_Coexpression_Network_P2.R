@@ -2695,6 +2695,9 @@ amb_hyb_12_divergence_gene_network = amb_hyb_12_subnetwork %>%
                   fill = '#023e8a') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
+  # geom_node_text(aes(label = functional_annotation.x), 
+  #                repel = T, 
+  #                max.overlaps=Inf)+
   labs(fill = "Modules") +
   guides(size = "none",
          fill = guide_legend(override.aes = list(size = 4), 
@@ -2707,6 +2710,12 @@ amb_hyb_12_divergence_gene_network = amb_hyb_12_subnetwork %>%
     title = element_text(size = 12)
   )
 
+ggsave('Ambient_hybrid_divergence_12_network.svg', 
+       plot = amb_hyb_12_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
 
 
 # Divergence geo vs hyb @12 degrees ---------------------------------------
@@ -2997,7 +3006,7 @@ geo_hyb_12_divergence_gene_network = geo_hyb_12_subnetwork %>%
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#f4a261') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -3011,6 +3020,13 @@ geo_hyb_12_divergence_gene_network = geo_hyb_12_subnetwork %>%
     legend.justification = 1,
     title = element_text(size = 12)
   )
+
+ggsave('Geothermal_hybrid_divergence_12_network.svg', 
+       plot = geo_hyb_12_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
 
 
 # Combine the three graphs ------------------------------------------------
@@ -3601,7 +3617,7 @@ amb_hyb_18_divergence_gene_network = amb_hyb_18_subnetwork %>%
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#00b4d8') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -3616,6 +3632,12 @@ amb_hyb_18_divergence_gene_network = amb_hyb_18_subnetwork %>%
     title = element_text(size = 18)
   )
 
+ggsave('Ambient_hybrid_divergence_18_network.svg', 
+       plot = amb_hyb_18_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
 
 
 # Divergence geo vs hyb @18 degrees ---------------------------------------
@@ -3906,7 +3928,7 @@ geo_hyb_18_divergence_gene_network = geo_hyb_18_subnetwork %>%
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#d90429') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -3921,6 +3943,12 @@ geo_hyb_18_divergence_gene_network = geo_hyb_18_subnetwork %>%
     title = element_text(size = 18)
   )
 
+ggsave('Geothermal_hybrid_divergence_18_network.svg', 
+       plot = geo_hyb_18_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 100, 
+       height = 100)
 
 # Combine the three graphs ------------------------------------------------
 
