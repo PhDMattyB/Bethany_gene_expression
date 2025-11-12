@@ -1211,6 +1211,8 @@ ambient_plast_gene_network = plast_amb_subnetwork %>%
                   fill = '#023e8a') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
+  geom_node_text(aes(label = functional_annotation), 
+                 repel = T)+
   labs(fill = "Modules") +
   guides(size = "none",
          fill = guide_legend(override.aes = list(size = 4), 
@@ -1223,6 +1225,16 @@ ambient_plast_gene_network = plast_amb_subnetwork %>%
     title = element_text(size = 12)
   )
 
+ambient_plast_gene_network
+
+ggsave('Ambient_plasticity_network.tiff', 
+       plot = ambient_plast_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 15)
+
+##
 
 # Geo plasticity - gene network analysis ----------------------------------
 
@@ -1626,6 +1638,8 @@ plast_geo_gene_network = plast_geo_subnetwork %>%
                   fill = '#e63946') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
+  geom_node_text(aes(label = functional_annotation), 
+                 repel = T)+
   labs(fill = "Modules") +
   guides(size = "none",
          fill = guide_legend(override.aes = list(size = 4), 
@@ -1638,6 +1652,12 @@ plast_geo_gene_network = plast_geo_subnetwork %>%
     title = element_text(size = 12)
   )
 
+ggsave('Geothermal_plasticity_network.svg', 
+       plot = plast_geo_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 25)
 
 # hybrid plasticity - gene network analysis -------------------------------
 
@@ -2152,14 +2172,6 @@ eco12_edge_table_select = eco12_edge_table %>%
   filter(r > 0.7 | r < -0.7)
 
 
-
-
-
-
-
-
-
-
 eco12_node_tab = data.frame(
   GeneID = c(eco12_edge_table_select$from, 
              eco12_edge_table_select$to) %>% 
@@ -2358,16 +2370,18 @@ eco12_divergence_gene_network = eco12_subnetwork %>%
   geom_edge_diagonal(color = "grey70", 
                      width = 0.5, 
                      alpha = 0.5) +
-  # geom_node_point(alpha = 0.8, 
-  #                 color = "white", 
-  #                 shape = 21, 
+  # geom_node_point(alpha = 0.8,
+  #                 color = "white",
+  #                 shape = 21,
   #                 size = 4,
-  #                 aes(fill = module)) + 
+  #                 aes(fill = functional_annotation.x)) +
   geom_node_point(alpha = 0.8, 
                   color = "black", 
                   shape = 21, 
                   size = 4,
-                  fill = '#023e8a') + 
+                  fill = '#023e8a') +
+  geom_node_text(aes(label = functional_annotation.x), 
+                 repel = T)+
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
   labs(fill = "Modules") +
@@ -2382,7 +2396,10 @@ eco12_divergence_gene_network = eco12_subnetwork %>%
     title = element_text(size = 12)
   )
 
-
+ggsave('Geo_vs_ambient_12degree_network.svg', 
+       plot = eco12_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm')
 
 # Divergence amb vs hyb @12 degrees  --------------------------------------
 
@@ -3063,6 +3080,233 @@ eco18_edge_table %>%
 
 eco18_edge_table_select = eco18_edge_table %>% 
   filter(r > 0.7 | r < -0.7)
+
+eco18_node_tab = data.frame(
+  GeneID = c(eco18_edge_table_select$from, 
+             eco18_edge_table_select$to) %>% 
+    unique()
+) %>% 
+  left_join(annotation_ensemble_genes, 
+            by = c('GeneID')) %>% 
+  rename(functional_annotation = gene_name)
+
+
+eco18_network = graph_from_data_frame(
+  eco18_edge_table_select,
+  vertices = eco18_node_tab,
+  directed = F
+)
+
+eco18_modules = cluster_leiden(eco18_network, 
+                               resolution = 1, 
+                               objective_function = "modularity")
+
+eco18_optimization = purrr::map_dfc(
+  .x = seq(from = 0.25, to = 5, by = 0.25),
+  .f = optimize_resolution, 
+  network = eco18_network) %>% 
+  t() %>% 
+  cbind(
+    resolution = seq(from = 0.25, to = 5, by = 0.25)
+  ) %>% 
+  as.data.frame() %>% 
+  rename(num_module = V1,
+         num_contained_gene = V2)
+
+
+eco18_optimize_num_module <- eco18_optimization %>% 
+  ggplot(aes(x = resolution, y = num_module)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "dodgerblue2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. modules\nw/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+eco18_optimize_num_gene = eco18_optimization %>% 
+  ggplot(aes(x = resolution, y = num_contained_gene)) +
+  geom_line(size = 1.1, alpha = 0.8, color = "violetred2") +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_vline(xintercept = 1, size = 1, linetype = 4) +
+  labs(x = "resolution parameter",
+       y = "num. genes in\nmodules w/ >=5 genes") +
+  theme_classic() +
+  theme(
+    text = element_text(size = 14),
+    axis.text = element_text(color = "black")
+  )
+
+wrap_plots(eco18_optimize_num_module, 
+           eco18_optimize_num_gene, nrow = 2)
+
+
+
+
+
+
+
+
+eco18_network_modules <- data.frame(
+  GeneID = names(membership(eco18_modules)),
+  module = as.vector(membership(eco18_modules)) 
+) %>% 
+  inner_join(eco18_node_tab, by = "GeneID")
+
+eco18_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5)
+
+eco18_network_modules %>% 
+  group_by(module) %>% 
+  count() %>% 
+  arrange(-n) %>% 
+  filter(n >= 5) %>% 
+  ungroup() %>% 
+  summarise(sum = sum(n))
+eco18_modules_greater_3 <- eco18_network_modules %>%
+  group_by(module) %>%
+  count() %>%
+  arrange(-n) %>%
+  filter(n >= 3)
+eco18_network_modules <- eco18_network_modules %>%
+  filter(module %in% eco18_modules_greater_3$module)
+eco18_long = brain_eco18 %>% 
+  pivot_longer(!GeneID) %>% 
+  as_tibble() %>% 
+  # slice(-1) %>% 
+  separate(col = name, 
+           into = c('ecotype', 
+                    'temp', 
+                    'family', 
+                    'sample', 
+                    'tissue'), 
+           sep = '_', 
+           remove = F) %>% 
+  separate(col = ecotype, 
+           into = c('sample_num', 
+                    'ecotype'), 
+           sep = '-') %>% 
+  unite(col = ecotemp, 
+        c('ecotype',
+          'temp'),
+        sep = '_',
+        remove = F)
+eco18_high_var_modules = eco18_long %>% 
+  inner_join(eco18_network_modules,
+             by = 'GeneID')
+eco18_modules_mean_exp = eco18_high_var_modules %>% 
+  group_by(module, ecotemp) %>% 
+  summarise(mean_exp = mean(value)) %>% 
+  ungroup()
+
+eco18_module_peak_exp = eco18_modules_mean_exp %>% 
+  group_by(module) %>%
+  slice_max(order_by = mean_exp, n = 1) 
+# 
+# eco18_high_var_modules %>%
+#   # filter(module == 5 | module == 6) %>%
+#   ggplot(aes(x = ecotemp, y = value)) +
+#   geom_line(aes(group = GeneID), alpha = 0.3, color = "grey70") +
+#   geom_line(data = eco18_modules_mean_exp,
+#             # filter(module == 5 | module == 6),
+#             aes(x = ecotemp,
+#                 y = mean_exp,
+#                 group = module),
+#             size = 2)+
+#   facet_grid(~module)
+# 
+
+
+
+
+
+eco18_subnetwork_edges = eco18_edge_table_select %>% 
+  # filter(from %in% names(neighbors_of_bait) &
+  #          to %in% names(neighbors_of_bait)) %>% 
+  group_by(from) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup() %>% 
+  group_by(to) %>% 
+  slice_max(order_by = r, n = 3) %>% 
+  ungroup()
+
+eco18_subnetwork_genes = c(eco18_subnetwork_edges$from, 
+                           eco18_subnetwork_edges$to) %>% 
+  unique()
+
+# length(eco18_subnetwork_genes)
+# dim(eco18_subnetwork_edges)
+
+
+eco18_subnetwork_nodes <- eco18_node_tab %>% 
+  filter(GeneID %in% eco18_subnetwork_genes) %>% 
+  left_join(eco18_network_modules, by = "GeneID") %>% 
+  left_join(eco18_module_peak_exp, by = "module") %>% 
+  mutate(NetworkID = 'SKRC_vs_SKRW_12')
+
+eco18_subnetwork_nodes$module = as.character(eco18_subnetwork_nodes$module)
+
+# %>% 
+#   mutate(module_rename = case_when(
+#     module == '1' ~ '1', 
+#     module == '2' ~ '2', 
+#     module == '4' ~ '3', 
+#     module == '5' ~ '4', 
+#     module == '6' ~ '5', 
+#     module == '8' ~ '6'
+#   ))
+
+dim(eco18_subnetwork_nodes)
+
+
+eco18_subnetwork <- graph_from_data_frame(eco18_subnetwork_edges,
+                                          vertices = eco18_subnetwork_nodes,
+                                          directed = T)
+
+
+
+eco18_divergence_gene_network = eco18_subnetwork %>% 
+  # ggraph()+
+  ggraph(layout = "linear",
+         circular = T) +
+  # geom_edge_link(aes(color = factor(module_rename))) + 
+  geom_edge_diagonal(color = "grey70", 
+                     width = 0.5, 
+                     alpha = 0.5) +
+  # geom_node_point(alpha = 0.8, 
+  #                 color = "white", 
+  #                 shape = 21, 
+  #                 size = 4,
+  #                 aes(fill = module)) + 
+  geom_node_point(alpha = 0.8, 
+                  color = "black", 
+                  shape = 21, 
+                  size = 4,
+                  fill = '#023e8a') + 
+  scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
+                               "grey10")) +
+  labs(fill = "Modules") +
+  guides(size = "none",
+         fill = guide_legend(override.aes = list(size = 4), 
+                             title.position = "top", nrow = 2)) +
+  theme_void()+
+  theme(
+    text = element_text(size = 14), 
+    legend.position = "bottom",
+    legend.justification = 1,
+    title = element_text(size = 12)
+  )
+
+ggsave('Geo_vs_ambient_12degree_network.svg', 
+       plot = eco18_divergence_gene_network, 
+       dpi = 'retina', 
+       units = 'cm')
 
 
 # Divergence amb vs hyb @18 degrees  --------------------------------------
