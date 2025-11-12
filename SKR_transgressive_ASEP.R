@@ -259,9 +259,8 @@ Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12,
 #   write_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
 
 
-Trans_amb_hyb_12_snps %>% 
-  group_by(GeneID,
-           ecotype) %>%
+Trans_amb_hyb_12_genes = Trans_amb_hyb_12_snps %>% 
+  group_by(GeneID) %>%
   # group_by(GeneID) %>% 
   summarize(n = n()) 
 
@@ -301,11 +300,18 @@ trans_geo_hyb_12_snps = inner_join(Trans_geo_hyb_12,
 #   write_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
 
 
-trans_geo_hyb_12_snps %>% 
+trans_geo_hyb_12_genes = trans_geo_hyb_12_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
   group_by(GeneID) %>% 
   summarize(n = n()) 
+
+inner_join(Trans_amb_hyb_12_genes, 
+           trans_geo_hyb_12_genes, 
+           by = 'GeneID') %>%
+  dplyr::select(GeneID) %>% 
+  write_tsv('trans_pure_vs_hyb_12_genes_ASEP.txt')
+
 
 ## lets try 18 degrees and see what happens
 
@@ -346,7 +352,7 @@ Trans_amb_hyb_18_snps = inner_join(Trans_amb_hyb_18,
 #   write_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
 
 
-Trans_amb_hyb_18_snps %>% 
+Trans_amb_hyb_18_genes = Trans_amb_hyb_18_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
   group_by(GeneID) %>% 
@@ -384,16 +390,24 @@ Trans_geo_hyb_18_snps = inner_join(Trans_geo_hyb_18,
                 effect,
                 ecotype)
 
+
 # Trans_geo_hyb_18_snps %>%
 #   write_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
 
 
-Trans_geo_hyb_18_snps %>% 
+Trans_geo_hyb_18_genes = Trans_geo_hyb_18_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
   group_by(GeneID) %>% 
   summarize(n = n()) 
 
+
+inner_join(Trans_amb_hyb_18_genes, 
+           Trans_geo_hyb_18_genes, 
+           by = 'GeneID') %>% 
+  select(GeneID) %>% 
+  write_tsv('trans_pure_vs_hyb_18_genes_ASEP.txt', 
+            col_names = F)
 
 
 # Compare ASEP between groups ---------------------------------------------
