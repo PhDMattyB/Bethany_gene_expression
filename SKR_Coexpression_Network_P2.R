@@ -2061,6 +2061,8 @@ plast_hyb_gene_network = plast_hyb_subnetwork %>%
                   fill = '#90be6d') + 
   scale_fill_manual(values = c(brewer.pal(8, "Accent"), 
                                "grey10")) +
+  geom_node_text(aes(label = functional_annotation), 
+                 repel = T)+
   labs(fill = "Modules") +
   guides(size = "none",
          fill = guide_legend(override.aes = list(size = 4), 
@@ -2072,6 +2074,14 @@ plast_hyb_gene_network = plast_hyb_subnetwork %>%
     legend.justification = 1,
     title = element_text(size = 12)
   )
+
+
+ggsave('Hybrid_plasticity_network.svg', 
+       plot = plast_hyb_gene_network, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 25)
 
 
 (ambient_plast_gene_network|plast_geo_gene_network)/(plast_hyb_gene_network)
