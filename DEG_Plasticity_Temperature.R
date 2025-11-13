@@ -306,17 +306,30 @@ inner_join(brain_plast_geo,
             col_names = F)
 ## 85 genes are plastic in both the geothermal and hybrid ecotypes
 
-inner_join(brain_plast_amb, 
+plast_overlap = inner_join(brain_plast_amb, 
            brain_plast_geo, 
            by = 'GeneID') %>% 
   inner_join(.,
              brain_plast_hyb, 
              by = 'GeneID')%>% 
   select(GeneID) %>% 
-  write_tsv('Brain_plasticity_amb_vs_geo_vs_hyb.txt', 
-            col_names = F)
+  rename(ensemble_name = GeneID)
+
+# %>% 
+#   write_tsv('Brain_plasticity_amb_vs_geo_vs_hyb.txt', 
+#             col_names = F)
 
 ## 38 that are plastic between all three ecotypes
+
+
+anno_data = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/Gene_expression_annotation_data.txt')
+
+inner_join(plast_overlap, 
+           anno_data, 
+           by = 'ensemble_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('Overlapping_plasticity_genes_allecotypes.txt', 
+            col_names = F)
 
 
 # brain quick volcano plots -----------------------------------------------------
@@ -1354,6 +1367,10 @@ liv_significant_amb_hyb_18 = read_csv('liver_amb_hyb_18_div.csv') %>%
     logFC <= 0 ~ "Down-regulated"
   ))
 
+liv_neutral_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
 liv_significant_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
@@ -1362,6 +1379,10 @@ liv_significant_geo_hyb_12 = read_csv('liver_geo_hyb_12_div.csv') %>%
     logFC <= 0 ~ "Down-regulated"
   ))
 
+liv_neutral_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05) %>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
 liv_significant_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
@@ -1370,6 +1391,16 @@ liv_significant_geo_hyb_18 = read_csv('liver_geo_hyb_18_div.csv') %>%
     logFC <= 0 ~ "Down-regulated"
   ))
 
+liver_amb_hyb_12_clean = bind_rows(liv_significant_amb_hyb_12, 
+                                   liv_neutral_amb_hyb_12)
+
+liver_amb_hyb_18_clean = bind_rows(liv_significant_amb_hyb_18,
+                                   liv_neutral_amb_hyb_18)
+
+liver_geo_hyb_12_clean = bind_rows(liv_significant_geo_hyb_12, 
+                                   liv_neutral_geo_hyb_12)
+liver_geo_hyb_18_clean = bind_rows(liv_significant_geo_hyb_18,
+                                   liv_neutral_geo_hyb_18)
 
 
 # liver other random code -------------------------------------------------
