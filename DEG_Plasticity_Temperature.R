@@ -332,6 +332,43 @@ inner_join(plast_overlap,
             col_names = F)
 
 
+brain_plast_amb %>% 
+  rename(ensemble_name = GeneID) %>% 
+  anti_join(., 
+            plast_overlap, 
+            by = 'ensemble_name') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('Ambient_plastic_unique_genes.txt', 
+            col_names = F)
+
+brain_plast_geo %>% 
+  rename(ensemble_name = GeneID) %>% 
+  anti_join(., 
+            plast_overlap, 
+            by = 'ensemble_name') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('Geothermal_plastic_genes_unique.txt', 
+            col_names = F)
+
+brain_plast_hyb %>% 
+  rename(ensemble_name = GeneID) %>% 
+  anti_join(., 
+            plast_overlap, 
+            by = 'ensemble_name') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('Hybrid_plastic_genes_unique.txt', 
+            col_names = F)
+
+ 
 # brain quick volcano plots -----------------------------------------------------
 
 volcano_cols = c('#127475',
@@ -947,7 +984,36 @@ inner_join(Liver_plast_amb,
   rename(ensemble_name = 'GeneID') %>% 
   inner_join(., 
              anno_data, 
-             by = 'ensemble_name') %>% View
+             by = 'ensemble_name')
+
+
+Liver_plast_amb %>% 
+  rename(ensemble_name = 'GeneID') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(logFC,
+         Regulated, 
+         gene_name)
+
+Liver_plast_geo %>% 
+  rename(ensemble_name = 'GeneID') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(logFC,
+         Regulated, 
+         gene_name)
+
+Liver_plast_hyb %>% 
+  rename(ensemble_name = 'GeneID') %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(logFC,  
+         Regulated, 
+         gene_name)
+
 
 # Liver overlap differential exppression ----------------------------------------
 

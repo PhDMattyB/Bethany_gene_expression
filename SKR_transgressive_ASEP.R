@@ -421,6 +421,28 @@ Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv') 
 Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv') %>% 
   mutate(temp = '18')
 
+Trans_amb_hyb_12_genes %>% 
+  inner_join(.,
+             Trans_amb_hyb_18_genes, 
+             by = 'GeneID')
+
+trans_geo_hyb_12_genes %>% 
+  inner_join(.,
+             Trans_geo_hyb_18_genes, 
+             by = 'GeneID')
+
+Trans_amb_hyb_12_genes %>% 
+  inner_join(., 
+             Trans_amb_hyb_18_genes, 
+             by = 'GeneID') %>% 
+  inner_join(.,
+             trans_geo_hyb_12_genes, 
+             by = 'GeneID') %>% 
+  inner_join(., 
+             trans_geo_hyb_12_genes, 
+             by = 'GeneID') %>% 
+  select(GeneID) %>% 
+  write_tsv('ASEP_Common_TransExp_genes.txt')
 
 
 # Ambient plastic ASEP ----------------------------------------------------
