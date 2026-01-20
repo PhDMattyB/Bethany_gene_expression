@@ -955,21 +955,37 @@ inner_join(Liver_plast_amb,
            by = 'GeneID') %>% 
   dplyr::select(GeneID, 
                 Regulated.x, 
-                Regulated.y)
+                Regulated.y) %>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name)
 
 inner_join(Liver_plast_amb, 
            Liver_plast_hyb, 
            by = 'GeneID') %>% 
   dplyr::select(GeneID, 
                 Regulated.x, 
-                Regulated.y)
+                Regulated.y)%>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name)
 
 inner_join(Liver_plast_hyb, 
            Liver_plast_geo, 
            by = 'GeneID') %>% 
   dplyr::select(GeneID, 
                 Regulated.x, 
-                Regulated.y)
+                Regulated.y)%>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name)
+
 
 inner_join(Liver_plast_amb, 
            Liver_plast_geo, 

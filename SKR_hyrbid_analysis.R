@@ -40,7 +40,7 @@ metadata = names(brain_exp) %>%
                 remove = F)
 
 
-brain_metadata %>% 
+metadata %>% 
   group_by(ecotype, 
            temp) %>% 
   summarize(n = n())
