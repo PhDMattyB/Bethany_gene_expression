@@ -54,7 +54,8 @@ gene_metadata = gene_annotation %>%
                 chromosome,
                 feature, 
                 start, 
-                end)
+                end) %>% 
+  filter(feature == 'mRNA')
 
 ensemlbe_annotation_data = gene_annotation %>% 
   # filter(feature == 'gene') %>% 
@@ -74,19 +75,63 @@ ensemble_annotation_genes = ensemlbe_annotation_data %>%
   separate(gene_name, 
            into = c('trash', 
                     'gene_name'), 
+           sep = '=') %>%
+  separate(relationship, 
+           into = c('trash2', 
+                    'IMPORTANT'), 
            sep = '=') %>% 
-  dplyr::select(-trash) %>% 
-  separate(ensemble_id, 
-           into = c('ensemble_name', 
-                    'trash'), 
-           sep = '.CDS') %>% 
-  dplyr::select(-trash) 
+  filter(trash2 == 'Name') %>% 
+  select(-c(trash, 
+            trash2, 
+            gene_name)) %>% 
+  rename(gene_name = IMPORTANT)
+  
+  
+gene_metadata_expression = gene_annotation %>% 
+  # filter(feature == 'gene') %>% 
+  dplyr::select(position,
+                chromosome,
+                feature, 
+                start, 
+                end) %>% 
+  filter(feature == 'mRNA')
 
-annotation_data = bind_cols(gene_metadata, 
-                            ensemble_annotation_genes) %>% 
+ensemlbe_annotation_genes_expression = gene_annotation %>% 
+  # filter(feature == 'gene') %>% 
+  pull(gene_id) %>% 
+  as_tibble() %>% 
+  separate(value, 
+           into = c('ensemble_id', 
+                    'gene_name',
+                    'relationship'), 
+           sep = ';')%>% 
+  separate(ensemble_id, 
+           into = c('trash', 
+                    'ensemble_id'), 
+           sep = '=') %>%
+  separate(gene_name, 
+           into = c('trash', 
+                    'gene_name'), 
+           sep = '=') %>%
+  separate(relationship, 
+           into = c('trash2', 
+                    'IMPORTANT'), 
+           sep = '=') %>% 
+  filter(trash2 == 'Name') %>% 
+  select(-c(trash, 
+            trash2)) %>% 
+  rename(transcript_name = IMPORTANT)
+
+
+
+annotation_expression_data = bind_cols(gene_metadata, 
+                                       ensemlbe_annotation_genes_expression) %>% 
   rename(CHR = chromosome, 
          BP = position) %>% 
-  rename(gene_ensembl = ensemble_name)
+  rename(gene_ensembl = ensemble_id)
+
+
+
 
 
 # ecotype snps ------------------------------------------------------------
@@ -98,31 +143,38 @@ ecotype_snps = read_csv('ecotype_unique_snps_all.csv') %>%
                     'REF1', 
                     'ALT1'), 
            sep = '_') %>% 
-  inner_join(., 
-             annotation_data, 
-             by = 'gene_ensembl', 
-             relationship = 'many-to-many')
-
-ecotype_snps_fixed = ecotype_snps %>% 
-  dplyr::select(CHR.x, 
-         CHR.y, 
-         BP.x, 
-         BP.y, 
-         start, 
-         end,
+  select(gene_ensembl, 
+         CHR, 
+         BP, 
          REF, 
          ALT, 
-         relationship, 
-         feature, 
-         other_affected_genes,
-         effect,
          ecotype) %>% 
-  na.omit() %>% 
-  separate(relationship, 
-           into = c('trash', 
-                    'GeneID'), 
-           sep = '=') %>% 
-  dplyr::select(-trash)
+  inner_join(., 
+             annoto_data_trunc, 
+             by = 'gene_ensembl') %>% 
+  select(-c(CHR.y, 
+            BP.y))
+# 
+# ecotype_snps_fixed = ecotype_snps %>% 
+#   dplyr::select(CHR.x, 
+#          CHR.y, 
+#          BP.x, 
+#          BP.y, 
+#          start, 
+#          end,
+#          REF, 
+#          ALT, 
+#          relationship, 
+#          feature, 
+#          other_affected_genes,
+#          effect,
+#          ecotype) %>% 
+#   na.omit() %>% 
+#   separate(relationship, 
+#            into = c('trash', 
+#                     'GeneID'), 
+#            sep = '=') %>% 
+#   dplyr::select(-trash)
 
 # Brain ASEP data ---------------------------------------------------------
 
@@ -138,7 +190,7 @@ brain_12_snps = read.table('brain_12oC_sigASEPSNPs.csv',
   inner_join(.,
              ecotype_snps,
              by = 'gene_ensembl',
-             relationship = 'many-to-many')%>%
+             relationship = 'many-to-many') %>%
   # inner_join(., 
   #            ecotype_snps, 
   #            by = 'gene_ensembl')%>%
@@ -148,7 +200,13 @@ brain_12_snps = read.table('brain_12oC_sigASEPSNPs.csv',
                     'BP', 
                     'REF', 
                     'ALT'), 
-           sep = '_')
+           sep = '_') %>% 
+  mutate_at('BP', as.numeric) %>%
+  select(-c(CHR, 
+            BP)) %>% 
+  rename(BP = BP.x, 
+         CHR = CHR.x) %>% 
+  mutate_at('BP', as.numeric)
 
   
 brain_12_snps %>% 
@@ -174,16 +232,26 @@ brain_18_snps = read.table('brain_18oC_sigASEPSNPs.csv',
                     'the_rest'),
            sep = ',') %>% 
   dplyr::select(-the_rest) %>% 
-  inner_join(., 
-             ecotype_snps, 
-             by = 'gene_ensembl', 
-             relationship = 'many-to-many')%>% 
+  inner_join(.,
+             ecotype_snps,
+             by = 'gene_ensembl',
+             relationship = 'many-to-many') %>%
+  # inner_join(., 
+  #            ecotype_snps, 
+  #            by = 'gene_ensembl')%>%
+  # distinct(gene_ensembl) %>% 
   separate(col = SNP, 
            into = c('CHR', 
                     'BP', 
                     'REF', 
                     'ALT'), 
-           sep = '_')
+           sep = '_') %>% 
+  mutate_at('BP', as.numeric) %>%
+  select(-c(CHR, 
+            BP)) %>% 
+  rename(BP = BP.x, 
+         CHR = CHR.x)%>% 
+  mutate_at('BP', as.numeric)
 
 
 brain_18_snps %>% 
@@ -217,10 +285,11 @@ Trans_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv')%>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID) %>% 
+  rename(gene_name = GeneID) %>% 
   inner_join(., 
-           annotation_data) %>% 
-  rename(GeneID = gene_name)
+           annotation_expression_data) %>% 
+  rename(GeneID = gene_name, 
+         gene_name = transcript_name)
 
 # Trans_amb_hyb_12$BP = as.character(Trans_amb_hyb_12$BP)
 # 
@@ -237,33 +306,43 @@ Trans_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv')%>%
 #                   'BP'))
 
 Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12, 
-           ecotype_snps_fixed, 
-           by = 'GeneID', 
-           relationship = 'many-to-many') %>% 
-  dplyr::select(gene_ensembl, 
+                                   brain_12_snps, 
+                                   by = c('CHR', 
+                                          'gene_ensembl')) %>% 
+  select(GeneID, 
+         gene_ensembl, 
+         gene_name.x, 
          logFC, 
          adj.P.Val, 
          CHR, 
-         GeneID,
-         feature.x, 
-         start.x, 
-         end.x, 
-         BP.x, 
+         BP.y, 
          REF, 
          ALT, 
-         other_affected_genes, 
-         effect,
-         ecotype)
+         p.value, 
+         ecotype) 
 
-# Trans_amb_hyb_12_snps %>% 
+# Trans_amb_hyb_12_snps %>%
 #   write_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
 
 
 Trans_amb_hyb_12_genes = Trans_amb_hyb_12_snps %>% 
-  group_by(GeneID) %>%
-  # group_by(GeneID) %>% 
-  summarize(n = n()) 
+  group_by(gene_name.x, 
+           # BP.x, 
+           ecotype) %>%
+  arrange(CHR, 
+          BP.y) %>% 
+  select(GeneID, 
+         logFC, 
+         CHR,
+         BP.y, 
+         REF, 
+         ALT, 
+         ecotype) 
 
+
+Trans_amb_hyb_12_genes %>% 
+  group_by(ecotype) %>% 
+  summarize(n = n())
 
 Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>% 
   filter(adj.P.Val <= 0.05) %>% 
@@ -272,29 +351,27 @@ Trans_geo_hyb_12 = read_csv('Brain_geo_hyb_12_div.csv')%>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)%>% 
+  rename(gene_name = GeneID) %>% 
   inner_join(., 
-             annotation_data) %>% 
-  rename(GeneID = gene_name)
+             annotation_expression_data) %>% 
+  rename(GeneID = gene_name, 
+         gene_name = transcript_name)
 
 trans_geo_hyb_12_snps = inner_join(Trans_geo_hyb_12, 
-           ecotype_snps_fixed, 
-           by = 'GeneID', 
-           relationship = 'many-to-many')%>% 
-  dplyr::select(gene_ensembl, 
-                logFC, 
-                adj.P.Val, 
-                CHR, 
-                GeneID,
-                feature.x, 
-                start.x, 
-                end.x, 
-                BP.x, 
-                REF, 
-                ALT, 
-                other_affected_genes, 
-                effect,
-                ecotype)
+                                   brain_12_snps, 
+                                   by = c('CHR', 
+                                          'gene_ensembl')) %>% 
+  select(GeneID, 
+         gene_ensembl, 
+         gene_name.x, 
+         logFC, 
+         adj.P.Val, 
+         CHR, 
+         BP.y, 
+         REF, 
+         ALT, 
+         p.value, 
+         ecotype) 
 
 # trans_geo_hyb_12_snps %>%
 #   write_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
