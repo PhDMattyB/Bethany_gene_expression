@@ -213,6 +213,34 @@ brain_12_snps %>%
   group_by(ecotype) %>% 
   summarize(n = n())
 
+liver_12_snps = read.table('liver_12oC_sigASEPSNPs2.csv', 
+           header = T) %>% 
+  as_tibble() %>% 
+  separate(gene, 
+           into = c('gene_ensembl', 
+                    'the_rest'),
+           sep = ',') %>% 
+  dplyr::select(-the_rest) %>% 
+  inner_join(.,
+             ecotype_snps,
+             by = 'gene_ensembl',
+             relationship = 'many-to-many') %>%
+  # inner_join(., 
+  #            ecotype_snps, 
+  #            by = 'gene_ensembl')%>%
+  # distinct(gene_ensembl) %>% 
+  separate(col = SNP, 
+           into = c('CHR', 
+                    'BP', 
+                    'REF', 
+                    'ALT'), 
+           sep = '_') %>% 
+  mutate_at('BP', as.numeric) %>%
+  select(-c(CHR, 
+            BP)) %>% 
+  rename(BP = BP.x, 
+         CHR = CHR.x) %>% 
+  mutate_at('BP', as.numeric)
 
 # brain_18_snps = read.table('brain_18oC_sigASEPSNPs.csv', 
 #                            header = T) %>% 
@@ -257,6 +285,35 @@ brain_18_snps = read.table('brain_18oC_sigASEPSNPs.csv',
 brain_18_snps %>% 
   group_by(ecotype) %>% 
   summarize(n = n())
+
+liver_18_snps = read.table('liver_18oC_sigASEPSNPs2.csv', 
+                           header = T) %>% 
+  as_tibble() %>% 
+  separate(gene, 
+           into = c('gene_ensembl', 
+                    'the_rest'),
+           sep = ',') %>% 
+  dplyr::select(-the_rest) %>% 
+  inner_join(.,
+             ecotype_snps,
+             by = 'gene_ensembl',
+             relationship = 'many-to-many') %>%
+  # inner_join(., 
+  #            ecotype_snps, 
+  #            by = 'gene_ensembl')%>%
+  # distinct(gene_ensembl) %>% 
+  separate(col = SNP, 
+           into = c('CHR', 
+                    'BP', 
+                    'REF', 
+                    'ALT'), 
+           sep = '_') %>% 
+  mutate_at('BP', as.numeric) %>%
+  select(-c(CHR, 
+            BP)) %>% 
+  rename(BP = BP.x, 
+         CHR = CHR.x) %>% 
+  mutate_at('BP', as.numeric)
 
 
 # Transgressive expression in hybrids -------------------------------------
@@ -319,14 +376,15 @@ Trans_amb_hyb_12_snps = inner_join(Trans_amb_hyb_12,
          REF, 
          ALT, 
          p.value, 
-         ecotype) 
+         ecotype) %>% 
+  rename(gene_name = gene_name.x)
 
 # Trans_amb_hyb_12_snps %>%
-#   write_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
+#   write_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv')
 
 
 Trans_amb_hyb_12_genes = Trans_amb_hyb_12_snps %>% 
-  group_by(gene_name.x, 
+  group_by(gene_name, 
            # BP.x, 
            ecotype) %>%
   arrange(CHR, 
@@ -337,7 +395,7 @@ Trans_amb_hyb_12_genes = Trans_amb_hyb_12_snps %>%
          BP.y, 
          REF, 
          ALT, 
-         ecotype) 
+         ecotype)
 
 
 Trans_amb_hyb_12_genes %>% 
@@ -371,23 +429,24 @@ trans_geo_hyb_12_snps = inner_join(Trans_geo_hyb_12,
          REF, 
          ALT, 
          p.value, 
-         ecotype) 
+         ecotype) %>% 
+  rename(gene_name = gene_name.x)
 
 # trans_geo_hyb_12_snps %>%
-#   write_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv')
+#   write_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv')
 
 
 trans_geo_hyb_12_genes = trans_geo_hyb_12_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
-  group_by(GeneID) %>% 
-  summarize(n = n()) 
+  group_by(gene_name) %>% 
+  summarize(n = n())
 
 inner_join(Trans_amb_hyb_12_genes, 
            trans_geo_hyb_12_genes, 
-           by = 'GeneID') %>%
-  dplyr::select(GeneID) %>% 
-  write_tsv('trans_pure_vs_hyb_12_genes_ASEP.txt')
+           by = 'gene_name.x') %>%
+  dplyr::select(gene_name.x) %>% 
+  write_tsv('trans_pure_vs_hyb_12_genes_ASEP_FIXED.txt')
 
 
 ## lets try 18 degrees and see what happens
@@ -401,38 +460,36 @@ Trans_amb_hyb_18 = read_csv('Brain_amb_hyb_18_div.csv') %>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)%>% 
+  rename(gene_name = GeneID)%>% 
   inner_join(., 
-             annotation_data) %>% 
-  rename(GeneID = gene_name)
+             annotation_expression_data) %>% 
+  rename(GeneID = gene_name, 
+         gene_name = transcript_name)
   
 Trans_amb_hyb_18_snps = inner_join(Trans_amb_hyb_18, 
-           ecotype_snps_fixed, 
-           by = 'GeneID', 
-           relationship = 'many-to-many')%>% 
-  dplyr::select(gene_ensembl, 
+           brain_18_snps, 
+           by = 'gene_name')%>% 
+  dplyr::select(GeneID, 
+                gene_ensembl.x, 
+                gene_name, 
                 logFC, 
                 adj.P.Val, 
-                CHR, 
-                GeneID,
-                feature.x, 
-                start.x, 
-                end.x, 
-                BP.x, 
+                CHR.x, 
+                BP.y, 
                 REF, 
                 ALT, 
-                other_affected_genes, 
-                effect,
-                ecotype)
+                p.value, 
+                ecotype) %>% 
+  rename(CHR = CHR.x)
 
 # Trans_amb_hyb_18_snps %>%
-#   write_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
+#   write_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv')
 
 
 Trans_amb_hyb_18_genes = Trans_amb_hyb_18_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
-  group_by(GeneID) %>% 
+  group_by(gene_name) %>% 
   summarize(n = n()) 
 
 
@@ -443,83 +500,105 @@ Trans_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv') %>%
   dplyr::select(GeneID, 
                 logFC, 
                 adj.P.Val) %>% 
-  rename(gene_ensembl = GeneID)%>% 
+  rename(gene_name = GeneID)%>% 
   inner_join(., 
-             annotation_data) %>% 
-  rename(GeneID = gene_name)
+             annotation_expression_data) %>% 
+  rename(GeneID = gene_name, 
+         gene_name = transcript_name)
 
 Trans_geo_hyb_18_snps = inner_join(Trans_geo_hyb_18, 
-           ecotype_snps_fixed, 
-           by = 'GeneID', 
-           relationship = 'many-to-many')%>% 
-  dplyr::select(gene_ensembl, 
+           brain_18_snps, 
+           by = 'gene_name')%>% 
+  dplyr::select(GeneID, 
+                gene_ensembl.x, 
+                gene_name, 
                 logFC, 
                 adj.P.Val, 
-                CHR, 
-                GeneID,
-                feature.x, 
-                start.x, 
-                end.x, 
-                BP.x, 
+                CHR.x, 
+                BP.y, 
                 REF, 
                 ALT, 
-                other_affected_genes,
-                effect,
+                p.value, 
                 ecotype)
 
 
-# Trans_geo_hyb_18_snps %>%
-#   write_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv')
+Trans_geo_hyb_18_snps %>%
+  write_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv')
 
 
 Trans_geo_hyb_18_genes = Trans_geo_hyb_18_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
-  group_by(GeneID) %>% 
+  group_by(gene_name) %>% 
   summarize(n = n()) 
 
 
 inner_join(Trans_amb_hyb_18_genes, 
            Trans_geo_hyb_18_genes, 
-           by = 'GeneID') %>% 
-  select(GeneID) %>% 
-  write_tsv('trans_pure_vs_hyb_18_genes_ASEP.txt', 
+           by = 'gene_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('trans_pure_vs_hyb_18_genes_ASEP_FIXED.txt', 
             col_names = F)
 
 
 # Compare ASEP between groups ---------------------------------------------
 
-Trans_amb_hyb_12_snps = read_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps.csv') %>% 
-  mutate(temp = '12')
-Trans_amb_hyb_18_snps = read_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps.csv') %>% 
+Trans_amb_hyb_12_snps = read_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
+  mutate(temp = '12') 
+Trans_amb_hyb_18_snps = read_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
   mutate(temp = '18')
-Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps.csv') %>% 
-  mutate(temp = '12')
-Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps.csv') %>% 
-  mutate(temp = '18')
+Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
+  mutate(temp = '12') %>% 
+  rename(gene_name = gene_name.x)
+Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
+  mutate(temp = '18') %>% 
+  rename(CHR = CHR.x)
 
 Trans_amb_hyb_12_genes %>% 
   inner_join(.,
              Trans_amb_hyb_18_genes, 
-             by = 'GeneID')
+             by = 'gene_name')
 
 trans_geo_hyb_12_genes %>% 
   inner_join(.,
              Trans_geo_hyb_18_genes, 
-             by = 'GeneID')
+             by = 'gene_name')
 
-Trans_amb_hyb_12_genes %>% 
+Trans_amb_hyb_12_snps %>% 
   inner_join(., 
-             Trans_amb_hyb_18_genes, 
-             by = 'GeneID') %>% 
+             Trans_amb_hyb_18_snps, 
+             by = 'gene_name') %>% 
   inner_join(.,
-             trans_geo_hyb_12_genes, 
-             by = 'GeneID') %>% 
+             Trans_geo_hyb_12_snps, 
+             by = 'gene_name') %>% 
   inner_join(., 
-             trans_geo_hyb_12_genes, 
-             by = 'GeneID') %>% 
-  select(GeneID) %>% 
-  write_tsv('ASEP_Common_TransExp_genes.txt')
+             Trans_geo_hyb_18_snps, 
+             by = 'gene_name') %>% 
+  ungroup() %>% 
+  select(gene_name) %>% 
+  distinct(gene_name) %>% 
+  write_tsv('ASEP_Common_TransExp_genes_FIXED.txt')
+
+
+## overlapping snps not genes
+
+## 10 overlapping snps 
+inner_join(Trans_amb_hyb_12_snps, 
+           Trans_geo_hyb_12_snps, 
+           by = c('gene_name', 
+                  'CHR', 
+                  'BP.y')) %>% 
+  inner_join(., 
+             Trans_amb_hyb_18_snps, 
+             by = c('gene_name', 
+                    'CHR', 
+                    'BP.y')) %>% 
+  inner_join(., 
+             Trans_geo_hyb_18_snps, 
+             by = c('gene_name', 
+                    'CHR', 
+                    'BP.y')) %>% 
+  distinct(gene_name)
 
 
 # Ambient plastic ASEP ----------------------------------------------------
