@@ -486,6 +486,8 @@ Trans_amb_hyb_18_snps = inner_join(Trans_amb_hyb_18,
 #   write_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv')
 
 
+
+
 Trans_amb_hyb_18_genes = Trans_amb_hyb_18_snps %>% 
   # group_by(GeneID, 
   #          ecotype) %>% 
@@ -541,12 +543,93 @@ inner_join(Trans_amb_hyb_18_genes,
             col_names = F)
 
 
+# NCOA2 -------------------------------------------------------------------
+
+read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  inner_join(., 
+             Gene_ID_18) %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val) %>% 
+  rename(gene_name = GeneID)%>% 
+  inner_join(., 
+             annotation_expression_data) %>% 
+  filter(transcript_name %in% c('ncoa2-201', 
+                                'ncoa3-201', 
+                                'ppara-201')) %>% 
+  select(transcript_name, 
+         logFC,
+         adj.P.Val,
+         CHR, 
+         BP) 
+  
+read_csv('Brain_geo_hyb_18_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  inner_join(., 
+             Gene_ID_18) %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val) %>% 
+  rename(gene_name = GeneID)%>% 
+  inner_join(., 
+             annotation_expression_data) %>%  
+  filter(transcript_name %in% c('ncoa2-201', 
+                                'ncoa3-201', 
+                                'ppara-201')) %>% 
+  select(transcript_name, 
+         logFC, 
+         adj.P.Val,
+         CHR, 
+         BP)
+
+
+read_csv('Brain_amb_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  inner_join(., 
+             Gene_ID_18) %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val) %>% 
+  rename(gene_name = GeneID)%>% 
+  inner_join(., 
+             annotation_expression_data) %>% 
+  filter(transcript_name %in% c('ncoa2-201', 
+                                'ncoa3-201', 
+                                'ppara-201')) %>% 
+  select(transcript_name, 
+         logFC, 
+         adj.P.Val,
+         CHR, 
+         BP)
+
+read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  inner_join(., 
+             Gene_ID_18) %>% 
+  dplyr::select(GeneID, 
+                logFC, 
+                adj.P.Val) %>% 
+  rename(gene_name = GeneID)%>% 
+  inner_join(., 
+             annotation_expression_data) %>%  
+  filter(transcript_name %in% c('ncoa2-201', 
+                                'ncoa3-201', 
+                                'ppara-201')) %>% 
+  select(transcript_name, 
+         logFC,
+         adj.P.Val,
+         CHR, 
+         BP)
+
 # Compare ASEP between groups ---------------------------------------------
 
 Trans_amb_hyb_12_snps = read_csv('Trans_amb_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
-  mutate(temp = '12') 
+  mutate(temp = '12') %>% 
+  rename(gene_name = gene_name.x)
 Trans_amb_hyb_18_snps = read_csv('Trans_amb_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
-  mutate(temp = '18')
+  mutate(temp = '18') %>% 
+  rename(CHR = CHR.x)
 Trans_geo_hyb_12_snps = read_csv('Trans_geo_hyb_12_TRANSGRESSIVE_EXP_snps_FIXED.csv') %>% 
   mutate(temp = '12') %>% 
   rename(gene_name = gene_name.x)
@@ -554,6 +637,37 @@ Trans_geo_hyb_18_snps = read_csv('Trans_geo_hyb_18_TRANSGRESSIVE_EXP_snps_FIXED.
   mutate(temp = '18') %>% 
   rename(CHR = CHR.x)
 
+## 2 unique to amb-hyb at 12
+anti_join(Trans_amb_hyb_12_snps, 
+          Trans_geo_hyb_12_snps, 
+          by = c('gene_name', 
+                 'CHR', 
+                 'BP.y'))
+
+## 13 unique to 12 degrees
+anti_join(Trans_amb_hyb_12_snps, 
+          Trans_amb_hyb_18_snps, 
+          by = c('gene_name', 
+                 'CHR', 
+                 'BP.y'))
+
+## 13 unique to 12 degrees
+anti_join(Trans_geo_hyb_12_snps, 
+          Trans_geo_hyb_18_snps, 
+          by = c('gene_name', 
+                 'CHR', 
+                 'BP.y'))
+
+## 0 unique to geo-hyb at 12
+anti_join(Trans_geo_hyb_12_snps, 
+          Trans_amb_hyb_12_snps, 
+          by = c('gene_name', 
+                 'CHR', 
+                 'BP.y'))
+
+
+
+## shared responses
 Trans_amb_hyb_12_genes %>% 
   inner_join(.,
              Trans_amb_hyb_18_genes, 
@@ -580,6 +694,13 @@ Trans_amb_hyb_12_snps %>%
   write_tsv('ASEP_Common_TransExp_genes_FIXED.txt')
 
 
+inner_join(Trans_amb_hyb_18_snps, 
+           Trans_geo_hyb_18_snps, 
+           by = c('gene_name', 
+                  'CHR', 
+                  'BP.y')) %>% 
+  distinct(gene_name)
+
 ## overlapping snps not genes
 
 ## 10 overlapping snps 
@@ -597,7 +718,7 @@ inner_join(Trans_amb_hyb_12_snps,
              Trans_geo_hyb_18_snps, 
              by = c('gene_name', 
                     'CHR', 
-                    'BP.y')) %>% 
+                    'BP.y')) %>% View()
   distinct(gene_name)
 
 
