@@ -1224,3 +1224,41 @@ UpSet(liver_div_comb_mat)
 
  
 
+# Plasticity overlap - shared responses -----------------------------------
+
+## liver
+liver_amb_plast = read_csv('Liver_ambient_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Ambient')
+
+liver_geo_plast = read_csv('Liver_geothermal_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Geothermal')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal = GeneID)
+
+liver_hyb_plast = read_csv('Liver_hybrid_plastic.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Hybrid')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Hybrid = GeneID)
+
+
+
+brain_amb_plast = read_csv('Brain_ambient_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  # mutate(Plast_type = 'Ambient') %>% 
+  dplyr::select(GeneID) %>% 
+  rename(Ambient = GeneID)
+
+brain_geo_plast = read_csv('Brain_geothermal_plastic.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Geothermal')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Geothermal = GeneID)
+
+brain_hyb_plast = read_csv('Brain_hybrid_plastic.csv') %>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  mutate(Plast_type = 'Hybrid')%>% 
+  dplyr::select(GeneID) %>% 
+  rename(Hybrid = GeneID)

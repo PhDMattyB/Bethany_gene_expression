@@ -340,7 +340,8 @@ brain_plast_amb %>%
   inner_join(., 
              anno_data, 
              by = 'ensemble_name') %>% 
-  select(gene_name) %>% 
+  select(gene_name, 
+         logFC) %>% 
   write_tsv('Ambient_plastic_unique_genes.txt', 
             col_names = F)
 
@@ -352,7 +353,8 @@ brain_plast_geo %>%
   inner_join(., 
              anno_data, 
              by = 'ensemble_name') %>% 
-  select(gene_name) %>% 
+  select(gene_name, 
+         logFC) %>% 
   write_tsv('Geothermal_plastic_genes_unique.txt', 
             col_names = F)
 
@@ -364,9 +366,51 @@ brain_plast_hyb %>%
   inner_join(., 
              anno_data, 
              by = 'ensemble_name') %>% 
-  select(gene_name) %>% 
+  select(gene_name, 
+         logFC) %>% 
   write_tsv('Hybrid_plastic_genes_unique.txt', 
             col_names = F)
+
+# Shared plastic responses -brain -----------------------------------------
+
+anno_data = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/Gene_expression_annotation_data.txt')
+
+inner_join(plast_overlap, 
+           anno_data, 
+           by = 'ensemble_name') %>% 
+  select(gene_name) %>% 
+  write_tsv('Overlapping_plasticity_genes_allecotypes.txt', 
+            col_names = F)
+
+
+brain_plast_amb = brain_plast_amb %>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name, 
+         logFC) 
+
+brain_plast_geo = brain_plast_geo %>% 
+  rename(ensemble_name = GeneID) %>% 
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name, 
+         logFC)  
+ 
+brain_plast_hyb = brain_plast_hyb %>% 
+  rename(ensemble_name = GeneID) %>%
+  inner_join(., 
+             anno_data, 
+             by = 'ensemble_name') %>% 
+  select(gene_name, 
+         logFC) 
+
+inner_join(brain_plast_amb, 
+           brain_plast_amb, 
+           by = 'gene_name')
+
 
  
 # brain quick volcano plots -----------------------------------------------------
