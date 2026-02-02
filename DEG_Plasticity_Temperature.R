@@ -409,7 +409,10 @@ brain_plast_hyb = brain_plast_hyb %>%
 
 inner_join(brain_plast_amb, 
            brain_plast_amb, 
-           by = 'gene_name')
+           by = 'gene_name') %>% 
+  inner_join(., 
+             brain_plast_hyb,
+             by = 'gene_name') %>% View()
 
 
  
