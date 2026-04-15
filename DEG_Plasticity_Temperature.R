@@ -31,7 +31,7 @@ metadata = names(brain_exp) %>%
            into = c('sample_num', 
                     'ecotype'), 
            sep = '-') %>% 
-  unite(col = ecotemp, 
+  tidyr::unite(col = ecotemp, 
         c('ecotype',
           'temp'),
         sep = '_',

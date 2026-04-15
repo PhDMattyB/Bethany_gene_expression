@@ -33,7 +33,7 @@ metadata = names(brain_exp) %>%
            into = c('sample_num', 
                     'ecotype'), 
            sep = '-') %>% 
-  unite(col = ecotemp, 
+  tidyr::unite(col = ecotemp, 
                 c('ecotype',
                   'temp'),
                 sep = '_',
@@ -418,7 +418,8 @@ brain_limma = read_csv('Brain_LIMMA_model_results.csv')
 
 brain_common_genes = inner_join(brain_edge, 
            brain_limma, 
-           by = 'GeneID')
+           by = 'GeneID') %>% 
+  filter(adj.P.Val < 0.05)
 
 
 ### 12 degree inheritance pattern
@@ -671,6 +672,21 @@ anti_join(transgressive2_12,
 anti_join(transgressive2_18, 
           transgressive2_12, 
           by = "GeneID")
+
+
+trans_up = inner_join(transgressive1_12, 
+           transgressive1_18, 
+           by = c('GeneID', 
+                  'exp_pattern')) 
+
+trans_down = inner_join(transgressive2_12, 
+           transgressive2_18, 
+           by = c('GeneID', 
+                  'exp_pattern'))
+
+bind_rows(trans_up, 
+          trans_down) %>% 
+  distinct(GeneID)
 
 
 # Liver inheritance pattern -----------------------------------------------
