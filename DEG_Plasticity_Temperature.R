@@ -32,10 +32,10 @@ metadata = names(brain_exp) %>%
                     'ecotype'), 
            sep = '-') %>% 
   tidyr::unite(col = ecotemp, 
-        c('ecotype',
-          'temp'),
-        sep = '_',
-        remove = F)
+               c('ecotype',
+                 'temp'),
+               sep = '_',
+               remove = F)
 
 ## Limma and edger analyses were done in another script
 ## This is a follow up script from
@@ -164,7 +164,7 @@ brain_eco18_clean = bind_rows(brain_eco18,
                               brain_eco18_neutral)
 
 brain_plast_amb_clean = bind_rows(brain_plast_amb, 
-                              brain_plast_amb_neutral)
+                                  brain_plast_amb_neutral)
 
 brain_plast_geo_clean = bind_rows(brain_plast_geo, 
                                   brain_plast_geo_neutral)
@@ -173,7 +173,7 @@ brain_plast_hyb_clean = bind_rows(brain_plast_hyb,
                                   brain_plast_hyb_neutral)
 
 brain_amb_hyb_clean12 = bind_rows(brain_amb_hyb_div_12, 
-                                brain_amb_hyb_div_12_neutral)
+                                  brain_amb_hyb_div_12_neutral)
 brain_amb_hyb_clean18 = bind_rows(brain_amb_hyb_div_18, 
                                   brain_amb_hyb_div_18_neutral)
 

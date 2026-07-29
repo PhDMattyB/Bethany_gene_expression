@@ -19,6 +19,14 @@ theme_set(theme_bw())
 brain_exp = read_tsv('brain_gene_read_counts_table_all_final.tsv')
 liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
 
+sex_metadata = read_csv('Sex_metadata.csv')%>%
+  select(-...7, 
+         -...8,
+         -...9)
+sex_metadata$temp = as.character(sex_metadata$temp)
+sex_metadata$sample = as.character(sex_metadata$sample)
+
+
 metadata = names(brain_exp) %>% 
   as_tibble() %>% 
   dplyr::slice(-1) %>% 
@@ -34,10 +42,12 @@ metadata = names(brain_exp) %>%
                     'ecotype'), 
            sep = '-') %>% 
   tidyr::unite(col = ecotemp, 
-                c('ecotype',
-                  'temp'),
-                sep = '_',
-                remove = F)
+               c('ecotype',
+                 'temp'),
+               sep = '_',
+               remove = F)%>%
+  left_join(.,
+            sex_metadata)
 
 
 metadata %>% 
@@ -68,27 +78,27 @@ brain_dispersion = estimateDisp(brain_keep,
 # Brain divergent gene expression -----------------------------------------
 
 contrast = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
-                             eco18 = ecotempSKRC_18 - ecotempSKRW_18,
-                             plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
-                             plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
-                             plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
-                             am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
-                             am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
-                             geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
-                             geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
-                                  levels = mm)
+                         eco18 = ecotempSKRC_18 - ecotempSKRW_18,
+                         plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
+                         plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
+                         plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
+                         am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
+                         am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
+                         geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
+                         geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
+                         levels = mm)
 
 brain_glm_div = glmQLFit(brain_dispersion, 
-                     # contrast = ecotype.div.brain,
-                     design = mm)
+                         # contrast = ecotype.div.brain,
+                         design = mm)
 
 brain_glm_test = glmQLFTest(brain_glm_div, 
-                                contrast = contrast)
+                            contrast = contrast)
 
 brain_edger_results = topTags(brain_glm_test, 
-        n = 13452,
-        adjust.method = 'bonferroni', 
-        p.value = 0.05)
+                              n = 13452,
+                              adjust.method = 'bonferroni', 
+                              p.value = 0.05)
 
 brain_edger_results$table %>% 
   as.data.frame() %>% 
@@ -103,9 +113,9 @@ brain_voom = voom(brain_keep,
 # 
 brain_fit_limma <- limma::lmFit(brain_voom, 
                                 contrast = contrast,
-                          design=mm)
+                                design=mm)
 brain_fit_limma_contrast = contrasts.fit(brain_fit_limma, 
-              contrasts = contrast)
+                                         contrasts = contrast)
 
 
 brain_fit_ebayes = eBayes(brain_fit_limma_contrast)
@@ -132,19 +142,19 @@ brain_fit_ebayes = eBayes(brain_fit_limma_contrast)
 
 
 brain_limma_results = topTable(brain_fit_ebayes, 
-         n = 13452, 
-         adjust.method = 'bonferroni', 
-         p.value = 0.05)
+                               n = 13452, 
+                               adjust.method = 'bonferroni', 
+                               p.value = 0.05)
 
 
 brain_limma_results_all = topTable(brain_fit_ebayes, 
-                               n = 13452, 
-                               adjust.method = 'bonferroni')
+                                   n = 13452, 
+                                   adjust.method = 'bonferroni')
 
 eco12 = topTable(fit = brain_fit_ebayes,
-         coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco12'),
-         adjust.method = 'bonferroni',
-         number = 13452)
+                 coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco12'),
+                 adjust.method = 'bonferroni',
+                 number = 13452)
 
 eco12 %>%
   as_tibble() %>%
@@ -160,9 +170,9 @@ eco18 %>%
   write_csv("Brain_eco_div_18.csv")
 
 plast_amb = topTable(fit = brain_fit_ebayes,
-                 coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_amb'),
-                 adjust.method = 'bonferroni',
-                 number = 13452)
+                     coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_amb'),
+                     adjust.method = 'bonferroni',
+                     number = 13452)
 
 plast_amb %>%
   as_tibble() %>%
@@ -189,9 +199,9 @@ plast_hyb %>%
 
 
 amb_hyb_12 = topTable(fit = brain_fit_ebayes,
-                     coef = which(colnames(brain_fit_ebayes$coefficients) == 'am_hyb_12'),
-                     adjust.method = 'bonferroni',
-                     number = 13452)
+                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'am_hyb_12'),
+                      adjust.method = 'bonferroni',
+                      number = 13452)
 
 amb_hyb_12 %>%
   as_tibble() %>%
@@ -305,27 +315,27 @@ Liver_limma_results_all = topTable(liver_fit_ebayes,
                                    adjust.method = 'bonferroni')
 
 liver_eco12 = topTable(fit = liver_fit_ebayes,
-                 coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco12'),
-                 adjust.method = 'bonferroni',
-                 number = 10506)
+                       coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco12'),
+                       adjust.method = 'bonferroni',
+                       number = 10506)
 
 liver_eco12 %>%
   as_tibble() %>%
   write_csv("Liver_eco_div_12.csv")
 
 liver_eco18 = topTable(fit = liver_fit_ebayes,
-                 coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco18'),
-                 adjust.method = 'bonferroni',
-                 number = 10506)
+                       coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco18'),
+                       adjust.method = 'bonferroni',
+                       number = 10506)
 
 liver_eco18 %>%
   as_tibble() %>%
   write_csv("Liver_eco_div_18.csv")
 
 liver_plast_amb = topTable(fit = liver_fit_ebayes,
-                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_amb'),
-                     adjust.method = 'bonferroni',
-                     number = 10506)
+                           coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_amb'),
+                           adjust.method = 'bonferroni',
+                           number = 10506)
 
 liver_plast_amb %>%
   as_tibble() %>%
@@ -333,36 +343,36 @@ liver_plast_amb %>%
 
 
 liver_plast_geo = topTable(fit = liver_fit_ebayes,
-                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_geo'),
-                     adjust.method = 'bonferroni',
-                     number = 10506)
+                           coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_geo'),
+                           adjust.method = 'bonferroni',
+                           number = 10506)
 
 liver_plast_geo %>%
   as_tibble() %>%
   write_csv('Liver_geothermal_plastic.csv')
 
 liver_plast_hyb = topTable(fit = liver_fit_ebayes,
-                     coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_hyb'),
-                     adjust.method = 'bonferroni',
-                     number = 10506)
+                           coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_hyb'),
+                           adjust.method = 'bonferroni',
+                           number = 10506)
 
 liver_plast_hyb %>%
   as_tibble() %>%
   write_csv('Liver_hybrid_plastic.csv')
 
 liver_amb_hyb_12 = topTable(fit = liver_fit_ebayes,
-                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_12'),
-                      adjust.method = 'bonferroni',
-                      number = 10506)
+                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_12'),
+                            adjust.method = 'bonferroni',
+                            number = 10506)
 
 liver_amb_hyb_12 %>%
   as_tibble() %>%
   write_csv('liver_amb_hyb_12_div.csv')
 
 liver_amb_hyb_18 = topTable(fit = liver_fit_ebayes,
-                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_18'),
-                      adjust.method = 'bonferroni',
-                      number = 10506)
+                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_18'),
+                            adjust.method = 'bonferroni',
+                            number = 10506)
 
 liver_amb_hyb_18 %>%
   as_tibble() %>%
@@ -370,9 +380,9 @@ liver_amb_hyb_18 %>%
 
 
 liver_geo_hyb_12 = topTable(fit = liver_fit_ebayes,
-                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_12'),
-                      adjust.method = 'bonferroni',
-                      number = 10506)
+                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_12'),
+                            adjust.method = 'bonferroni',
+                            number = 10506)
 
 liver_geo_hyb_12 %>%
   as_tibble() %>%
@@ -380,9 +390,9 @@ liver_geo_hyb_12 %>%
 
 
 liver_geo_hyb_18 = topTable(fit = liver_fit_ebayes,
-                      coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_18'),
-                      adjust.method = 'bonferroni',
-                      number = 10506)
+                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_18'),
+                            adjust.method = 'bonferroni',
+                            number = 10506)
 
 liver_geo_hyb_18 %>%
   as_tibble() %>%
