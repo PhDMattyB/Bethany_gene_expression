@@ -103,53 +103,53 @@ brain_eco12 = read_csv('Sex_Brain_eco_div_12_significant.csv') %>%
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_eco18 = read_csv('Brain_eco_div_18_significant.csv')%>% 
+brain_eco18 = read_csv('Sex_Brain_eco_div_18_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_amb = read_csv('Brain_ambient_plastic_significant.csv')%>% 
+brain_plast_amb = read_csv('Sex_Brain_ambient_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_geo = read_csv('Brain_geothermal_plastic_significant.csv')%>% 
+brain_plast_geo = read_csv('Sex_Brain_geothermal_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_hyb = read_csv('Brain_hybrid_plastic_significant.csv')%>% 
+brain_plast_hyb = read_csv('Sex_Brain_hybrid_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
 
-brain_amb_hyb_div_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
+brain_amb_hyb_div_12 = read_csv('Sex_Brain_amb_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_amb_hyb_div_18 = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+brain_amb_hyb_div_18 = read_csv('Sex_Brain_amb_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_geo_hyb_div_12 = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+brain_geo_hyb_div_12 = read_csv('Sex_Brain_geo_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_geo_hyb_div_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
+brain_geo_hyb_div_18 = read_csv('Sex_Brain_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
@@ -258,7 +258,7 @@ brain_amb_hyb_div_12 %>%
              anno_data, 
              by = 'ensemble_name') %>% 
   dplyr::select(gene_name) %>% 
-  write_tsv("SKR_geo_amb_hyb_div_both_temps_downreg.txt", 
+  write_tsv("SEX_SKR_geo_amb_hyb_div_both_temps_downreg.txt", 
             col_names = F)
 
 
@@ -286,7 +286,7 @@ inner_join(brain_plast_amb,
            brain_plast_geo, 
            by = 'GeneID') %>% 
   select(GeneID) %>% 
-  write_tsv('Brain_plasticity_amb_vs_geo.txt', 
+  write_tsv('SEX_Brain_plasticity_amb_vs_geo.txt', 
             col_names = F)
 ## 47 genes are plastic in both the ambient and geothermal ecotypes
 
@@ -294,7 +294,7 @@ inner_join(brain_plast_amb,
            brain_plast_hyb, 
            by = 'GeneID')%>% 
   select(GeneID) %>% 
-  write_tsv('Brain_plasticity_amb_vs_hyb.txt', 
+  write_tsv('SEX_Brain_plasticity_amb_vs_hyb.txt', 
             col_names = F)
 ## 43 genes are plastic in both the amient and hybridl ecotypes
 
@@ -302,7 +302,7 @@ inner_join(brain_plast_geo,
            brain_plast_hyb, 
            by = 'GeneID')%>% 
   select(GeneID) %>% 
-  write_tsv('Brain_plasticity_geo_vs_hyb.txt', 
+  write_tsv('SEX_Brain_plasticity_geo_vs_hyb.txt', 
             col_names = F)
 ## 85 genes are plastic in both the geothermal and hybrid ecotypes
 

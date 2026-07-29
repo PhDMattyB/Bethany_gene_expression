@@ -60,6 +60,82 @@ metadata %>%
 
 
 
+# Brain - No sex effect models ----------------------------------------------------
+brain_dge_list = DGEList(brain_exp)
+brain_norm = calcNormFactors(brain_dge_list)
+
+mm2 = model.matrix(~0 + ecotemp, 
+                   data = metadata)
+
+brain_keep = filterByExpr(brain_norm, 
+                          min.count = 10,
+                          mm2)
+sum(brain_keep) # number of genes retai
+brain_keep = brain_norm[brain_keep,]
+
+## EdgeR model
+brain2_dispersion = estimateDisp(brain_keep, 
+                                mm2)
+contrast2 = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
+                         eco18 = ecotempSKRC_18 - ecotempSKRW_18,
+                         plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
+                         plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
+                         plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
+                         am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
+                         am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
+                         geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
+                         geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
+                         levels = mm2)
+
+brain2_glm_div = glmQLFit(brain2_dispersion, 
+                         # contrast = ecotype.div.brain,
+                         design = mm2)
+
+brain2_glm_test = glmQLFTest(brain2_glm_div, 
+                            contrast = contrast2)
+
+brain2_edger_results = topTags(brain2_glm_test, 
+                              n = 13452,
+                              adjust.method = 'bonferroni', 
+                              p.value = 0.05)
+
+brain_edger_results$table %>% 
+  as.data.frame() %>% 
+  as_tibble() %>% 
+  write_csv('Sex_Brain_EdgeR_GLMQLFTest_results.csv')
+
+
+# ## limma model
+brain2_voom = voom(brain_keep, 
+                  mm2, 
+                  plot = T)
+# 
+brain2_fit_limma <- limma::lmFit(brain2_voom, 
+                                contrast = contrast2,
+                                design=mm2)
+brain2_fit_limma_contrast = contrasts.fit(brain2_fit_limma, 
+                                         contrasts = contrast2)
+
+
+brain2_fit_ebayes = eBayes(brain2_fit_limma_contrast)
+
+topTable(brain_fit_ebayes, coef = "sexM")
+
+brain_nosex_limma_results = topTable(brain2_fit_ebayes, 
+                               n = 13452, 
+                               adjust.method = 'bonferroni', 
+                               p.value = 0.05)
+
+
+brain_limma_results_all = topTable(brain_fit_ebayes, 
+                                   n = 13511, 
+                                   adjust.method = 'bonferroni')
+
+
+
+
+# sex included models -----------------------------------------------------
+
 # Brain normalization -----------------------------------------------------
 
 
@@ -68,6 +144,9 @@ brain_norm = calcNormFactors(brain_dge_list)
 
 mm = model.matrix(~0 + ecotemp + sex, 
                   data = metadata)
+
+# mm2 = model.matrix(~0 + ecotemp, 
+#                   data = metadata)
 
 brain_keep = filterByExpr(brain_norm, 
                           min.count = 10,
@@ -103,10 +182,10 @@ brain_edger_results = topTags(brain_glm_test,
                               adjust.method = 'bonferroni', 
                               p.value = 0.05)
 
-brain_edger_results$table %>% 
-  as.data.frame() %>% 
-  as_tibble() %>% 
-  write_csv('Sex_Brain_EdgeR_GLMQLFTest_results.csv')
+# brain_edger_results$table %>% 
+#   as.data.frame() %>% 
+#   as_tibble() %>% 
+#   write_csv('Sex_Brain_EdgeR_GLMQLFTest_results.csv')
 
 
 # ## limma model
@@ -123,25 +202,7 @@ brain_fit_limma_contrast = contrasts.fit(brain_fit_limma,
 
 brain_fit_ebayes = eBayes(brain_fit_limma_contrast)
 
-# geneid = brain_fit_ebayes$genes$GeneID %>% 
-#   as_tibble() %>% 
-#   rename(gene_name = value)
-# exonid = read_tsv('exonID.txt')
-# 
-# full_join(geneid, 
-#           exonid)
-# 
-# semi_join(geneid, 
-#           exonid)
-# 
-# ids = union_all(geneid, 
-#           exonid)
-# 
-# diffSplice(fit = brain_fit_ebayes, 
-#            geneid = brain_fit_ebayes$genes$GeneID, 
-#            exonid = F, 
-#            robust = T, 
-#            verbose = T)
+topTable(brain_fit_ebayes, coef = "sexM")
 
 
 brain_limma_results = topTable(brain_fit_ebayes, 
