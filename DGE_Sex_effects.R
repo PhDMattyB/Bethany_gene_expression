@@ -75,17 +75,17 @@ brain_keep = brain_norm[brain_keep,]
 
 ## EdgeR model
 brain2_dispersion = estimateDisp(brain_keep, 
-                                mm2)
+                                 mm2)
 contrast2 = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
-                         eco18 = ecotempSKRC_18 - ecotempSKRW_18,
-                         plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
-                         plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
-                         plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
-                         am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
-                         am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
-                         geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
-                         geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
-                         levels = mm2)
+                          eco18 = ecotempSKRC_18 - ecotempSKRW_18,
+                          plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
+                          plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
+                          plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
+                          am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
+                          am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
+                          geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
+                          geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
+                          levels = mm2)
 
 brain2_glm_div = glmQLFit(brain2_dispersion, 
                          # contrast = ecotype.div.brain,
@@ -127,8 +127,8 @@ brain_nosex_limma_results = topTable(brain2_fit_ebayes,
                                p.value = 0.05)
 
 
-brain_limma_results_all = topTable(brain_fit_ebayes, 
-                                   n = 13511, 
+brain_nosex_limma_results_all = topTable(brain2_fit_ebayes, 
+                                   n = 13452, 
                                    adjust.method = 'bonferroni')
 
 
