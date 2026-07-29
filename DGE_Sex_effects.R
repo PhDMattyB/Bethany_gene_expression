@@ -88,16 +88,16 @@ contrast2 = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12,
                           levels = mm2)
 
 brain2_glm_div = glmQLFit(brain2_dispersion, 
-                         # contrast = ecotype.div.brain,
-                         design = mm2)
+                          # contrast = ecotype.div.brain,
+                          design = mm2)
 
 brain2_glm_test = glmQLFTest(brain2_glm_div, 
-                            contrast = contrast2)
+                             contrast = contrast2)
 
 brain2_edger_results = topTags(brain2_glm_test, 
-                              n = 13452,
-                              adjust.method = 'bonferroni', 
-                              p.value = 0.05)
+                               n = 13452,
+                               adjust.method = 'bonferroni', 
+                               p.value = 0.05)
 
 brain_edger_results$table %>% 
   as.data.frame() %>% 
@@ -107,14 +107,14 @@ brain_edger_results$table %>%
 
 # ## limma model
 brain2_voom = voom(brain_keep, 
-                  mm2, 
-                  plot = T)
+                   mm2, 
+                   plot = T)
 # 
 brain2_fit_limma <- limma::lmFit(brain2_voom, 
-                                contrast = contrast2,
-                                design=mm2)
+                                 contrast = contrast2,
+                                 design=mm2)
 brain2_fit_limma_contrast = contrasts.fit(brain2_fit_limma, 
-                                         contrasts = contrast2)
+                                          contrasts = contrast2)
 
 
 brain2_fit_ebayes = eBayes(brain2_fit_limma_contrast)
@@ -122,14 +122,14 @@ brain2_fit_ebayes = eBayes(brain2_fit_limma_contrast)
 topTable(brain_fit_ebayes, coef = "sexM")
 
 brain_nosex_limma_results = topTable(brain2_fit_ebayes, 
-                               n = 13452, 
-                               adjust.method = 'bonferroni', 
-                               p.value = 0.05)
+                                     n = 13452, 
+                                     adjust.method = 'bonferroni', 
+                                     p.value = 0.05)
 
 
 brain_nosex_limma_results_all = topTable(brain2_fit_ebayes, 
-                                   n = 13452, 
-                                   adjust.method = 'bonferroni')
+                                         n = 13452, 
+                                         adjust.method = 'bonferroni')
 
 
 
