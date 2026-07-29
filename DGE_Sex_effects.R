@@ -99,14 +99,14 @@ brain_glm_test = glmQLFTest(brain_glm_div,
                             contrast = contrast)
 
 brain_edger_results = topTags(brain_glm_test, 
-                              n = 13452,
+                              n = 13511,
                               adjust.method = 'bonferroni', 
                               p.value = 0.05)
 
 brain_edger_results$table %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  write_csv('Brain_EdgeR_GLMQLFTest_results.csv')
+  write_csv('Sex_Brain_EdgeR_GLMQLFTest_results.csv')
 
 
 # ## limma model
@@ -163,6 +163,11 @@ eco12 %>%
   as_tibble() %>%
   write_csv("SEX_Brain_eco_div_12.csv")
 
+eco12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("SEX_Brain_eco_div_12_significant.csv")
+
 eco18 = topTable(fit = brain_fit_ebayes,
                  coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco18'),
                  adjust.method = 'bonferroni',
@@ -172,6 +177,12 @@ eco18 %>%
   as_tibble() %>%
   write_csv("SEX_Brain_eco_div_18.csv")
 
+eco18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("SEX_Brain_eco_div_18_significant.csv")
+
+
 plast_amb = topTable(fit = brain_fit_ebayes,
                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_amb'),
                      adjust.method = 'bonferroni',
@@ -180,6 +191,11 @@ plast_amb = topTable(fit = brain_fit_ebayes,
 plast_amb %>%
   as_tibble() %>%
   write_csv("Sex_Brain_ambient_plastic.csv")
+
+plast_amb %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("Sex_Brain_ambient_plastic_significant.csv")
 
 
 plast_geo = topTable(fit = brain_fit_ebayes,
@@ -191,6 +207,12 @@ plast_geo %>%
   as_tibble() %>%
   write_csv('Sex_Brain_geothermal_plastic.csv')
 
+plast_geo %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_geothermal_plastic_significant.csv')
+
+
 plast_hyb = topTable(fit = brain_fit_ebayes,
                      coef = which(colnames(brain_fit_ebayes$coefficients) == 'plast_hyb'),
                      adjust.method = 'bonferroni',
@@ -199,6 +221,11 @@ plast_hyb = topTable(fit = brain_fit_ebayes,
 plast_hyb %>%
   as_tibble() %>%
   write_csv('Sex_Brain_hybrid_plastic.csv')
+
+plast_hyb %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_hybrid_plastic_significant.csv')
 
 
 amb_hyb_12 = topTable(fit = brain_fit_ebayes,
@@ -210,6 +237,11 @@ amb_hyb_12 %>%
   as_tibble() %>%
   write_csv('Sex_Brain_amb_hyb_12_div.csv')
 
+amb_hyb_12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_amb_hyb_12_div_significant.csv')
+
 amb_hyb_18 = topTable(fit = brain_fit_ebayes,
                       coef = which(colnames(brain_fit_ebayes$coefficients) == 'am_hyb_18'),
                       adjust.method = 'bonferroni',
@@ -218,6 +250,11 @@ amb_hyb_18 = topTable(fit = brain_fit_ebayes,
 amb_hyb_18 %>%
   as_tibble() %>%
   write_csv('Sex_Brain_amb_hyb_18_div.csv')
+
+amb_hyb_18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_amb_hyb_18_div_significant.csv')
 
 
 geo_hyb_12 = topTable(fit = brain_fit_ebayes,
@@ -229,6 +266,11 @@ geo_hyb_12 %>%
   as_tibble() %>%
   write_csv('Sex_Brain_geo_hyb_12_div.csv')
 
+geo_hyb_12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_geo_hyb_12_div_significant.csv')
+
 
 geo_hyb_18 = topTable(fit = brain_fit_ebayes,
                       coef = which(colnames(brain_fit_ebayes$coefficients) == 'geo_hyb_18'),
@@ -238,6 +280,11 @@ geo_hyb_18 = topTable(fit = brain_fit_ebayes,
 geo_hyb_18 %>%
   as_tibble() %>%
   write_csv('Sex_Brain_geo_hyb_18_div.csv')
+
+geo_hyb_18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Brain_geo_hyb_18_div_significant.csv')
 
 
 brain_limma_results %>% 
@@ -287,14 +334,14 @@ liver_glm_test = glmQLFTest(liver_glm_div,
                             contrast = contrast)
 
 liver_edger_results = topTags(liver_glm_test, 
-                              n = 13452,
+                              n = 10590,
                               adjust.method = 'bonferroni', 
                               p.value = 0.05)
 
 liver_edger_results$table %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  write_csv('liver_EdgeR_GLMQLFTest_results.csv')
+  write_csv('Sex_liver_EdgeR_GLMQLFTest_results.csv')
 
 
 # ## limma model
@@ -324,6 +371,13 @@ liver_eco12 %>%
   as_tibble() %>%
   write_csv("Sex_Liver_eco_div_12.csv")
 
+liver_eco12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("Sex_Liver_eco_div_12_significant.csv")
+
+
+
 liver_eco18 = topTable(fit = liver_fit_ebayes,
                        coef = which(colnames(liver_fit_ebayes$coefficients) == 'eco18'),
                        adjust.method = 'bonferroni',
@@ -332,6 +386,11 @@ liver_eco18 = topTable(fit = liver_fit_ebayes,
 liver_eco18 %>%
   as_tibble() %>%
   write_csv("Sex_Liver_eco_div_18.csv")
+liver_eco18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("Sex_Liver_eco_div_18_significant.csv")
+
 
 liver_plast_amb = topTable(fit = liver_fit_ebayes,
                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_amb'),
@@ -342,6 +401,11 @@ liver_plast_amb %>%
   as_tibble() %>%
   write_csv("Sex_Liver_ambient_plastic.csv")
 
+liver_plast_amb %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv("Sex_Liver_ambient_plastic_significant.csv")
+
 
 liver_plast_geo = topTable(fit = liver_fit_ebayes,
                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_geo'),
@@ -351,6 +415,10 @@ liver_plast_geo = topTable(fit = liver_fit_ebayes,
 liver_plast_geo %>%
   as_tibble() %>%
   write_csv('Sex_Liver_geothermal_plastic.csv')
+liver_plast_geo %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Liver_geothermal_plastic_significant.csv')
 
 liver_plast_hyb = topTable(fit = liver_fit_ebayes,
                            coef = which(colnames(liver_fit_ebayes$coefficients) == 'plast_hyb'),
@@ -361,6 +429,12 @@ liver_plast_hyb %>%
   as_tibble() %>%
   write_csv('Sex_Liver_hybrid_plastic.csv')
 
+liver_plast_hyb %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_Liver_hybrid_plastic_significant.csv')
+
+
 liver_amb_hyb_12 = topTable(fit = liver_fit_ebayes,
                             coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_12'),
                             adjust.method = 'bonferroni',
@@ -370,6 +444,12 @@ liver_amb_hyb_12 %>%
   as_tibble() %>%
   write_csv('Sex_liver_amb_hyb_12_div.csv')
 
+liver_amb_hyb_12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_liver_amb_hyb_12_div_significant.csv')
+
+
 liver_amb_hyb_18 = topTable(fit = liver_fit_ebayes,
                             coef = which(colnames(liver_fit_ebayes$coefficients) == 'am_hyb_18'),
                             adjust.method = 'bonferroni',
@@ -378,6 +458,11 @@ liver_amb_hyb_18 = topTable(fit = liver_fit_ebayes,
 liver_amb_hyb_18 %>%
   as_tibble() %>%
   write_csv('Sex_liver_amb_hyb_18_div.csv')
+
+liver_amb_hyb_18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_liver_amb_hyb_18_div_significant.csv')
 
 
 liver_geo_hyb_12 = topTable(fit = liver_fit_ebayes,
@@ -389,6 +474,11 @@ liver_geo_hyb_12 %>%
   as_tibble() %>%
   write_csv('Sex_liver_geo_hyb_12_div.csv')
 
+liver_geo_hyb_12 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_liver_geo_hyb_12_div_significant.csv')
+
 
 liver_geo_hyb_18 = topTable(fit = liver_fit_ebayes,
                             coef = which(colnames(liver_fit_ebayes$coefficients) == 'geo_hyb_18'),
@@ -398,6 +488,11 @@ liver_geo_hyb_18 = topTable(fit = liver_fit_ebayes,
 liver_geo_hyb_18 %>%
   as_tibble() %>%
   write_csv('Sex_liver_geo_hyb_18_div.csv')
+
+liver_geo_hyb_18 %>%
+  as_tibble() %>%
+  filter(adj.P.Val <= 0.05) %>%
+  write_csv('Sex_liver_geo_hyb_18_div_significant.csv')
 
 
 

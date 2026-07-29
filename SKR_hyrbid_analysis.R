@@ -160,6 +160,10 @@ eco12 %>%
   as_tibble() %>%
   write_csv("Brain_eco_div_12.csv")
 
+eco12 %>%
+  as_tibble() %>%
+  write_csv("Brain_eco_div_12.csv")
+
 eco18 = topTable(fit = brain_fit_ebayes,
                  coef = which(colnames(brain_fit_ebayes$coefficients) == 'eco18'),
                  adjust.method = 'bonferroni',
@@ -427,8 +431,8 @@ brain_edge = read_csv('Brain_EdgeR_GLMQLFTest_results.csv')
 brain_limma = read_csv('Brain_LIMMA_model_results.csv')
 
 brain_common_genes = inner_join(brain_edge, 
-           brain_limma, 
-           by = 'GeneID') %>% 
+                                brain_limma, 
+                                by = 'GeneID') %>% 
   filter(adj.P.Val < 0.05)
 
 
@@ -446,7 +450,7 @@ Nothing = exp_pattern_12 %>%
 ## 987 genes
 dom_geo1 = exp_pattern_12 %>%
   filter(am_hyb_12 <= 0.32 &
-         am_hyb_12 >= -0.32) %>%
+           am_hyb_12 >= -0.32) %>%
   filter(geo_hyb_12 > 0.32) %>% 
   mutate(exp_pattern = 'Dominant Geothermal')
 
@@ -464,7 +468,7 @@ dom_amb1 = exp_pattern_12 %>%
 dom_amb2 = exp_pattern_12 %>% 
   filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
   filter(am_hyb_12 < -0.32) %>% 
-    mutate(exp_pattern = 'Dominant Ambient')
+  mutate(exp_pattern = 'Dominant Ambient')
 
 additive1 = exp_pattern_12 %>% 
   filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
@@ -488,12 +492,12 @@ transgressive2 = exp_pattern_12 %>%
 exp_pattern_12_graph = bind_rows(dom_amb1, 
                                  dom_amb2, 
                                  dom_geo1,
-                           dom_geo2, 
-                           additive1, 
-                           additive2, 
-                           transgressive1, 
-                           transgressive2, 
-                           Nothing)
+                                 dom_geo2, 
+                                 additive1, 
+                                 additive2, 
+                                 transgressive1, 
+                                 transgressive2, 
+                                 Nothing)
 
 # inheritance_pal = c('#ff9e00',
 #                     '#669bbc',
@@ -502,16 +506,16 @@ exp_pattern_12_graph = bind_rows(dom_amb1,
 #                     '#7400b8')
 
 inheritance_pal = c('#fee440', 
-                '#1d58ab',
-                '#00bbf9',
-                '#adb5bd',
-                '#9b5de5')
+                    '#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
 
 
 Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph, 
-       aes(x = geo_hyb_12, 
-           y = am_hyb_12, 
-           col = exp_pattern))+
+                                aes(x = geo_hyb_12, 
+                                    y = am_hyb_12, 
+                                    col = exp_pattern))+
   geom_point()+
   geom_hline(yintercept = 0, 
              col = 'black')+
@@ -614,9 +618,9 @@ inheritance_pal = c('#fee440',
 
 
 Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph, 
-       aes(x = geo_hyb_18, 
-           y = am_hyb_18, 
-           col = exp_pattern))+
+                                aes(x = geo_hyb_18, 
+                                    y = am_hyb_18, 
+                                    col = exp_pattern))+
   geom_point()+
   geom_hline(yintercept = 0, 
              col = 'black')+
@@ -685,14 +689,14 @@ anti_join(transgressive2_18,
 
 
 trans_up = inner_join(transgressive1_12, 
-           transgressive1_18, 
-           by = c('GeneID', 
-                  'exp_pattern')) 
+                      transgressive1_18, 
+                      by = c('GeneID', 
+                             'exp_pattern')) 
 
 trans_down = inner_join(transgressive2_12, 
-           transgressive2_18, 
-           by = c('GeneID', 
-                  'exp_pattern'))
+                        transgressive2_18, 
+                        by = c('GeneID', 
+                               'exp_pattern'))
 
 bind_rows(trans_up, 
           trans_down) %>% 
@@ -714,8 +718,8 @@ liver_common_genes = inner_join(liver_edge,
 ### 12 degree inheritance pattern
 liver_pattern_12 = liver_common_genes %>% 
   dplyr::select(GeneID, 
-         logFC.am_hyb_12, 
-         logFC.geo_hyb_12) %>% 
+                logFC.am_hyb_12, 
+                logFC.geo_hyb_12) %>% 
   rename(am_hyb_12 = logFC.am_hyb_12, 
          geo_hyb_12 = logFC.geo_hyb_12)
 Nothing = liver_pattern_12 %>% 
@@ -761,14 +765,14 @@ transgressive2 = liver_pattern_12 %>%
   mutate(liver_pattern = 'Transgressive')
 
 liver_pattern_12_graph = bind_rows(dom_amb1, 
-                                 dom_amb2, 
-                                 dom_geo1,
-                                 dom_geo2, 
-                                 additive1, 
-                                 additive2, 
-                                 transgressive1, 
-                                 transgressive2, 
-                                 Nothing)
+                                   dom_amb2, 
+                                   dom_geo1,
+                                   dom_geo2, 
+                                   additive1, 
+                                   additive2, 
+                                   transgressive1, 
+                                   transgressive2, 
+                                   Nothing)
 
 # inheritance_pal = c('#ff9e00',
 #                     '#669bbc',
@@ -784,9 +788,9 @@ inheritance_pal = c('#fee440',
 
 
 liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph, 
-                                aes(x = geo_hyb_12, 
-                                    y = am_hyb_12, 
-                                    col = liver_pattern))+
+                                      aes(x = geo_hyb_12, 
+                                          y = am_hyb_12, 
+                                          col = liver_pattern))+
   geom_point()+
   geom_hline(yintercept = 0, 
              col = 'black')+
@@ -815,8 +819,8 @@ liver_Inheritance_pattern_12 = ggplot(data = liver_pattern_12_graph,
 ### 18 degree inheritance pattern
 liver_pattern_18 = liver_common_genes %>% 
   dplyr::select(GeneID, 
-         logFC.am_hyb_18, 
-         logFC.geo_hyb_18) %>% 
+                logFC.am_hyb_18, 
+                logFC.geo_hyb_18) %>% 
   rename(am_hyb_18 = logFC.am_hyb_18, 
          geo_hyb_18 = logFC.geo_hyb_18)
 Nothing = liver_pattern_18 %>% 
@@ -899,30 +903,30 @@ inner_join(transgressive1_12,
 
 
 liver_pattern_18_graph = bind_rows(dom_amb1, 
-                                 dom_amb2, 
-                                 dom_geo1,
-                                 dom_geo2, 
-                                 additive1, 
-                                 additive2, 
-                                 transgressive1, 
-                                 transgressive2, 
-                                 Nothing)
+                                   dom_amb2, 
+                                   dom_geo1,
+                                   dom_geo2, 
+                                   additive1, 
+                                   additive2, 
+                                   transgressive1, 
+                                   transgressive2, 
+                                   Nothing)
 
 liv_inheritance_pal = c('#669bbc',
-                    '#c1121f',
-                    '#adb5bd',
-                    '#7400b8')
+                        '#c1121f',
+                        '#adb5bd',
+                        '#7400b8')
 
 liv_inheritance_pal = c('#1d58ab',
-                    '#00bbf9',
-                    '#adb5bd',
-                    '#9b5de5')
+                        '#00bbf9',
+                        '#adb5bd',
+                        '#9b5de5')
 
 
 liver_Inheritance_pattern_18 = ggplot(data = liver_pattern_18_graph, 
-                                aes(x = geo_hyb_18, 
-                                    y = am_hyb_18, 
-                                    col = liver_pattern))+
+                                      aes(x = geo_hyb_18, 
+                                          y = am_hyb_18, 
+                                          col = liver_pattern))+
   geom_point()+
   geom_hline(yintercept = 0, 
              col = 'black')+
@@ -972,7 +976,7 @@ ggplot(data = mean_data,
            y = phenotype, 
            col = species))+
   geom_point()
-  
+
 
 
 
@@ -1161,10 +1165,10 @@ brain_geo_hyb_18 = read_csv('Brain_geo_hyb_18_div.csv')%>%
   as.list()
 
 brain_div_df <- reduce(list(data.frame(brain_amb_hyb_12),
-                              data.frame(brain_amb_hyb_18), 
+                            data.frame(brain_amb_hyb_18), 
                             data.frame(brain_geo_hyb_12), 
                             data.frame(brain_geo_hyb_18)),
-                         cross_join)
+                       cross_join)
 
 # reduce(list(data.frame(brain_div_df),
 #             data.frame(brain_geo_hyb_12)), 
@@ -1248,7 +1252,7 @@ liver_div_comb_mat <- make_comb_mat(liver_div_list)
 
 UpSet(liver_div_comb_mat)
 
- 
+
 
 # Plasticity overlap - shared responses -----------------------------------
 
