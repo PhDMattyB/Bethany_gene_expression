@@ -4090,6 +4090,48 @@ Gene_ID_12 = read_csv("Brain_Transgressive_expression_12degrees.csv")
 Gene_ID_18 = read_csv("Brain_Transgressive_expression_18degrees.csv")
 
 
+trans_plast_exp = inner_join(Gene_ID_12, 
+           Gene_ID_18, 
+           by = c('GeneID', 
+                  'exp_pattern')) %>%
+  pivot_longer(
+    cols = c(am_hyb_12, am_hyb_18, geo_hyb_12, geo_hyb_18),
+    names_to = c("Cross", "Temp"),
+    names_pattern = "(.*_hyb)_(12|18)",
+    values_to = "Expression")
+
+# trans_plast_exp %>% 
+#   group_by(exp_pattern) %>% 
+#   summarize(n = n())
+
+ggplot(trans_plast_exp,
+       aes(x = Temp,
+           y = Expression,
+           group = interaction(GeneID, Cross),
+           colour = Cross)) +
+  geom_line(alpha = 0.4) +
+  geom_point(size = 1.5) +
+  theme_classic() +
+  labs(x = "Temperature (°C)",
+       y = "Expression",
+       colour = "Hybrid")
+
+ggplot(trans_plast_exp,
+       aes(Temp, Expression,
+           colour = Cross,
+           group = Cross)) +
+  stat_summary(fun = mean,
+               geom = "line",
+               linewidth = 1.2) +
+  stat_summary(fun = mean,
+               geom = "point",
+               size = 3) +
+  stat_summary(fun.data = mean_se,
+               geom = "errorbar",
+               width = 0.1) +
+  theme_classic()
+
+
 # Transgressive @ 12 degrees - amb vs hyb  --------------------------------
 
 Trans_amb_hyb_12 = read_csv('Brain_amb_hyb_12_div.csv')%>% 

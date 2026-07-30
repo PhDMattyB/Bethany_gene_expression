@@ -22,7 +22,8 @@ liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
 sex_metadata = read_csv('Sex_metadata.csv')%>%
   select(-...7, 
          -...8,
-         -...9)
+         -...9) %>% 
+  select(sex)
 sex_metadata$temp = as.character(sex_metadata$temp)
 sex_metadata$sample = as.character(sex_metadata$sample)
 
@@ -46,13 +47,14 @@ metadata = names(brain_exp) %>%
                  'temp'),
                sep = '_',
                remove = F)%>%
-  left_join(.,
+  bind_cols(.,
             sex_metadata)
 
 
 metadata %>% 
   group_by(ecotype, 
-           temp) %>% 
+           temp, 
+           sex) %>% 
   summarize(n = n())
 
 
