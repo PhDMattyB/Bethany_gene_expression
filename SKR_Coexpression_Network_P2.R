@@ -4094,11 +4094,27 @@ trans_plast_exp = inner_join(Gene_ID_12,
            Gene_ID_18, 
            by = c('GeneID', 
                   'exp_pattern')) %>%
+  mutate(geo_change = geo_hyb_18 - geo_hyb_12,
+         am_change  = am_hyb_18 - am_hyb_12) %>% 
+  mutate(
+    transgressive_direction = case_when(
+      abs(geo_change) > abs(am_change) & geo_change > 0 ~ "Geothermal transgressive ↑",
+      abs(geo_change) > abs(am_change) & geo_change < 0 ~ "Geothermal transgressive ↓",
+      abs(am_change) > abs(geo_change) & am_change > 0 ~ "Ambient transgressive ↑",
+      abs(am_change) > abs(geo_change) & am_change < 0 ~ "Ambient transgressive ↓",
+      TRUE ~ "Equal")) %>% 
   pivot_longer(
     cols = c(am_hyb_12, am_hyb_18, geo_hyb_12, geo_hyb_18),
     names_to = c("Cross", "Temp"),
     names_pattern = "(.*_hyb)_(12|18)",
-    values_to = "Expression")
+    values_to = "Expression") 
+
+ggplot(trans_plast_exp,
+       aes(Temp, Expression,
+           group = interaction(GeneID, Cross),
+           colour = Cross)) +
+  geom_line(alpha = 0.3) +
+  facet_wrap(~transgressive_direction)
 
 # trans_plast_exp %>% 
 #   group_by(exp_pattern) %>% 
