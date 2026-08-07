@@ -54,8 +54,10 @@ metadata = names(brain_exp) %>%
 metadata %>% 
   group_by(ecotype, 
            temp, 
-           sex) %>% 
-  summarize(n = n())
+           sex, 
+           family) %>% 
+  arrange(family) %>% 
+  summarize(n = n()) %>% View()
 
 
 
@@ -531,9 +533,9 @@ Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Hybrid 12 - Geothermal 12', 
-       y = 'Hybrid 12 - Ambient 12',
-       title = 'B)')+
+  labs(x = 'Hybrid 12°C - Geothermal 12°C', 
+       y = 'Hybrid 12°C - Ambient 12°C',
+       title = 'C)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -636,9 +638,9 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
              linetype = 'dashed')+
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
-  labs(x = 'Hybrid 18 - Geothermal 18', 
-       y = 'Hybrid 18 - Ambient 18', 
-       title = 'C)')+
+  labs(x = 'Hybrid 18°C - Geothermal 18°C', 
+       y = 'Hybrid 18°C - Ambient 18°C', 
+       title = 'D)')+
   xlim(-3.5, 3.5)+
   ylim(-3.5, 3.5)+
   scale_color_manual(values = inheritance_pal)+
@@ -647,7 +649,14 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
         axis.text = element_text(size = 12), 
         legend.position = 'none')
 
+brain_combo_inheritance = Inheritance_pattern_12+Inheritance_pattern_18
 
+ggsave('Interitance_combo_plot_brain.tiff', 
+       plot = brain_combo_inheritance, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 10)
 
 # transgressive deep dive -------------------------------------------------
 

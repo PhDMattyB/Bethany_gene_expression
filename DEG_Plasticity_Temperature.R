@@ -55,101 +55,101 @@ brain_limma_all %>%
 
 ## All genes 
 
-brain_eco12_neutral = read_csv('Sex_Brain_eco_div_12.csv') %>% 
+brain_eco12_neutral = read_csv('Brain_eco_div_12.csv') %>% 
   filter(adj.P.Val > 0.05) %>% 
   mutate(status = 'Neutral') %>% 
   mutate(Regulated = 'Neutral')
-brain_eco18_neutral = read_csv('Sex_Brain_eco_div_18.csv') %>% 
+brain_eco18_neutral = read_csv('Brain_eco_div_18.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
-brain_plast_amb_neutral = read_csv('Sex_Brain_ambient_plastic.csv') %>% 
+brain_plast_amb_neutral = read_csv('Brain_ambient_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
-brain_plast_geo_neutral = read_csv('Sex_Brain_geothermal_plastic.csv') %>% 
+brain_plast_geo_neutral = read_csv('Brain_geothermal_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
-brain_plast_hyb_neutral = read_csv('Sex_Brain_hybrid_plastic.csv') %>% 
-  filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')%>% 
-  mutate(Regulated = 'Neutral')
-
-brain_amb_hyb_div_12_neutral = read_csv('Sex_Brain_amb_hyb_12_div.csv') %>% 
-  filter(adj.P.Val > 0.05)%>% 
-  mutate(status = 'Neutral')%>% 
-  mutate(Regulated = 'Neutral')
-brain_amb_hyb_div_18_neutral = read_csv('Sex_Brain_amb_hyb_18_div.csv') %>% 
+brain_plast_hyb_neutral = read_csv('Brain_hybrid_plastic.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
 
-
-brain_geo_hyb_div_12_neutral = read_csv('Sex_Brain_geo_hyb_12_div.csv') %>% 
+brain_amb_hyb_div_12_neutral = read_csv('Brain_amb_hyb_12_div.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
-brain_geo_hyb_div_18_neutral = read_csv('Sex_Brain_geo_hyb_18_div.csv') %>% 
+brain_amb_hyb_div_18_neutral = read_csv('Brain_amb_hyb_18_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+
+
+brain_geo_hyb_div_12_neutral = read_csv('Brain_geo_hyb_12_div.csv') %>% 
+  filter(adj.P.Val > 0.05)%>% 
+  mutate(status = 'Neutral')%>% 
+  mutate(Regulated = 'Neutral')
+brain_geo_hyb_div_18_neutral = read_csv('Brain_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val > 0.05)%>% 
   mutate(status = 'Neutral')%>% 
   mutate(Regulated = 'Neutral')
 
 
 ##  brain significantly differentially expressed genes
-brain_eco12 = read_csv('Sex_Brain_eco_div_12_significant.csv') %>% 
+brain_eco12 = read_csv('Brain_eco_div_12_significant.csv') %>% 
   mutate(status = 'Outlier') %>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_eco18 = read_csv('Sex_Brain_eco_div_18_significant.csv')%>% 
+brain_eco18 = read_csv('Brain_eco_div_18_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_amb = read_csv('Sex_Brain_ambient_plastic_significant.csv')%>% 
+brain_plast_amb = read_csv('Brain_ambient_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_geo = read_csv('Sex_Brain_geothermal_plastic_significant.csv')%>% 
+brain_plast_geo = read_csv('Brain_geothermal_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_plast_hyb = read_csv('Sex_Brain_hybrid_plastic_significant.csv')%>% 
+brain_plast_hyb = read_csv('Brain_hybrid_plastic_significant.csv')%>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
 
-brain_amb_hyb_div_12 = read_csv('Sex_Brain_amb_hyb_12_div.csv') %>% 
+brain_amb_hyb_div_12 = read_csv('Brain_amb_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_amb_hyb_div_18 = read_csv('Sex_Brain_amb_hyb_18_div.csv') %>% 
+brain_amb_hyb_div_18 = read_csv('Brain_amb_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_geo_hyb_div_12 = read_csv('Sex_Brain_geo_hyb_12_div.csv') %>% 
+brain_geo_hyb_div_12 = read_csv('Brain_geo_hyb_12_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
     logFC >=0 ~ "Up-regulated",
     logFC <= 0 ~ "Down-regulated"
   ))
-brain_geo_hyb_div_18 = read_csv('Sex_Brain_geo_hyb_18_div.csv') %>% 
+brain_geo_hyb_div_18 = read_csv('Brain_geo_hyb_18_div.csv') %>% 
   filter(adj.P.Val <= 0.05) %>% 
   mutate(status = 'Outlier')%>% 
   mutate(Regulated = case_when(
@@ -437,7 +437,7 @@ Brain_eco_div12_volplot = ggplot(data = brain_eco12_clean,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = 'Adjusted p-value', 
-       title = 'A) Geothermal - ambient divergence 12˚C')+
+       title = 'A) Ambient - Geothermal 12˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -463,7 +463,7 @@ Brain_eco_div18_volplot = ggplot(data = brain_eco18_clean,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = 'Adjusted p-value', 
-       title = 'B) Geothermal - ambient divergence 18˚C')+
+       title = 'B) Ambient - Geothermal 18˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -480,7 +480,7 @@ Brain_eco_div18_volplot = ggplot(data = brain_eco18_clean,
 
 Brain_eco_div_vol_plot = Brain_eco_div12_volplot + Brain_eco_div18_volplot
 
-ggsave('EcoDiv_Volcanoe_Plot.svg', 
+ggsave('Fixed_EcoDiv_Volcanoe_Plot.svg', 
        plot = Brain_eco_div_vol_plot, 
        dpi = 'retina', 
        units = 'cm', 
