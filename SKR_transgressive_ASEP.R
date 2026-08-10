@@ -131,7 +131,7 @@ annotation_expression_data = bind_cols(gene_metadata,
   rename(gene_ensembl = ensemble_id)
 
 
-
+annotation_expression_data$BP = as.character(annotation_expression_data$BP)
 
 
 # ecotype snps ------------------------------------------------------------
@@ -149,10 +149,15 @@ ecotype_snps = read_csv('ecotype_unique_snps_all.csv') %>%
          REF, 
          ALT, 
          ecotype) %>% 
-  inner_join(., 
-             annoto_data_trunc, 
-             by = 'gene_ensembl') %>% 
-  select(-c(CHR.y, 
+  inner_join(.,
+             annotation_expression_data,
+             by = 'gene_ensembl') %>%
+  # inner_join(., 
+  #            annotation_expression_data, 
+  #            by = c('gene_ensembl', 
+  #                   'CHR', 
+  #                   'BP')) 
+  select(-c(CHR.y,
             BP.y))
 # 
 # ecotype_snps_fixed = ecotype_snps %>% 
@@ -444,7 +449,9 @@ trans_geo_hyb_12_genes = trans_geo_hyb_12_snps %>%
 
 inner_join(Trans_amb_hyb_12_genes, 
            trans_geo_hyb_12_genes, 
-           by = 'gene_name.x') %>%
+           by = 'gene_name') %>%
+  ungroup() %>% 
+  distinct(gene_name)
   dplyr::select(gene_name.x) %>% 
   write_tsv('trans_pure_vs_hyb_12_genes_ASEP_FIXED.txt')
 
@@ -718,7 +725,7 @@ inner_join(Trans_amb_hyb_12_snps,
              Trans_geo_hyb_18_snps, 
              by = c('gene_name', 
                     'CHR', 
-                    'BP.y')) %>% View()
+                    'BP.y')) %>% 
   distinct(gene_name)
 
 
