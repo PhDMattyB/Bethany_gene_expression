@@ -434,3 +434,172 @@ ggsave('Variance_partition_plot.svg',
        units = 'cm', 
        width = 20, 
        height = 15)
+
+
+
+
+# liver varpart -----------------------------------------------------------
+
+liver_dge_list = DGEList(liver_exp)
+liver_norm = calcNormFactors(liver_dge_list)
+
+mm = model.matrix(~0 + ecotemp + sex, 
+                  data = metadata)
+
+liver_keep = filterByExpr(liver_norm, 
+                          min.count = 10,
+                          mm)
+sum(liver_keep) # number of genes retain
+liver_keep = liver_norm[liver_keep,]
+
+## EdgeR model
+liver_dispersion = estimateDisp(liver_keep, 
+                                mm) 
+
+
+liver_dge_list = DGEList(liver_exp)
+liver_norm = calcNormFactors(liver_dge_list)
+
+mm2 = model.matrix(~0 + ecotemp + sex, 
+                   data = metadata)
+
+liver_keep = filterByExpr(liver_norm, 
+                          min.count = 10,
+                          mm2)
+sum(liver_keep) # number of genes retai
+liver_keep = liver_norm[liver_keep,]
+
+## EdgeR model
+liver2_dispersion = estimateDisp(liver_keep, 
+                                 mm2)
+contrast2 = makeContrasts(eco12 = ecotempSKRC_12 - ecotempSKRW_12, 
+                          eco18 = ecotempSKRC_18 - ecotempSKRW_18,
+                          plast_amb = ecotempSKRC_12 - ecotempSKRC_18, 
+                          plast_geo = ecotempSKRW_12 - ecotempSKRW_18, 
+                          plast_hyb = ecotempSKRHYB_12 - ecotempSKRHYB_18, 
+                          am_hyb_12 = ecotempSKRC_12 - ecotempSKRHYB_12, 
+                          am_hyb_18 = ecotempSKRC_18 - ecotempSKRHYB_18, 
+                          geo_hyb_12 = ecotempSKRW_12 - ecotempSKRHYB_12, 
+                          geo_hyb_18 = ecotempSKRW_18 - ecotempSKRHYB_18,
+                          levels = mm2)
+
+liver2_glm_div = glmQLFit(liver2_dispersion, 
+                          # contrast = ecotype.div.liver,
+                          design = mm2)
+
+liver2_glm_test = glmQLFTest(liver2_glm_div, 
+                             contrast = contrast2)
+
+liver2_edger_results = topTags(liver2_glm_test, 
+                               n = 13511,
+                               adjust.method = 'bonferroni', 
+                               p.value = 0.05)
+
+# liver_edger_results$table %>% 
+#   as.data.frame() %>% 
+#   as_tibble() %>% 
+#   write_csv('Sex_liver_EdgeR_GLMQLFTest_results.csv')
+
+
+# ## limma model
+liver2_voom = voom(liver_keep, 
+                   mm2, 
+                   plot = T)
+# 
+liver2_fit_limma <- limma::lmFit(liver2_voom, 
+                                 contrast = contrast2,
+                                 design=mm2)
+liver2_fit_limma_contrast = contrasts.fit(liver2_fit_limma, 
+                                          contrasts = contrast2)
+
+
+liver2_fit_ebayes = eBayes(liver2_fit_limma_contrast)
+
+liver_nosex_limma_results = topTable(liver2_fit_ebayes, 
+                                     n = 13511, 
+                                     adjust.method = 'bonferroni', 
+                                     p.value = 0.05)
+
+
+liver_nosex_limma_results_all = topTable(liver2_fit_ebayes, 
+                                         n = 13511, 
+                                         adjust.method = 'bonferroni')
+
+
+
+# form <- ~ Age + (1 | Individual) + (1 | Tissue) + (1 | Batch)
+
+metadata
+
+form2 = model.matrix(~ecotype * temp + sex, 
+                     data = metadata)
+
+
+liver_keep = filterByExpr(liver_norm, 
+                          min.count = 10,
+                          form2)
+sum(liver_keep) # number of genes retai
+liver_keep = liver_norm[liver_keep,]
+
+varpart_voom = voom(liver_keep, 
+                    form2, 
+                    plot = T)
+
+form = ~ ecotype * temp + sex 
+
+varPart <- fitExtractVarPartModel(varpart_voom, form, metadata)
+
+vp <- sortCols(varPart)
+
+plotPercentBars(vp[1:10, ])
+
+plotVarPart(vp)
+
+results <- fitVarPartModel(varpart_voom, form, metadata)
+varPart_res <- extractVarPart(results)
+pSummaries <- fitVarPartModel(varpart_voom, form, metadata, summary)
+
+pSummaries[[1]]
+
+
+
+
+
+liver_dge_list = DGEList(liver_exp)
+liver_norm = calcNormFactors(liver_dge_list)
+# Specify variables to be included in the voom() estimates of
+# uncertainty.
+# Recommend including variables with a small number of categories
+# that explain a substantial amount of variation
+form2 = model.matrix(~ecotype * temp + sex, 
+                     data = metadata)
+
+# Estimate precision weights for each gene and sample
+# This models uncertainty in expression measurements
+vobjGenes <- voom(liver_norm, form2)
+
+form = ~ ecotype * temp + sex 
+
+varPart <- fitExtractVarPartModel(vobjGenes, form, metadata)
+
+vp <- sortCols(varPart)
+
+plotPercentBars(vp[1:10, ])
+
+varpart_cols = c('#005f73', 
+                 '#e9d8a6', 
+                 '#bb3e03', 
+                 '#fb6f92', 
+                 '#9f9aa4')
+
+varpart_plot = plotVarPart(vp)+
+  scale_fill_manual(values = varpart_cols)
+
+ggsave('Liver_Variance_partition_plot.svg', 
+       plot = varpart_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 15)
+
+

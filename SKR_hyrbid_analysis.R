@@ -20,10 +20,10 @@ brain_exp = read_tsv('brain_gene_read_counts_table_all_final.tsv')
 liver_exp = read_tsv('liver_gene_read_counts_table_all_final.tsv')
 
 sex_metadata = read_csv('Sex_metadata.csv')%>%
-  select(-...7, 
+  dplyr::select(-...7, 
          -...8,
          -...9) %>% 
-  select(sex)
+  dplyr::select(sex)
 sex_metadata$temp = as.character(sex_metadata$temp)
 sex_metadata$sample = as.character(sex_metadata$sample)
 
