@@ -47,6 +47,17 @@ is.vector(hyb_plast_genelist)
 
 
 
+# TopGO - AMB GEO DIVERGENCE ----------------------------------------------
+
+div_12_genes = read_tsv("", 
+                                col_names = c('Gene', 
+                                              'Expression')) 
+
+
+
+
+# topGO plastic genes -----------------------------------------------------
+
 # Ambient plasticity ------------------------------------------------------
 amb_plast_uniq_genes = read_tsv("Ambient_plastic_unique_genes.txt", 
                                 col_names = c('Gene', 

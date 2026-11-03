@@ -19,7 +19,7 @@ anno_data = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotati
 
 metadata = names(brain_exp) %>% 
   as_tibble() %>% 
-  slice(-1) %>% 
+  dplyr::slice(-1) %>% 
   separate(col = value, 
            into = c('ecotype', 
                     'temp', 
@@ -312,8 +312,8 @@ plast_overlap = inner_join(brain_plast_amb,
   inner_join(.,
              brain_plast_hyb, 
              by = 'GeneID')%>% 
-  select(GeneID) %>% 
-  rename(ensemble_name = GeneID)
+  dplyr::select(GeneID) %>% 
+  dplyr::rename(ensemble_name = GeneID)
 
 # %>% 
 #   write_tsv('Brain_plasticity_amb_vs_geo_vs_hyb.txt', 
@@ -327,7 +327,7 @@ anno_data = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotati
 inner_join(plast_overlap, 
            anno_data, 
            by = 'ensemble_name') %>% 
-  select(gene_name) %>% 
+  dplyr::select(gene_name) %>% 
   write_tsv('Overlapping_plasticity_genes_allecotypes.txt', 
             col_names = F)
 
