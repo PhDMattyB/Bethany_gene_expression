@@ -2,7 +2,7 @@ library(tidyverse)
 library(data.table)
 library(qvalue)
 
-setwd('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/')
+setwd('~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/')
 
 ## extract all of the stickle genome annotation data
 gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_Annotation_features/stickleback_v5_ensembl_genes.gff3.gz', 
@@ -65,10 +65,80 @@ annotation_data = bind_cols(gene_metadata,
 
 
 # Eco div 12 anno ---------------------------------------------------------
-brain_amb_geo_12 = read_csv('Brain_eco_div_12.csv')%>% 
-  filter(adj.P.Val <= 0.05)
-
-
-inner_join(., 
+read_csv('Brain_eco_div_12.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
            annotation_data, 
-           by = 'ensemble_name')
+           by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_eco_div_12_genes.txt')
+
+
+
+# Eco div 18 anno ---------------------------------------------------------
+
+
+
+read_csv('Brain_eco_div_18.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_eco_div_18_genes.txt')
+
+
+
+# Div amb hyb 12 ----------------------------------------------------------
+read_csv('Brain_amb_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_amb_hyb_12_div_genes.txt')
+
+# Div amb hyb 18 ----------------------------------------------------------
+read_csv('Brain_amb_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_amb_hyb_18_div_genes.txt')
+
+
+# Div geo hyb 12 ----------------------------------------------------------
+
+read_csv('Brain_geo_hyb_12_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_geo_hyb_12_div_genes.txt')
+
+
+# Div geo hyb 18 ----------------------------------------------------------
+
+read_csv('Brain_geo_hyb_18_div.csv')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_geo_hyb_18_div_genes.txt')
+
+
