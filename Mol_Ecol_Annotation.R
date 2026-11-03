@@ -142,3 +142,26 @@ read_csv('Brain_geo_hyb_18_div.csv')%>%
   write_tsv('Brain_geo_hyb_18_div_genes.txt')
 
 
+
+# trans div amb hyb 12 ----------------------------------------------------
+read_csv('')%>% 
+  filter(adj.P.Val <= 0.05) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name, 
+                logFC) %>% 
+  write_tsv('Brain_geo_hyb_18_div_genes.txt')
+
+
+# trans div amb hyb 18 ----------------------------------------------------
+
+
+# trans div geo hyb 12 ----------------------------------------------------
+
+
+# trans div geo hyb 18 ----------------------------------------------------
+
+
+
