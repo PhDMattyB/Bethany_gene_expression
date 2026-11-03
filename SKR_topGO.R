@@ -87,55 +87,91 @@ amb_plast_GOdata_CC <- new("topGOdata",
                            annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
                            gene2GO = geneID2GO)
 
-# Classical Fisher's exact test
-amb_plast_resultFisher_BP = runTest(amb_plast_GOdata_BP, 
-                                    algorithm = "classic", 
-                                    statistic = "fisher")
-amb_plast_resultFisher_MF = runTest(amb_plast_GOdata_MF, 
-                                    algorithm = "classic", 
-                                    statistic = "fisher")
-amb_plast_resultFisher_CC = runTest(amb_plast_GOdata_CC, 
-                                    algorithm = "classic", 
-                                    statistic = "fisher")
+amb_plast_resultFisher_BP <- runTest(
+  amb_plast_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-amb_plast_GO_BP <- GenTable(amb_plast_GOdata_BP, 
-                            classicFisher = amb_plast_resultFisher_BP, 
-                            # weight01Fisher = resultWeight01,
-                            orderBy = "classicFisher", 
-                            ranksOf = "classicFisher", 
-                            topNodes = length(score(amb_plast_resultFisher_BP)))
+amb_plast_resultFisher_MF <- runTest(
+  amb_plast_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-amb_plast_GO_MF <- GenTable(amb_plast_GOdata_MF, 
-                            classicFisher = amb_plast_resultFisher_MF, 
-                            # weight01Fisher = resultWeight01,
-                            orderBy = "classicFisher", 
-                            ranksOf = "classicFisher", 
-                            topNodes = length(score(amb_plast_resultFisher_MF)))
+amb_plast_resultFisher_CC <- runTest(
+  amb_plast_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-amb_plast_GO_CC <- GenTable(amb_plast_GOdata_CC, 
-                            classicFisher = amb_plast_resultFisher_CC, 
-                            # weight01Fisher = resultWeight01,
-                            orderBy = "classicFisher", 
-                            ranksOf = "classicFisher", 
-                            topNodes = length(score(amb_plast_resultFisher_CC)))
+amb_plast_GO_BP <- GenTable(
+  amb_plast_GOdata_BP,
+  weight01Fisher = amb_plast_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(amb_plast_resultFisher_BP)))
+
+# Molecular Function
+amb_plast_GO_MF <- GenTable(
+  amb_plast_GOdata_MF,
+  weight01Fisher = amb_plast_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(amb_plast_resultFisher_MF)))
+
+# Cellular Component
+amb_plast_GO_CC <- GenTable(
+  amb_plast_GOdata_CC,
+  weight01Fisher = amb_plast_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(amb_plast_resultFisher_CC)))
+
 
 amb_plast_GO_BP = amb_plast_GO_BP %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-          FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05)
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
 
 amb_plast_GO_MF = amb_plast_GO_MF %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-          FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05) 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
 
 amb_plast_GO_CC = amb_plast_GO_CC %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-          FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05)
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+amb_plast_BP_GO_genes = genesInTerm(
+  amb_plast_GOdata_BP,
+  amb_plast_GO_BP$GO.ID
+)
+
+amb_plast_BP_GO_genes_sig <- lapply(
+  amb_plast_BP_GO_genes,
+  function(genes) intersect(genes, amb_plast_uniq_genes$Gene))
+
+
+amb_plast_MF_GO_genes = genesInTerm(
+  amb_plast_GOdata_MF,
+  amb_plast_GO_MF$GO.ID
+)
+
+amb_plast_MF_GO_genes_sig <- lapply(
+  amb_plast_MF_GO_genes,
+  function(genes) intersect(genes, amb_plast_uniq_genes$Gene))
+
+
+amb_plast_CC_GO_genes = genesInTerm(
+  amb_plast_GOdata_CC,
+  amb_plast_GO_CC$GO.ID
+)
+
+amb_plast_CC_GO_genes_sig <- lapply(
+  amb_plast_CC_GO_genes,
+  function(genes) intersect(genes, amb_plast_uniq_genes$Gene))
 
 
 
@@ -179,66 +215,91 @@ geo_plast_GOdata_CC <- new("topGOdata",
                            annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
                            gene2GO = geneID2GO)
 
-# Classical Fisher's exact test
-geo_plast_resultFisher_BP = runTest(geo_plast_GOdata_BP, 
-                                 algorithm = "classic", 
-                                 statistic = "fisher")
-geo_plast_resultFisher_MF = runTest(geo_plast_GOdata_MF, 
-                                 algorithm = "classic", 
-                                 statistic = "fisher")
-geo_plast_resultFisher_CC = runTest(geo_plast_GOdata_CC, 
-                                 algorithm = "classic", 
-                                 statistic = "fisher")
+geo_plast_resultFisher_BP <- runTest(
+  geo_plast_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-geo_plast_GO_BP <- GenTable(geo_plast_GOdata_BP, 
-                         classicFisher = geo_plast_resultFisher_BP, 
-                         # weight01Fisher = resultWeight01,
-                         orderBy = "classicFisher", 
-                         ranksOf = "classicFisher", 
-                         topNodes = length(score(geo_plast_resultFisher_BP)))
+geo_plast_resultFisher_MF <- runTest(
+  geo_plast_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-geo_plast_GO_MF <- GenTable(geo_plast_GOdata_MF, 
-                         classicFisher = geo_plast_resultFisher_MF, 
-                         # weight01Fisher = resultWeight01,
-                         orderBy = "classicFisher", 
-                         ranksOf = "classicFisher", 
-                         topNodes = length(score(geo_plast_resultFisher_MF)))
+geo_plast_resultFisher_CC <- runTest(
+  geo_plast_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
 
-geo_plast_GO_CC <- GenTable(geo_plast_GOdata_CC, 
-                         classicFisher = geo_plast_resultFisher_CC, 
-                         # weight01Fisher = resultWeight01,
-                         orderBy = "classicFisher", 
-                         ranksOf = "classicFisher", 
-                         topNodes = length(score(geo_plast_resultFisher_CC)))
+geo_plast_GO_BP <- GenTable(
+  geo_plast_GOdata_BP,
+  weight01Fisher = geo_plast_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(geo_plast_resultFisher_BP)))
+
+# Molecular Function
+geo_plast_GO_MF <- GenTable(
+  geo_plast_GOdata_MF,
+  weight01Fisher = geo_plast_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(geo_plast_resultFisher_MF)))
+
+# Cellular Component
+geo_plast_GO_CC <- GenTable(
+  geo_plast_GOdata_CC,
+  weight01Fisher = geo_plast_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(geo_plast_resultFisher_CC)))
+
 
 geo_plast_GO_BP = geo_plast_GO_BP %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-    FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05)
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
 
 geo_plast_GO_MF = geo_plast_GO_MF %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-          FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05) 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
 
 geo_plast_GO_CC = geo_plast_GO_CC %>% 
   as_tibble() %>% 
-  mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
-          FDR = p.adjust(pvalue, method = "BH")) %>% 
-  filter(FDR <= 0.05)
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+geo_plast_BP_GO_genes = genesInTerm(
+  geo_plast_GOdata_BP,
+  geo_plast_GO_BP$GO.ID
+)
+
+geo_plast_BP_GO_genes_sig <- lapply(
+  geo_plast_BP_GO_genes,
+  function(genes) intersect(genes, geo_plast_uniq_genes$Gene))
 
 
-GO_genes = genesInTerm(
+geo_plast_MF_GO_genes = genesInTerm(
   geo_plast_GOdata_MF,
   geo_plast_GO_MF$GO.ID
 )
 
-GO_sig_genes <- lapply(
-  GO_genes,
+geo_plast_MF_GO_genes_sig <- lapply(
+  geo_plast_MF_GO_genes,
   function(genes) intersect(genes, geo_plast_uniq_genes$Gene))
 
+
+geo_plast_CC_GO_genes = genesInTerm(
+  geo_plast_GOdata_CC,
+  geo_plast_GO_CC$GO.ID
+)
+
+geo_plast_CC_GO_genes_sig <- lapply(
+  geo_plast_CC_GO_genes,
+  function(genes) intersect(genes, geo_plast_uniq_genes$Gene))
 
 
 # hybrid plasticity -------------------------------------------------------
@@ -280,6 +341,21 @@ hyb_plast_GOdata_CC <- new("topGOdata",
                            nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
                            annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
                            gene2GO = geneID2GO)
+
+hyb_plast_resultFisher_BP <- runTest(
+  hyb_plast_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+hyb_plast_resultFisher_MF <- runTest(
+  hyb_plast_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+hyb_plast_resultFisher_CC <- runTest(
+  hyb_plast_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
 
 # Classical Fisher's exact test
 # Biological Process
@@ -325,71 +401,163 @@ hyb_plast_GO_CC = hyb_plast_GO_CC %>%
   #         FDR = p.adjust(pvalue, method = "BH")) %>% 
   filter(weight01Fisher <= 0.05)
 
+hyb_plast_BP_GO_genes = genesInTerm(
+  hyb_plast_GOdata_BP,
+  hyb_plast_GO_BP$GO.ID
+)
 
-GO_genes = genesInTerm(
+hyb_plast_BP_GO_genes_sig <- lapply(
+  hyb_plast_BP_GO_genes,
+  function(genes) intersect(genes, hyb_plast_uniq_genes$Gene))
+
+
+hyb_plast_MF_GO_genes = genesInTerm(
   hyb_plast_GOdata_MF,
   hyb_plast_GO_MF$GO.ID
 )
 
-GO_sig_genes <- lapply(
-  GO_genes,
+hyb_plast_MF_GO_genes_sig <- lapply(
+  hyb_plast_MF_GO_genes,
+  function(genes) intersect(genes, hyb_plast_uniq_genes$Gene))
+
+
+hyb_plast_CC_GO_genes = genesInTerm(
+  hyb_plast_GOdata_CC,
+  hyb_plast_GO_CC$GO.ID
+)
+
+hyb_plast_CC_GO_genes_sig <- lapply(
+  hyb_plast_CC_GO_genes,
   function(genes) intersect(genes, hyb_plast_uniq_genes$Gene))
 
 
 
 # Ecotype overlap plasticity ----------------------------------------------
 
+overlap_plast_uniq_genes = read_tsv("Overlapping_plasticity_genes_allecotypes.txt", 
+                                col_names = c('Gene', 
+                                              'Expression')) 
+
+overlap_plast_genelist = overlap_plast_uniq_genes$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% overlap_plast_genelist] <- 1
+overlap_plast_genelist <- as.factor(all_genelist)
+
+overlap_plast_GOdata_BP <- new("topGOdata",
+                           ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                           allGenes = overlap_plast_genelist,          # Named vector of genes
+                           geneSelectionFun = topDiffGenes,
+                           nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                           annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                           gene2GO = geneID2GO)
+
+overlap_plast_GOdata_MF <- new("topGOdata",
+                           ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                           allGenes = overlap_plast_genelist,          # Named vector of genes
+                           geneSelectionFun = topDiffGenes,
+                           nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                           annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                           gene2GO = geneID2GO)
+
+overlap_plast_GOdata_CC <- new("topGOdata",
+                           ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                           allGenes = overlap_plast_genelist,          # Named vector of genes
+                           geneSelectionFun = topDiffGenes,
+                           nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                           annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                           gene2GO = geneID2GO)
+
+overlap_plast_resultFisher_BP <- runTest(
+  overlap_plast_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_plast_resultFisher_MF <- runTest(
+  overlap_plast_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_plast_resultFisher_CC <- runTest(
+  overlap_plast_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
 
 
+# Biological Process
+overlap_plast_GO_BP <- GenTable(
+  overlap_plast_GOdata_BP,
+  weight01Fisher = overlap_plast_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_plast_resultFisher_BP)))
+
+# Molecular Function
+overlap_plast_GO_MF <- GenTable(
+  overlap_plast_GOdata_MF,
+  weight01Fisher = overlap_plast_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_plast_resultFisher_MF)))
+
+# Cellular Component
+overlap_plast_GO_CC <- GenTable(
+  overlap_plast_GOdata_CC,
+  weight01Fisher = overlap_plast_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_plast_resultFisher_CC)))
 
 
-
-# stick_GO_df %>% 
-#   dplyr::select(Symbol, 
-#                 GO_ID) %>% 
-#   write_tsv('Stickleback_Gene_GO_Map.txt')
-
-
-geneID2GO <- readMappings(file = "Stickleback_Gene_GO_Map.txt") 
-
-all_genes_universe <- names(geneID2GO)
-geneList <- rep(0, length(all_genes_universe))
-names(geneList) <- all_genes_universe
-geneList[names(geneList) %in% hyb_plast_genelist] <- 1
-geneList <- as.factor(geneList)
-
-
-
-
-GOdata <- new("topGOdata",
-              ontology = "BP",              # Choose "BP", "MF", or "CC"
-              allGenes = geneList,          # Named vector of genes
-              geneSelectionFun = topDiffGenes,
-              nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
-              annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
-              gene2GO = geneID2GO)
-
-
-
-# Classical Fisher's exact test
-resultFisher <- runTest(GOdata, algorithm = "classic", statistic = "fisher")
-
-# Or a more conservative tree-aware algorithm like weight01
-resultWeight01 <- runTest(GOdata, algorithm = "weight01", statistic = "fisher")
-
-
-
-allRes <- GenTable(GOdata, 
-                   classicFisher = resultFisher, 
-                   weight01Fisher = resultWeight01,
-                   orderBy = "weight01Fisher", 
-                   ranksOf = "classicFisher", 
-                   topNodes = 100)
-
-allRes %>% 
+overlap_plast_GO_BP = overlap_plast_GO_BP %>% 
   as_tibble() %>% 
-  filter(weight01Fisher <= 0.05) %>% View()
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+overlap_plast_GO_MF = overlap_plast_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
+
+overlap_plast_GO_CC = overlap_plast_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+overlap_plast_BP_GO_genes = genesInTerm(
+  overlap_plast_GOdata_BP,
+  overlap_plast_GO_BP$GO.ID
+)
+
+overlap_plast_BP_GO_genes_sig <- lapply(
+  overlap_plast_BP_GO_genes,
+  function(genes) intersect(genes, overlap_plast_uniq_genes$Gene))
 
 
-head(allRes)
-write.table(allRes, file = "stickleback_topGO_results.txt", sep = "\t", row.names = FALSE)
+overlap_plast_MF_GO_genes = genesInTerm(
+  overlap_plast_GOdata_MF,
+  overlap_plast_GO_MF$GO.ID
+)
+
+overlap_plast_MF_GO_genes_sig <- lapply(
+  overlap_plast_MF_GO_genes,
+  function(genes) intersect(genes, overlap_plast_uniq_genes$Gene))
+
+
+overlap_plast_CC_GO_genes = genesInTerm(
+  overlap_plast_GOdata_CC,
+  overlap_plast_GO_CC$GO.ID
+)
+
+overlap_plast_CC_GO_genes_sig <- lapply(
+  overlap_plast_CC_GO_genes,
+  function(genes) intersect(genes, overlap_plast_uniq_genes$Gene))
+
+
