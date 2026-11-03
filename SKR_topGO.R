@@ -11,42 +11,6 @@ topDiffGenes <- function(allScore) {
 stick_GO_df = read_tsv('GCF_964276395.1-RS_2025_12_gene_ontology.gaf')
 
 
-stick_GO_df %>%
-  group_by(DB) %>% 
-  dplyr::summarize(n = n())
-
-
-View(stick_GO_df)
-
-
-
-amb_plast_uniq_genes = read_tsv("Ambient_plastic_unique_genes.txt", 
-                                col_names = c('Gene', 
-                                              'Expression')) 
-
-amb_plast_uniq_genelist = amb_plast_uniq_genes$Expression
-names(amb_plast_uniq_genelist) <- amb_plast_uniq_genes$Gene
-
-
-Trans_amb_hyb_12_genes = read_tsv("Trans_amb_hyb_12_gene_names_fixed.txt", 
-                                  col_names = 'Gene')
-Trans_amb_hyb_18_genes = read_tsv("Trans_amb_hyb_18_gene_names_fixed.txt", 
-                                  col_names = 'Gene')
-
-Trans_geo_hyb_12_genes = read_tsv("Trans_geo_hyb_12_gene_names_fixed.txt", 
-                                  col_names = 'Gene')
-Trans_geo_hyb_18_genes = read_tsv("Trans_geo_hyb_18_gene_names_fixed.txt", 
-                                  col_names = 'Gene')
-
-hyb_plast = read_tsv('Hybrid_plastic_genes.txt', 
-                     col_names = 'Gene')
-
-hyb_plast_genelist = hyb_plast$Gene
-
-is.vector(hyb_plast_genelist)
-
-
-
 # TopGO - AMB GEO DIVERGENCE ----------------------------------------------
 
 
@@ -820,4 +784,512 @@ overlap_plast_CC_GO_genes_sig <- lapply(
   overlap_plast_CC_GO_genes,
   function(genes) intersect(genes, overlap_plast_uniq_genes$Gene))
 
+
+
+
+
+# Div amb hyb 12 ----------------------------------------------------------
+div_amb_hyb_12_genes = read_tsv("Brain_amb_hyb_12_div_genes.txt", 
+                        col_names = c('Gene', 
+                                      'Expression')) 
+
+div_amb_hyb_12_genelist = div_amb_hyb_12_genes$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% div_amb_hyb_12_genelist] <- 1
+div_amb_hyb_12_genelist <- as.factor(all_genelist)
+
+div_amb_hyb_12_GOdata_BP <- new("topGOdata",
+                        ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                        allGenes = div_amb_hyb_12_genelist,          # Named vector of genes
+                        geneSelectionFun = topDiffGenes,
+                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                        gene2GO = geneID2GO)
+
+div_amb_hyb_12_GOdata_MF <- new("topGOdata",
+                        ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                        allGenes = div_amb_hyb_12_genelist,          # Named vector of genes
+                        geneSelectionFun = topDiffGenes,
+                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                        gene2GO = geneID2GO)
+
+div_amb_hyb_12_GOdata_CC <- new("topGOdata",
+                        ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                        allGenes = div_amb_hyb_12_genelist,          # Named vector of genes
+                        geneSelectionFun = topDiffGenes,
+                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                        gene2GO = geneID2GO)
+
+div_amb_hyb_12_resultFisher_BP <- runTest(
+  div_amb_hyb_12_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_12_resultFisher_MF <- runTest(
+  div_amb_hyb_12_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_12_resultFisher_CC <- runTest(
+  div_amb_hyb_12_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_12_GO_BP <- GenTable(
+  div_amb_hyb_12_GOdata_BP,
+  weight01Fisher = div_amb_hyb_12_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_12_resultFisher_BP)))
+
+# Molecular Function
+div_amb_hyb_12_GO_MF <- GenTable(
+  div_amb_hyb_12_GOdata_MF,
+  weight01Fisher = div_amb_hyb_12_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_12_resultFisher_MF)))
+
+# Cellular Component
+div_amb_hyb_12_GO_CC <- GenTable(
+  div_amb_hyb_12_GOdata_CC,
+  weight01Fisher = div_amb_hyb_12_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_12_resultFisher_CC)))
+
+
+div_amb_hyb_12_GO_BP = div_amb_hyb_12_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_12_GO_MF = div_amb_hyb_12_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
+
+div_amb_hyb_12_GO_CC = div_amb_hyb_12_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_12_BP_GO_genes = genesInTerm(
+  div_amb_hyb_12_GOdata_BP,
+  div_amb_hyb_12_GO_BP$GO.ID
+)
+
+div_amb_hyb_12_BP_GO_genes_sig <- lapply(
+  div_amb_hyb_12_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_12_genes$Gene))
+
+
+div_amb_hyb_12_MF_GO_genes = genesInTerm(
+  div_amb_hyb_12_GOdata_MF,
+  div_amb_hyb_12_GO_MF$GO.ID
+)
+
+div_amb_hyb_12_MF_GO_genes_sig <- lapply(
+  div_amb_hyb_12_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_12_genes$Gene))
+
+
+div_amb_hyb_12_CC_GO_genes = genesInTerm(
+  div_amb_hyb_12_GOdata_CC,
+  div_amb_hyb_12_GO_CC$GO.ID
+)
+
+div_amb_hyb_12_CC_GO_genes_sig <- lapply(
+  div_amb_hyb_12_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_12_genes$Gene))
+
+
+# Div amb hyb 18 ----------------------------------------------------------
+div_amb_hyb_18_genes = read_tsv("Brain_amb_hyb_18_div_genes.txt", 
+                                col_names = c('Gene', 
+                                              'Expression')) 
+
+div_amb_hyb_18_genelist = div_amb_hyb_18_genes$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% div_amb_hyb_18_genelist] <- 1
+div_amb_hyb_18_genelist <- as.factor(all_genelist)
+
+div_amb_hyb_18_GOdata_BP <- new("topGOdata",
+                                ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_GOdata_MF <- new("topGOdata",
+                                ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_GOdata_CC <- new("topGOdata",
+                                ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_resultFisher_BP <- runTest(
+  div_amb_hyb_18_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_resultFisher_MF <- runTest(
+  div_amb_hyb_18_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_resultFisher_CC <- runTest(
+  div_amb_hyb_18_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_GO_BP <- GenTable(
+  div_amb_hyb_18_GOdata_BP,
+  weight01Fisher = div_amb_hyb_18_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_BP)))
+
+# Molecular Function
+div_amb_hyb_18_GO_MF <- GenTable(
+  div_amb_hyb_18_GOdata_MF,
+  weight01Fisher = div_amb_hyb_18_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_MF)))
+
+# Cellular Component
+div_amb_hyb_18_GO_CC <- GenTable(
+  div_amb_hyb_18_GOdata_CC,
+  weight01Fisher = div_amb_hyb_18_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_CC)))
+
+
+div_amb_hyb_18_GO_BP = div_amb_hyb_18_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_18_GO_MF = div_amb_hyb_18_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
+
+div_amb_hyb_18_GO_CC = div_amb_hyb_18_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_18_BP_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_BP,
+  div_amb_hyb_18_GO_BP$GO.ID
+)
+
+div_amb_hyb_18_BP_GO_genes_sig <- lapply(
+  div_amb_hyb_18_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
+
+
+div_amb_hyb_18_MF_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_MF,
+  div_amb_hyb_18_GO_MF$GO.ID
+)
+
+div_amb_hyb_18_MF_GO_genes_sig <- lapply(
+  div_amb_hyb_18_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
+
+
+div_amb_hyb_18_CC_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_CC,
+  div_amb_hyb_18_GO_CC$GO.ID
+)
+
+div_amb_hyb_18_CC_GO_genes_sig <- lapply(
+  div_amb_hyb_18_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
+
+
+# Div geo hyb 12 ----------------------------------------------------------
+
+div_geo_hyb_12_genes = read_tsv("Brain_geo_hyb_12_div_genes.txt", 
+                                col_names = c('Gene', 
+                                              'Expression')) 
+
+div_geo_hyb_12_genelist = div_geo_hyb_12_genes$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% div_geo_hyb_12_genelist] <- 1
+div_geo_hyb_12_genelist <- as.factor(all_genelist)
+
+div_geo_hyb_12_GOdata_BP <- new("topGOdata",
+                                ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_geo_hyb_12_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_geo_hyb_12_GOdata_MF <- new("topGOdata",
+                                ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_geo_hyb_12_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_geo_hyb_12_GOdata_CC <- new("topGOdata",
+                                ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_geo_hyb_12_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_geo_hyb_12_resultFisher_BP <- runTest(
+  div_geo_hyb_12_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_geo_hyb_12_resultFisher_MF <- runTest(
+  div_geo_hyb_12_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_geo_hyb_12_resultFisher_CC <- runTest(
+  div_geo_hyb_12_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_geo_hyb_12_GO_BP <- GenTable(
+  div_geo_hyb_12_GOdata_BP,
+  weight01Fisher = div_geo_hyb_12_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_geo_hyb_12_resultFisher_BP)))
+
+# Molecular Function
+div_geo_hyb_12_GO_MF <- GenTable(
+  div_geo_hyb_12_GOdata_MF,
+  weight01Fisher = div_geo_hyb_12_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_geo_hyb_12_resultFisher_MF)))
+
+# Cellular Component
+div_geo_hyb_12_GO_CC <- GenTable(
+  div_geo_hyb_12_GOdata_CC,
+  weight01Fisher = div_geo_hyb_12_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_geo_hyb_12_resultFisher_CC)))
+
+
+div_geo_hyb_12_GO_BP = div_geo_hyb_12_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_geo_hyb_12_GO_MF = div_geo_hyb_12_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
+
+div_geo_hyb_12_GO_CC = div_geo_hyb_12_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_geo_hyb_12_BP_GO_genes = genesInTerm(
+  div_geo_hyb_12_GOdata_BP,
+  div_geo_hyb_12_GO_BP$GO.ID
+)
+
+div_geo_hyb_12_BP_GO_genes_sig <- lapply(
+  div_geo_hyb_12_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, div_geo_hyb_12_genes$Gene))
+
+
+div_geo_hyb_12_MF_GO_genes = genesInTerm(
+  div_geo_hyb_12_GOdata_MF,
+  div_geo_hyb_12_GO_MF$GO.ID
+)
+
+div_geo_hyb_12_MF_GO_genes_sig <- lapply(
+  div_geo_hyb_12_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, div_geo_hyb_12_genes$Gene))
+
+
+div_geo_hyb_12_CC_GO_genes = genesInTerm(
+  div_geo_hyb_12_GOdata_CC,
+  div_geo_hyb_12_GO_CC$GO.ID
+)
+
+div_geo_hyb_12_CC_GO_genes_sig <- lapply(
+  div_geo_hyb_12_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, div_geo_hyb_12_genes$Gene))
+
+
+# Div geo hyb 18 ----------------------------------------------------------
+
+div_amb_hyb_18_genes = read_tsv("Brain_geo_hyb_18_div_genes.txt", 
+                                col_names = c('Gene', 
+                                              'Expression')) 
+
+div_amb_hyb_18_genelist = div_amb_hyb_18_genes$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% div_amb_hyb_18_genelist] <- 1
+div_amb_hyb_18_genelist <- as.factor(all_genelist)
+
+div_amb_hyb_18_GOdata_BP <- new("topGOdata",
+                                ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_GOdata_MF <- new("topGOdata",
+                                ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_GOdata_CC <- new("topGOdata",
+                                ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                                allGenes = div_amb_hyb_18_genelist,          # Named vector of genes
+                                geneSelectionFun = topDiffGenes,
+                                nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                gene2GO = geneID2GO)
+
+div_amb_hyb_18_resultFisher_BP <- runTest(
+  div_amb_hyb_18_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_resultFisher_MF <- runTest(
+  div_amb_hyb_18_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_resultFisher_CC <- runTest(
+  div_amb_hyb_18_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+div_amb_hyb_18_GO_BP <- GenTable(
+  div_amb_hyb_18_GOdata_BP,
+  weight01Fisher = div_amb_hyb_18_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_BP)))
+
+# Molecular Function
+div_amb_hyb_18_GO_MF <- GenTable(
+  div_amb_hyb_18_GOdata_MF,
+  weight01Fisher = div_amb_hyb_18_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_MF)))
+
+# Cellular Component
+div_amb_hyb_18_GO_CC <- GenTable(
+  div_amb_hyb_18_GOdata_CC,
+  weight01Fisher = div_amb_hyb_18_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(div_amb_hyb_18_resultFisher_CC)))
+
+
+div_amb_hyb_18_GO_BP = div_amb_hyb_18_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_18_GO_MF = div_amb_hyb_18_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) 
+
+div_amb_hyb_18_GO_CC = div_amb_hyb_18_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05)
+
+div_amb_hyb_18_BP_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_BP,
+  div_amb_hyb_18_GO_BP$GO.ID
+)
+
+div_amb_hyb_18_BP_GO_genes_sig <- lapply(
+  div_amb_hyb_18_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
+
+
+div_amb_hyb_18_MF_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_MF,
+  div_amb_hyb_18_GO_MF$GO.ID
+)
+
+div_amb_hyb_18_MF_GO_genes_sig <- lapply(
+  div_amb_hyb_18_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
+
+
+div_amb_hyb_18_CC_GO_genes = genesInTerm(
+  div_amb_hyb_18_GOdata_CC,
+  div_amb_hyb_18_GO_CC$GO.ID
+)
+
+div_amb_hyb_18_CC_GO_genes_sig <- lapply(
+  div_amb_hyb_18_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, div_amb_hyb_18_genes$Gene))
 
