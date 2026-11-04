@@ -149,6 +149,15 @@ amb_plast_topGO_plot = ggplot(data = amb_plast_topGO,
         legend.position = 'none')
 
 
+ggsave('Amb_plast_topGO_plot.svg', 
+       plot = amb_plast_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+
+
 # geothermal plasticity ---------------------------------------------------
 
 
