@@ -22,7 +22,7 @@ go_pal4 = c('#d1495b',
 
 # amb geo div 12 ----------------------------------------------------------
 div_12_GO_BP = read_csv('Div_amb_geo_12_topGO_BP.csv') %>% 
-  mutate(Type = 'Biological process')
+  mutate(Type = 'Biological Process')
   # write_csv('Div_amb_geo_12_topGO_BP.csv')
 div_12_GO_MF = read_csv("Div_amb_geo_12_topGO_MF.csv") %>% 
   mutate(Type = 'Molecular Function')
@@ -39,7 +39,14 @@ div_12_topGO = bind_rows(div_12_GO_BP,
         c('GO.ID', 
           'Term'), 
         sep = ': ') %>% 
-  mutate(neg_log_pval = -log10(weight01Fisher))
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term)))
 
 div_12_topGO_plot = ggplot(data = div_12_topGO, 
        aes(y = GO_Term, 
@@ -67,7 +74,7 @@ div_18_GO_MF %>% write_csv("Div_amb_geo_18_topGO_MF.csv")
 div_18_GO_CC %>% write_csv("Div_amb_geo_18_topGO_CC.csv")
 
 div_18_GO_BP = read_csv('Div_amb_geo_18_topGO_BP.csv') %>% 
-  mutate(Type = 'Biological process')
+  mutate(Type = 'Biological Process')
 div_18_GO_MF = read_csv("Div_amb_geo_18_topGO_MF.csv") %>% 
   mutate(Type = 'Molecular Function')
 # div_18_GO_CC = read_csv("Div_amb_geo_18_topGO_CC.csv") %>% 
@@ -79,7 +86,14 @@ div_18_topGO = bind_rows(div_18_GO_BP,
         c('GO.ID', 
           'Term'), 
         sep = ': ') %>% 
-  mutate(neg_log_pval = -log10(weight01Fisher))
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term)))
 
 div_18_pal = c('#d1495b',
             '#edae49')
@@ -313,4 +327,120 @@ ggsave('overlap_plast_topGO_plot.svg',
        units = 'cm', 
        width = 20, 
        height = 15)
+
+
+# trans 12 pure vs hyb ----------------------------------------------------
+
+trans_12_pure_hyb_GO_BP %>% write_csv('trans_12_pure_hyb_topGO_BP.csv')
+trans_12_pure_hyb_GO_MF %>% write_csv('trans_12_pure_hyb_topGO_MF.csv')
+trans_12_pure_hyb_GO_CC %>% write_csv('trans_12_pure_hyb_topGO_CC.csv')
+
+
+trans_12_pure_hyb_GO_BP = read_csv('trans_12_pure_hyb_topGO_BP.csv') %>% 
+    mutate(Type = 'Biological Process') %>% 
+    mutate(weight01Fisher = as.character(weight01Fisher))
+trans_12_pure_hyb_GO_MF = read_csv("trans_12_pure_hyb_topGO_MF.csv") %>% 
+  mutate(Type = 'Molecular Function')
+trans_12_pure_hyb_GO_CC = read_csv("trans_12_pure_hyb_topGO_CC.csv") %>%
+  mutate(Type = 'Cellular Component') %>% 
+  mutate(weight01Fisher = as.character(weight01Fisher))
+
+trans_12_pure_hyb_topGO = bind_rows(trans_12_pure_hyb_GO_BP, 
+                                trans_12_pure_hyb_GO_MF, 
+                                trans_12_pure_hyb_GO_CC) %>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(weight01Fisher = as.numeric(weight01Fisher)) %>%
+  mutate(weight01Fisher = replace_na(weight01Fisher, 1e-6)) %>%
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+
+trans_12_pure_hyb_topGO_plot = ggplot(data = trans_12_pure_hyb_topGO, 
+                                  aes(y = GO_Term, 
+                                      x = neg_log_pval, 
+                                      group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 6))
+
+
+ggsave('trans_12_pure_hyb_topGO_plot.svg', 
+       plot = trans_12_pure_hyb_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 50, 
+       height = 40)
+
+
+# trans 18 pure vs hyb ----------------------------------------------------
+
+trans_18_pure_hyb_GO_BP %>% write_csv('trans_18_pure_hyb_topGO_BP.csv')
+trans_18_pure_hyb_GO_MF %>% write_csv('trans_18_pure_hyb_topGO_MF.csv')
+trans_18_pure_hyb_GO_CC %>% write_csv('trans_18_pure_hyb_topGO_CC.csv')
+
+
+trans_18_pure_hyb_GO_BP = read_csv('trans_18_pure_hyb_topGO_BP.csv') %>% 
+  mutate(Type = 'Biological Process') %>% 
+  mutate(weight01Fisher = as.character(weight01Fisher))
+trans_18_pure_hyb_GO_MF = read_csv("trans_18_pure_hyb_topGO_MF.csv") %>% 
+  mutate(Type = 'Molecular Function')
+trans_18_pure_hyb_GO_CC = read_csv("trans_18_pure_hyb_topGO_CC.csv") %>%
+  mutate(Type = 'Cellular Component') %>% 
+  mutate(weight01Fisher = as.character(weight01Fisher))
+
+trans_18_pure_hyb_topGO = bind_rows(trans_18_pure_hyb_GO_BP, 
+                                    trans_18_pure_hyb_GO_MF, 
+                                    trans_18_pure_hyb_GO_CC) %>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(weight01Fisher = as.numeric(weight01Fisher)) %>%
+  mutate(weight01Fisher = replace_na(weight01Fisher, 1e-6)) %>%
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+
+trans_18_pure_hyb_topGO_plot = ggplot(data = trans_18_pure_hyb_topGO, 
+                                      aes(y = GO_Term, 
+                                          x = neg_log_pval, 
+                                          group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 6))
+
+
+ggsave('trans_18_pure_hyb_topGO_plot.svg', 
+       plot = trans_18_pure_hyb_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 50, 
+       height = 40)
 
