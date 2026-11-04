@@ -173,15 +173,40 @@ trans_18 = bind_rows(trans_18_up,
 
 
 # trans up 12 pure vs hyb----------------------------------------------------
-
-
+trans_12_up = read_csv('Trans_12_UP_Pure_vs_hyb.csv')%>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_12_UP_Pure_vs_hyb_genelist.txt')
 # trans down 12 pure vs hyb ----------------------------------------------------
-
+trans_12_down = read_csv('Trans_12_DOWN_Pure_vs_hyb.csv')%>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_12_DOWN_Pure_vs_hyb_genelist.txt')
 
 # trans up 18 pure vs hyb -------------------------------------------------
+trans_18_up = read_csv('Trans_UP_18_Pure_vs_hyb.csv')%>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_18_UP_Pure_vs_hyb_genelist.txt')
 
 
 # trans down 18 pure vs hyb -----------------------------------------------
+trans_18_DOWN = read_csv('Trans_DOWN_18_Pure_vs_hyb.csv')%>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_18_DOWN_Pure_vs_hyb_genelist.txt')
 
 
 
