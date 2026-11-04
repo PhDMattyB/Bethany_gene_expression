@@ -445,7 +445,7 @@ exp_pattern_12 = brain_common_genes %>%
   dplyr::select(GeneID,
                 logFC.am_hyb_12, 
                 logFC.geo_hyb_12) %>% 
-  rename(am_hyb_12 = logFC.am_hyb_12, 
+  dplyr::rename(am_hyb_12 = logFC.am_hyb_12, 
          geo_hyb_12 = logFC.geo_hyb_12)
 Nothing = exp_pattern_12 %>% 
   filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
@@ -550,7 +550,7 @@ exp_pattern_18 = brain_common_genes %>%
   dplyr::select(GeneID, 
                 logFC.am_hyb_18, 
                 logFC.geo_hyb_18) %>% 
-  rename(am_hyb_18 = logFC.am_hyb_18, 
+  dplyr::rename(am_hyb_18 = logFC.am_hyb_18, 
          geo_hyb_18 = logFC.geo_hyb_18)
 Nothing = exp_pattern_18 %>% 
   filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
@@ -662,19 +662,23 @@ ggsave('Interitance_combo_plot_brain.tiff',
 
 transgressive1_12 = exp_pattern_12 %>% 
   filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
-  mutate(exp_pattern = 'Transgressive')
+  mutate(exp_pattern = 'Transgressive', 
+         direction = 'UP')
 
 transgressive2_12 = exp_pattern_12 %>% 
   filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
-  mutate(exp_pattern = 'Transgressive')
+  mutate(exp_pattern = 'Transgressive', 
+         direciton = 'DOWN')
 
 transgressive1_18 = exp_pattern_18 %>% 
   filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
-  mutate(exp_pattern = 'Transgressive')
+  mutate(exp_pattern = 'Transgressive', 
+         direction = 'UP')
 
 transgressive2_18 = exp_pattern_18 %>% 
   filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
-  mutate(exp_pattern = 'Transgressive')
+  mutate(exp_pattern = 'Transgressive', 
+         direction = 'DOWN')
 
 inner_join(transgressive1_12, 
            transgressive1_18, 

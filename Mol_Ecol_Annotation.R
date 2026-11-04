@@ -143,25 +143,46 @@ read_csv('Brain_geo_hyb_18_div.csv')%>%
 
 
 
-# trans div amb hyb 12 ----------------------------------------------------
-read_csv('')%>% 
-  filter(adj.P.Val <= 0.05) %>% 
+# trans 12 pure vs amb ----------------------------------------------------
+trans_12_up = read_csv('Trans_12_UP_Pure_vs_hyb.csv')
+trans_12_down = read_csv('Trans_12_DOWN_pure_vs_hyb.csv') %>% 
+  dplyr::rename(direction = direciton)
+
+trans_12 = bind_rows(trans_12_up, 
+                     trans_12_down) %>% 
   dplyr::rename(ensemble_name  = GeneID) %>% 
   inner_join(., 
              annotation_data, 
              by = 'ensemble_name') %>% 
-  dplyr::select(gene_name, 
-                logFC) %>% 
-  write_tsv('Brain_geo_hyb_18_div_genes.txt')
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_12_Pure_vs_hyb_genelist.txt')
 
 
-# trans div amb hyb 18 ----------------------------------------------------
+# trans 18 pure vs hyb  ----------------------------------------------------
+trans_18_up = read_csv('Trans_UP_18_Pure_vs_hyb.csv')
+trans_18_down = read_csv('Trans_DOWN_18_pure_vs_hyb.csv') 
+
+trans_18 = bind_rows(trans_18_up, 
+                     trans_18_down) %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('Trans_18_Pure_vs_hyb_genelist.txt')
 
 
-# trans div geo hyb 12 ----------------------------------------------------
+# trans up 12 pure vs hyb----------------------------------------------------
 
 
-# trans div geo hyb 18 ----------------------------------------------------
+# trans down 12 pure vs hyb ----------------------------------------------------
+
+
+# trans up 18 pure vs hyb -------------------------------------------------
+
+
+# trans down 18 pure vs hyb -----------------------------------------------
+
 
 
 
