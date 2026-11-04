@@ -103,3 +103,58 @@ ggsave('Div_18_amb_geo_topGO_plot.svg',
        width = 20, 
        height = 10)
 
+
+
+# Ambient plasticity ------------------------------------------------------
+amb_plast_GO_BP %>% write_csv('Amb_plast_topGO_BP.csv')
+amb_plast_GO_MF %>% write_csv('Amb_plast_topGO_MF.csv')
+amb_plast_GO_CC %>% write_csv('Amb_plast_topGO_CC.csv')
+
+
+amb_plast_GO_BP = read_csv('Amb_plast_topGO_BP.csv') %>% 
+  mutate(Type = 'Biological Process')
+amb_plast_GO_MF = read_csv("Amb_plast_topGO_MF.csv") %>% 
+  mutate(Type = 'Molecular Function')
+amb_plast_GO_CC = read_csv("Amb_plast_topGO_CC.csv") %>%
+  mutate(Type = 'Cellular Component')
+
+amb_plast_topGO = bind_rows(amb_plast_GO_BP, 
+                         amb_plast_GO_MF, 
+                         amb_plast_GO_CC) %>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+           levels = c("Biological Process", 
+                      "Molecular Function", 
+                      "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+
+amb_plast_topGO_plot = ggplot(data = amb_plast_topGO, 
+                           aes(y = GO_Term, 
+                               x = neg_log_pval, 
+                               group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none')
+
+
+# geothermal plasticity ---------------------------------------------------
+
+
+# hyrbid plasticity -------------------------------------------------------
+
+
+# overlap plasticity ------------------------------------------------------
+
+
