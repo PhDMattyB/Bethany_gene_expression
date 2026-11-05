@@ -1544,6 +1544,7 @@ trans_18_pure_hyb_CC_GO_genes = genesInTerm(
 trans_18_pure_hyb_CC_GO_genes_sig <- lapply(
   trans_18_pure_hyb_CC_GO_genes,
   function(genes) dplyr::intersect(genes, trans_18_pure_hyb_genes$Gene))
+trans_18_pure_hyb_CC_GO_genes_sig$`GO:0005777`
 
 
 # Trans 12 UP -------------------------------------------------------------
