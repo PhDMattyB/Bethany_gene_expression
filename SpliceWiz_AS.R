@@ -233,7 +233,7 @@ Brain_AS_eco12_volplot = ggplot(data = as_eco12_full,
              col = '#dedbd2')+
   geom_point(data = as_eco12, 
              aes(col = Regulated), 
-             size = 2,)+
+             size = 2)+
   # scale_y_reverse()+
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
@@ -267,7 +267,7 @@ Brain_AS_eco18_volplot = ggplot(data = as_eco18_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'A) Ambient - Geothermal 18˚C')+
+       title = 'B) Ambient - Geothermal 18˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -293,14 +293,44 @@ ggsave('Alternative_Splicing_EcoDiv_Volcanoe_Plot.svg',
        height = 10)
 
 # Brain AS plasticity -----------------------------------------------------
-
+as_amb_plast_full = read_csv('Brain_plast_amb_AS.csv')
 as_amb_plast = read_csv('Brain_plast_amb_AS.csv') %>% 
-  filter(FDR < 0.05)
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+as_geo_plast_full = read_csv('Brain_plast_geo_AS.csv')
 as_geo_plast = read_csv('Brain_plast_geo_AS.csv') %>% 
-  filter(FDR < 0.05)
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+as_hyb_plast_full = read_csv("Brain_plast_hyb_AS.csv")
 as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv") %>% 
-  filter(FDR < 0.05)
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
 
+intersect(as_amb_plast$EventName, 
+          as_geo_plast$EventName)
+## 27 overlapp between amb and geo
+intersect(as_amb_plast$EventName, 
+          as_hyb_plast$EventName)
+## 28 overlapp between amb and hyb
+
+intersect(as_geo_plast$EventName, 
+          as_hyb_plast$EventName)
+## 50 overlapp between geo and hyb
+
+intersect(as_geo_plast$EventName, 
+          as_hyb_plast$EventName) %>% 
+  intersect(., 
+            as_amb_plast$EventName)
+## 25 overlap between all 3 plastic ecotypes
 
 
 # AS ecotype hybrid divergence -----------------------------------------
