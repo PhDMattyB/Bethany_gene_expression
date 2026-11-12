@@ -191,30 +191,55 @@ library(tidyverse)
 
 setwd('~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/')
 
+## SE = Skipped Exon
+## MXE = Mutually exclusive exons
+## A5SS = Alternative 5' splice site usage
+## A3ss = Alternative 3' splice site usage
+## AFE/ALE = Alternative first or last exon usage
+## IR or RI = Intron retention
 
 # Brain AS divergence -----------------------------------------------------
+as_eco12_full = read_csv('Brain_Eco12_div_geo_amb_AS.csv') 
+as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv') %>% 
+  filter(FDR < 0.05)
 
-as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv')
+as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') 
+as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') %>% 
+  filter(FDR < 0.05)
 
-as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv')
+as_eco12$EventName == as_eco18$EventName
 
 
+ggplot(as_eco12,
+       aes(x = logFC, y = -log10(FDR))) + 
+  geom_point() +
+  labs(title = "Differential analysis - B vs A",
+       x = "Log2-fold change", y = "FDR (-log10)")
+
+## Only 1 AS event is divergence across both temperatures
 
 # Brain AS plasticity -----------------------------------------------------
 
-as_amb_plast = read_csv('Brain_plast_amb_AS.csv')
-as_geo_plast = read_csv('Brain_plast_geo_AS.csv')
-as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv")
+as_amb_plast = read_csv('Brain_plast_amb_AS.csv') %>% 
+  filter(FDR < 0.05)
+as_geo_plast = read_csv('Brain_plast_geo_AS.csv') %>% 
+  filter(FDR < 0.05)
+as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv") %>% 
+  filter(FDR < 0.05)
 
 
 
 # AS ecotype hybrid divergence -----------------------------------------
 
-as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv")
+as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv") %>% 
+  filter(FDR < 0.05)
 
-as_div_geo_hyb_12 = read_csv('Brain_Div_geo_hyb_12_AS.csv')
+as_div_geo_hyb_12 = read_csv('Brain_Div_geo_hyb_12_AS.csv') %>% 
+  filter(FDR < 0.05)
 
-as_div_amb_hyb_18 = read_csv("Brain_Div_amb_hyb_18_AS.csv")
+as_div_amb_hyb_18 = read_csv("Brain_Div_amb_hyb_18_AS.csv") %>% 
+  filter(FDR < 0.05)
 
-as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv')
+as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv') %>% 
+  filter(FDR < 0.05)
 
