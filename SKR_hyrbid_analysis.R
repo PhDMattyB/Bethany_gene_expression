@@ -59,6 +59,31 @@ metadata %>%
   arrange(family) %>% 
   summarize(n = n()) %>% View()
 
+metadata %>% 
+  unite(col = sample_id, 
+        c('ecotemp', 
+          'family', 
+          'sample', 
+          'tissue'), 
+        sep = '_', 
+        remove = F) %>%
+  unite(col = sample_id, 
+        c('sample_num', 
+          'sample_id'), 
+        sep = '-') %>% 
+  mutate(fixed = 'fixed', 
+         mate = 'mate', 
+         bam = 'bam') %>% 
+  unite(col = sample_id, 
+        c('sample_id', 
+          'fixed', 
+          'mate'), 
+        sep = "_") %>% 
+  # unite(col = sample_id, 
+  #       c('sample_id', 
+  #         'bam'), 
+  #       sep = '.') %>% 
+  write_tsv('SKR_Brain_Metadata.tsv')
 
 
 # Brain normalization -----------------------------------------------------
