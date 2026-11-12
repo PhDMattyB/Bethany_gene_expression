@@ -3,6 +3,10 @@ library(readr)
 library(SpliceWiz)
 library(limma)
 
+
+# Stuff done on the cluster -----------------------------------------------
+
+
 ## Create file with all your bam names so it loops through them
 bam_dir <- "/export/legacy_drives/jessie3/frombuzz/mkb6d/"
 
@@ -76,7 +80,7 @@ se <- makeSE(nxtse_path,
 
 # saveRDS(se, file.path(work_dir, "SpliceWiz_full_se.rds"))
 
-setwd("~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/Bim_Bam/Liver_bam/")
+# setwd("~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/Bim_Bam/Liver_bam/")
 ## save the nxste file
 saveHDF5SummarizedExperiment(se,
                              dir = file.path(work_dir, "SpliceWiz_full_HDF5"),
@@ -148,31 +152,69 @@ results <- lapply(comparisons, function(x) {
 })
 
 names(results) <- names(comparisons)
+# 
+# results$eco12 |> 
+#   as_tibble() |>
+#   write_csv('Eco12_div_geo_amb_AS.csv')
+# 
+# results$eco18 |> 
+#   as_tibble() |> 
+#   write_csv("Eco18_div_geo_amb_AS.csv")
+# 
+# results$plast_amb |> 
+#   as_tibble() |> 
+#   write_csv("plast_amb_AS.csv")
+# 
+# results$plast_geo |> 
+#   as_tibble() |> 
+#   write_csv("plast_geo_AS.csv")
+# 
+# results$plast_hyb |> 
+#   as_tibble() |> 
+#   write_csv("plast_hyb_AS.csv")
+# 
+# results$am_hyb_12 |> 
+#   as_tibble() |> 
+#   write_csv("Div_amb_hyb_12_AS.csv")
+# 
+# results$am_hyb_18 |> 
+#   as_tibble() |> 
+#   write_csv("Div_amb_hyb_18_AS.csv")
 
-results$eco12 |> 
-  as_tibble() |>
-  write_csv('Eco12_div_geo_amb_AS.csv')
 
-results$eco18 |> 
-  as_tibble() |> 
-  write_csv("Eco18_div_geo_amb_AS.csv")
 
-results$plast_amb |> 
-  as_tibble() |> 
-  write_csv("plast_amb_AS.csv")
 
-results$plast_geo |> 
-  as_tibble() |> 
-  write_csv("plast_geo_AS.csv")
+# Post cluster analysis ---------------------------------------------------
+library(tidyverse)
 
-results$plast_hyb |> 
-  as_tibble() |> 
-  write_csv("plast_hyb_AS.csv")
+# Brain -------------------------------------------------------------------
 
-results$am_hyb_12 |> 
-  as_tibble() |> 
-  write_csv("Div_amb_hyb_12_AS.csv")
+setwd('~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/')
 
-results$am_hyb_18 |> 
-  as_tibble() |> 
-  write_csv("Div_amb_hyb_18_AS.csv")
+
+# Brain AS divergence -----------------------------------------------------
+
+as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv')
+
+as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv')
+
+
+
+# Brain AS plasticity -----------------------------------------------------
+
+as_amb_plast = read_csv('Brain_plast_amb_AS.csv')
+as_geo_plast = read_csv('Brain_plast_geo_AS.csv')
+as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv")
+
+
+
+# AS ecotype hybrid divergence -----------------------------------------
+
+as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv")
+
+as_div_geo_hyb_12 = read_csv('Brain_Div_geo_hyb_12_AS.csv')
+
+as_div_amb_hyb_18 = read_csv("Brain_Div_amb_hyb_18_AS.csv")
+
+as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv')
+
