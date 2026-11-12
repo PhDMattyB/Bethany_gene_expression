@@ -198,24 +198,88 @@ setwd('~/Parsons_Postdoc/SKR_Hybrid_Gene_expression/')
 ## AFE/ALE = Alternative first or last exon usage
 ## IR or RI = Intron retention
 
-# Brain AS divergence -----------------------------------------------------
-as_eco12_full = read_csv('Brain_Eco12_div_geo_amb_AS.csv') 
-as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv') %>% 
-  filter(FDR < 0.05)
 
-as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') 
+volcano_cols = c('#127475',
+                 '#f2542d', 
+                 '#dedbd2')
+
+theme_set(theme_bw())
+
+# Brain AS divergence -----------------------------------------------------
+as_eco12_full = read_csv('Brain_Eco12_div_geo_amb_AS.csv')
+as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv') %>% 
+  filter(FDR < 0.05) %>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+
+as_eco18_full = read_csv('Brain_Eco18_div_geo_amb_AS.csv') 
 as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') %>% 
-  filter(FDR < 0.05)
+  filter(FDR < 0.05) %>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
 
 as_eco12$EventName == as_eco18$EventName
 
+Brain_AS_eco12_volplot = ggplot(data = as_eco12_full, 
+                                 aes(x = logFC, 
+                                     y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_eco12, 
+             aes(col = Regulated), 
+             size = 2,)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient - Geothermal 12˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
 
-ggplot(as_eco12,
-       aes(x = logFC, y = -log10(FDR))) + 
-  geom_point() +
-  labs(title = "Differential analysis - B vs A",
-       x = "Log2-fold change", y = "FDR (-log10)")
 
+Brain_AS_eco18_volplot = ggplot(data = as_eco18_full, 
+                                aes(x = logFC, 
+                                    y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_eco18, 
+             aes(col = Regulated), 
+             size = 2,)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient - Geothermal 18˚C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = 0.05, 
+             col = '#f72585', 
+             size = 1, 
+             linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
 ## Only 1 AS event is divergence across both temperatures
 
 # Brain AS plasticity -----------------------------------------------------
