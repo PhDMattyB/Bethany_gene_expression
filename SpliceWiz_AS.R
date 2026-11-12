@@ -282,6 +282,16 @@ Brain_AS_eco18_volplot = ggplot(data = as_eco18_full,
         axis.text = element_text(size = 12))
 ## Only 1 AS event is divergence across both temperatures
 
+
+Brain_AS_Div_plots = Brain_AS_eco12_volplot + Brain_AS_eco18_volplot
+
+ggsave('Alternative_Splicing_EcoDiv_Volcanoe_Plot.svg', 
+       plot = Brain_AS_Div_plots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 10)
+
 # Brain AS plasticity -----------------------------------------------------
 
 as_amb_plast = read_csv('Brain_plast_amb_AS.csv') %>% 
