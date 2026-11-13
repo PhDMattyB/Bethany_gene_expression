@@ -1080,4 +1080,21 @@ ggsave('Overlap_AS_DEG__Plot.svg',
        height = 35)
 
 
+mismatch_12 = splice_gene_overlap_12 %>% 
+  filter(Regulated == 'Mismatch2')
 
+mismatch_18 = splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Mismatch2')
+
+intersect(mismatch_12$EventName, 
+          mismatch_18$EventName)
+
+
+## the mismatches have some unique and some consistent mismatches
+## Means that this is A COMMON REGULATORY FORM!!!!!!!
+## THEY ARE DIFFERENT ACROSS TEMPERATURES 
+## WITH SOME OVERLAP
+
+## 52% are overlapped and 48% unique at 12 degrees
+
+## 37% are overlapped and 63% unique at 18 degrees
