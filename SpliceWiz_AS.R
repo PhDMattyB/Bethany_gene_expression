@@ -623,3 +623,9 @@ ggsave('Alternative_Splicing_Ecotype_Hybrid_div_Volcanoe_Plot.svg',
        units = 'cm', 
        width = 45, 
        height = 25)
+
+
+
+# hybridization inheritance type ------------------------------------------
+## quantify how many AS events are transgressive
+
