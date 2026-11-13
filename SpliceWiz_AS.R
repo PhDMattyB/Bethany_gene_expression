@@ -1090,6 +1090,9 @@ intersect(mismatch_12$EventName,
           mismatch_18$EventName)
 
 
+intersect(mismatch_12$gene_name, 
+          mismatch_18$gene_name)
+
 ## the mismatches have some unique and some consistent mismatches
 ## Means that this is A COMMON REGULATORY FORM!!!!!!!
 ## THEY ARE DIFFERENT ACROSS TEMPERATURES 
