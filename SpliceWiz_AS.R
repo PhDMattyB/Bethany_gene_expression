@@ -1101,3 +1101,7 @@ intersect(mismatch_12$gene_name,
 ## 52% are overlapped and 48% unique at 12 degrees
 
 ## 37% are overlapped and 63% unique at 18 degrees
+
+
+## HOLY FUCK. hybridization affects post-translational modificatoins 
+##of proteins asssociated with energy use
