@@ -872,7 +872,7 @@ Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph,
   geom_vline(xintercept = -0.32, 
              linetype = 'dashed')+
   labs(x = 'Hybrid 18°C - Geothermal 18°C', 
-       y = 'Hybrid 18°C - Ambient 18°C',
+       y = 'Hybrid 18°C - Ambient 18c',
        title = 'B)')+
   xlim(-8.5, 8.5)+
   ylim(-8.5, 8.5)+
@@ -961,14 +961,47 @@ splice_gene_overlap_12 = trans_as_12 %>%
   inner_join(trans_gene_12,
     by = join_by(chromosome,
       between(mid, start, end)),
-    relationship = "many-to-many")
+    relationship = "many-to-many")%>% 
+  dplyr::rename(AS_amb_hyb_12 = am_hyb_12.x, 
+                AS_geo_hyb_12 = geo_hyb_12.x, 
+                DEG_amb_hyb_12 = am_hyb_12.y, 
+                DEG_geo_hyb_12 = geo_hyb_12.y)
 
 
 splice_gene_overlap_18 = trans_as_18 %>%
   inner_join(trans_gene_18,
              by = join_by(chromosome,
                           between(mid, start, end)),
-             relationship = "many-to-many")
+             relationship = "many-to-many") %>% 
+  dplyr::rename(AS_amb_hyb_18 = am_hyb_18.x, 
+                AS_geo_hyb_18 = geo_hyb_18.x, 
+                DEG_amb_hyb_18 = am_hyb_18.y, 
+                DEG_geo_hyb_18 = geo_hyb_18.y)
 
 
-View()
+# splice_gene_overlap_12 %>% 
+#   write_csv('AS_DEG_Overlap_12.csv')
+# splice_gene_overlap_18 %>% 
+#   write_csv('AS_DEG_Overlap_18.csv')
+
+ggplot(data = splice_gene_overlap_12, 
+       aes(x = AS_amb_hyb_12, 
+           y = DEG_amb_hyb_12))+
+  geom_point()+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  labs(x = 'Alternative splicing logFC Ambient - Hybrid 12°C', 
+       y = 'DEG logFC Ambient - Hybrid 12°C')
+
+ggplot(data = splice_gene_overlap_18, 
+       aes(x = AS_amb_hyb_18, 
+           y = DEG_amb_hyb_18))+
+  geom_point()+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  labs(x = 'Alternative splicing logFC Ambient - Hybrid 18°C', 
+       y = 'DEG logFC Ambient - Hybrid 18°C')
