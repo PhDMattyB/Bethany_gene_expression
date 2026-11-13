@@ -441,28 +441,32 @@ as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv") %>%
   mutate(Regulated = case_when(
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
-    logFC == 0 ~ 'Neutral')) 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Amb_hyb_12')
 as_div_geo_hyb_12_full = read_csv('Brain_Div_geo_hyb_12_AS.csv')
 as_div_geo_hyb_12 = read_csv('Brain_Div_geo_hyb_12_AS.csv') %>% 
   filter(FDR < 0.05)%>% 
   mutate(Regulated = case_when(
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
-    logFC == 0 ~ 'Neutral')) 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Geo_hyb_12')
 as_div_amb_hyb_18_full = read_csv("Brain_Div_amb_hyb_18_AS.csv")
 as_div_amb_hyb_18 = read_csv("Brain_Div_amb_hyb_18_AS.csv") %>% 
   filter(FDR < 0.05)%>% 
   mutate(Regulated = case_when(
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
-    logFC == 0 ~ 'Neutral')) 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Amb_hyb_18')
 as_div_geo_hyb_18_full = read_csv('Brain_Div_geo_hyb_18_AS.csv')
 as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv') %>% 
   filter(FDR < 0.05)%>% 
   mutate(Regulated = case_when(
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
-    logFC == 0 ~ 'Neutral')) 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Geo_hyb_18')
 
 
 intersect(as_div_amb_hyb_12$EventName, 
@@ -628,4 +632,313 @@ ggsave('Alternative_Splicing_Ecotype_Hybrid_div_Volcanoe_Plot.svg',
 
 # hybridization inheritance type ------------------------------------------
 ## quantify how many AS events are transgressive
+
+
+# Inheritance pattern 12 degrees ------------------------------------------
+
+div_hyb_12_common_genes = inner_join(as_div_amb_hyb_12, 
+           as_div_geo_hyb_12, 
+           by = c('EventName', 
+                  'EventRegion', 
+                  'EventType'))
+
+
+### 12 degree inheritance pattern
+exp_pattern_12 = div_hyb_12_common_genes %>% 
+  dplyr::select(EventName,
+                EventType, 
+                EventRegion, 
+                AvgPSI_SKRC_12, 
+                AvgPSI_SKRHYB_12.x, 
+                AvgPSI_SKRW_12, 
+                AvgPSI_SKRHYB_12.y, 
+                logFC.x, 
+                logFC.y, 
+                FDR.x, 
+                FDR.y) %>% 
+  dplyr::rename(am_hyb_12 = logFC.x, 
+                geo_hyb_12 = logFC.y)
+
+Nothing_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
+  filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+## 987 genes
+dom_geo1_12 = exp_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2_12 = exp_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1_12 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>%
+  filter(am_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2_12 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
+  filter(am_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+
+additive1_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+# bind_rows(transgressive1_12,
+#           transgressive2_12) %>%
+#   write_csv('Brain_AS_Transgressive_expression_12degrees.csv')
+
+exp_pattern_12_graph = bind_rows(dom_amb1_12, 
+                                 dom_amb2_12, 
+                                 dom_geo1_12,
+                                 dom_geo2_12, 
+                                 additive1_12, 
+                                 additive2_12, 
+                                 transgressive1_12, 
+                                 transgressive2_12, 
+                                 Nothing_12)
+
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+inheritance_pal = c('#fee440', 
+                    '#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
+
+AS_12_inheritance_pal = c('#9b5de5')
+
+Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph, 
+                                aes(x = geo_hyb_12, 
+                                    y = am_hyb_12, 
+                                    col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Hybrid 12°C - Geothermal 12°C', 
+       y = 'Hybrid 12°C - Ambient 12°C',
+       title = 'A)')+
+  xlim(-8.5, 8.5)+
+  ylim(-8.5, 8.5)+
+  scale_color_manual(values = AS_12_inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+
+# Inheritance pattern 18 degrees ------------------------------------------
+
+div_hyb_18_common_genes = inner_join(as_div_amb_hyb_18, 
+                                     as_div_geo_hyb_18, 
+                                     by = c('EventName', 
+                                            'EventRegion', 
+                                            'EventType'))
+
+
+### 12 degree inheritance pattern
+exp_pattern_18 = div_hyb_18_common_genes %>% 
+  dplyr::select(EventName,
+                EventType, 
+                EventRegion, 
+                AvgPSI_SKRC_18, 
+                AvgPSI_SKRHYB_18.x, 
+                AvgPSI_SKRW_18, 
+                AvgPSI_SKRHYB_18.y, 
+                logFC.x, 
+                logFC.y, 
+                FDR.x, 
+                FDR.y) %>% 
+  dplyr::rename(am_hyb_18 = logFC.x, 
+                geo_hyb_18 = logFC.y)
+
+Nothing_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
+  filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+## 987 genes
+dom_geo1_18 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2_18 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1_18 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= -0.32) %>%
+  filter(am_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2_18 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= 0.32) %>%
+  filter(am_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+
+additive1_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+# bind_rows(transgressive1_18,
+#           transgressive2_18) %>%
+#   write_csv('Brain_AS_Transgressive_expression_18degrees.csv')
+
+exp_pattern_18_graph = bind_rows(dom_amb1_18, 
+                                 dom_amb2_18, 
+                                 dom_geo1_18,
+                                 dom_geo2_18, 
+                                 additive1_18, 
+                                 additive2_18, 
+                                 transgressive1_18, 
+                                 transgressive2_18, 
+                                 Nothing_18)
+
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+# inheritance_pal = c('#fee440', 
+#                     '#1d58ab',
+#                     '#00bbf9',
+#                     '#adb5bd',
+#                     '#9b5de5')
+
+AS_18_inheritance_pal = c('#9b5de5')
+
+Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph, 
+                                aes(x = geo_hyb_18, 
+                                    y = am_hyb_18, 
+                                    col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Hybrid 18°C - Geothermal 18°C', 
+       y = 'Hybrid 18°C - Ambient 18°C',
+       title = 'B)')+
+  xlim(-8.5, 8.5)+
+  ylim(-8.5, 8.5)+
+  scale_color_manual(values = AS_18_inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+trans_12 = bind_rows(transgressive1_12, 
+                     transgressive2_12)
+
+trans_18 = bind_rows(transgressive1_18, 
+                     transgressive2_18)
+
+inner_join(trans_12, 
+           trans_18, 
+           by = c('EventName', 
+                  'EventType', 
+                  'EventRegion'))
+
+
+AS_Inheritance_combo = Inheritance_pattern_12+Inheritance_pattern_18
+ggsave('Alternative_Splicing_Inheritance_Volcanoe_Plot.svg', 
+       plot = AS_Inheritance_combo, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 35, 
+       height = 25)
+
+
+
+# Transgressive gene expression and AS overlap ----------------------------
+
+trans_gene_12 = read_csv('Trans_expression_12.csv')
+trans_gene_18 = read_csv('Trans_expression_18.csv')
+
+trans_as_18 = read_csv('Brain_AS_Transgressive_expression_18degrees.csv') %>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+                   'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction)
+trans_as_12 = read_csv('Brain_AS_Transgressive_expression_12degrees.csv')%>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+             'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction)
+
+
 

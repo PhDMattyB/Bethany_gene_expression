@@ -31,6 +31,8 @@ gene_annotation = read_tsv('~/Parsons_Postdoc/Stickleback_Genomic/Stickleback_An
 gene_metadata = gene_annotation %>% 
   # filter(feature == 'gene') %>% 
   dplyr::select(position,
+                start, 
+                end,
          chromosome,
          feature)
 
@@ -210,4 +212,19 @@ trans_18_DOWN = read_csv('Trans_DOWN_18_Pure_vs_hyb.csv')%>%
 
 
 
+# trans 12 amb vs hyb -----------------------------------------------------
 
+read_csv('Brain_Transgressive_expression_12degrees_FIXED.csv') %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  write_csv('Trans_expression_12.csv')
+
+
+read_csv('Brain_Transgressive_expression_18degrees.csv') %>% 
+  dplyr::rename(ensemble_name  = GeneID) %>% 
+  inner_join(., 
+             annotation_data, 
+             by = 'ensemble_name') %>% 
+  write_csv('Trans_expression_18.csv')
