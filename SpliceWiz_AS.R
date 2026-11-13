@@ -423,7 +423,15 @@ Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full,
         axis.text = element_text(size = 12), 
         axis.title.y = element_blank())
 
+plasticity_plots = Brain_AS_amb_plast_volplot+Brain_AS_geo_plast_volplot+Brain_AS_hyb_plast_volplot
 
+
+ggsave('Alternative_Splicing_Ecotype_plasticity_Volcanoe_Plot.svg', 
+       plot = plasticity_plots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 25, 
+       height = 15)
 
 
 # AS ecotype hybrid divergence -----------------------------------------
