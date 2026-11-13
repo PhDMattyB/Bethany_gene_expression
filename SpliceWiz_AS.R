@@ -390,7 +390,8 @@ Brain_AS_geo_plast_volplot = ggplot(data = as_geo_plast_full,
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
-        axis.text = element_text(size = 12))
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
 
 
 Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full, 
@@ -419,18 +420,39 @@ Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full,
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
-        axis.text = element_text(size = 12))
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+
+
+
 # AS ecotype hybrid divergence -----------------------------------------
-
+as_div_amb_hyb_12_full = read_csv("Brain_Div_amb_hyb_12_AS.csv")
 as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv") %>% 
-  filter(FDR < 0.05)
-
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+as_div_geo_hyb_12_full = read_csv('Brain_Div_geo_hyb_12_AS.csv')
 as_div_geo_hyb_12 = read_csv('Brain_Div_geo_hyb_12_AS.csv') %>% 
-  filter(FDR < 0.05)
-
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+as_div_amb_hyb_18_full = read_csv("Brain_Div_amb_hyb_18_AS.csv")
 as_div_amb_hyb_18 = read_csv("Brain_Div_amb_hyb_18_AS.csv") %>% 
-  filter(FDR < 0.05)
-
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+as_div_geo_hyb_18_full = read_csv('Brain_Div_geo_hyb_18_AS.csv')
 as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv') %>% 
-  filter(FDR < 0.05)
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
 
