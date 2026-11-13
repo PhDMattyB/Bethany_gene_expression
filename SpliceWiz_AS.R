@@ -924,7 +924,16 @@ trans_as_18 = read_csv('Brain_AS_Transgressive_expression_18degrees.csv') %>%
            c('end', 
                    'direction'), 
            sep = '/') %>% 
-  dplyr::select(-direction)
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '')%>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end)) %>% 
+  mutate(mid = start + (end-start)/2)
+
 trans_as_12 = read_csv('Brain_AS_Transgressive_expression_12degrees.csv')%>% 
   separate(col = EventRegion, 
            c('chromosome', 
@@ -938,7 +947,24 @@ trans_as_12 = read_csv('Brain_AS_Transgressive_expression_12degrees.csv')%>%
            c('end', 
              'direction'), 
            sep = '/') %>% 
-  dplyr::select(-direction)
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '') %>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end))%>% 
+  mutate(mid = start + (end-start)/2)
 
 
+inner_join(trans_gene_12, 
+           trans_as_12, 
+           by = 'chromosome')
 
+
+inner_join(trans_gene_12, 
+           trans_as_12, 
+           by = c('chromosome', 
+                  'start', 
+                  'end'))
