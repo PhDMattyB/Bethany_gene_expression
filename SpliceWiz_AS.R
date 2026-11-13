@@ -965,7 +965,13 @@ splice_gene_overlap_12 = trans_as_12 %>%
   dplyr::rename(AS_amb_hyb_12 = am_hyb_12.x, 
                 AS_geo_hyb_12 = geo_hyb_12.x, 
                 DEG_amb_hyb_12 = am_hyb_12.y, 
-                DEG_geo_hyb_12 = geo_hyb_12.y)
+                DEG_geo_hyb_12 = geo_hyb_12.y) %>% 
+  mutate(Regulated = case_when(
+    AS_amb_hyb_12 < 0 & DEG_amb_hyb_12 < 0 ~ 'Down-Regulated',
+    AS_amb_hyb_12 > 0 & DEG_amb_hyb_12 > 0 ~ 'Up-Regulated', 
+    AS_amb_hyb_12 < 0 & DEG_amb_hyb_12 > 0 ~ 'Mismatch1', 
+    AS_amb_hyb_12 > 0 & DEG_amb_hyb_12 < 0 ~ 'Mismatch2'))
+  
 
 
 splice_gene_overlap_18 = trans_as_18 %>%
@@ -976,7 +982,13 @@ splice_gene_overlap_18 = trans_as_18 %>%
   dplyr::rename(AS_amb_hyb_18 = am_hyb_18.x, 
                 AS_geo_hyb_18 = geo_hyb_18.x, 
                 DEG_amb_hyb_18 = am_hyb_18.y, 
-                DEG_geo_hyb_18 = geo_hyb_18.y)
+                DEG_geo_hyb_18 = geo_hyb_18.y) %>% 
+  mutate(Regulated = case_when(
+    AS_amb_hyb_18 < 0 & DEG_amb_hyb_18 < 0 ~ 'Down-Regulated',
+    AS_amb_hyb_18 > 0 & DEG_amb_hyb_18 > 0 ~ 'Up-Regulated', 
+    AS_amb_hyb_18 < 0 & DEG_amb_hyb_18 > 0 ~ 'Mismatch1', 
+    AS_amb_hyb_18 > 0 & DEG_amb_hyb_18 < 0 ~ 'Mismatch2'))
+
 
 
 # splice_gene_overlap_12 %>% 
@@ -984,24 +996,88 @@ splice_gene_overlap_18 = trans_as_18 %>%
 # splice_gene_overlap_18 %>% 
 #   write_csv('AS_DEG_Overlap_18.csv')
 
-ggplot(data = splice_gene_overlap_12, 
+overlap_pal = c('#f2542d', 
+                '#f15bb5', 
+                '#127475')
+
+as_gene_amb_hyb_12 = ggplot(data = splice_gene_overlap_12, 
        aes(x = AS_amb_hyb_12, 
            y = DEG_amb_hyb_12))+
-  geom_point()+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
   geom_hline(yintercept = 0.0, 
              linetype = 'dashed')+
   geom_vline(xintercept = 0.0, 
              linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
   labs(x = 'Alternative splicing logFC Ambient - Hybrid 12°C', 
-       y = 'DEG logFC Ambient - Hybrid 12°C')
+       y = 'DEG logFC Ambient - Hybrid 12°C', 
+       title = 'A)')+
+  theme(legend.position = 'none')
 
-ggplot(data = splice_gene_overlap_18, 
+as_gene_amb_hyb_18 = ggplot(data = splice_gene_overlap_18, 
        aes(x = AS_amb_hyb_18, 
            y = DEG_amb_hyb_18))+
-  geom_point()+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
   geom_hline(yintercept = 0.0, 
              linetype = 'dashed')+
   geom_vline(xintercept = 0.0, 
              linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
   labs(x = 'Alternative splicing logFC Ambient - Hybrid 18°C', 
-       y = 'DEG logFC Ambient - Hybrid 18°C')
+       y = 'DEG logFC Ambient - Hybrid 18°C', 
+       title = 'B)')+
+  theme(legend.position = 'none')
+
+
+as_gene_geo_hyb_12 = ggplot(data = splice_gene_overlap_12, 
+                            aes(x = AS_geo_hyb_12, 
+                                y = DEG_geo_hyb_12))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Geothermal - Hybrid 12°C', 
+       y = 'DEG logFC Geothermal - Hybrid 12°C', 
+       title = 'C)')+
+  theme(legend.position = 'none')
+
+as_gene_geo_hyb_18 = ggplot(data = splice_gene_overlap_18, 
+                            aes(x = AS_geo_hyb_18, 
+                                y = DEG_geo_hyb_18))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Geothermal - Hybrid 18°C', 
+       y = 'DEG logFC Geothermal - Hybrid 18°C', 
+       title = 'D)')+
+  theme(legend.position = 'none')
+
+
+as_gene_combo_plots = (as_gene_amb_hyb_12+as_gene_amb_hyb_18)/(as_gene_geo_hyb_12+as_gene_geo_hyb_18)
+
+ggsave('Overlap_AS_DEG__Plot.svg', 
+       plot = as_gene_combo_plots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 35, 
+       height = 35)
+
+
+
