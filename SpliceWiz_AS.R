@@ -465,6 +465,33 @@ as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv') %>%
     logFC == 0 ~ 'Neutral')) 
 
 
+intersect(as_div_amb_hyb_12$EventName, 
+          as_div_geo_hyb_12$EventName)
+## 260 overlapp between amb and geo
+intersect(as_div_amb_hyb_18$EventName, 
+          as_div_geo_hyb_18$EventName)
+## 433 overlapp between amb and hyb
+
+intersect(as_div_amb_hyb_12$EventName, 
+          as_div_amb_hyb_18$EventName)
+## 348 overlapp between geo and hyb
+
+intersect(as_div_geo_hyb_12$EventName, 
+          as_div_geo_hyb_18$EventName)
+## 261 overlapp between geo and hyb
+
+intersect(as_div_amb_hyb_12$EventName, 
+          as_div_amb_hyb_18$EventName) %>% 
+  intersect(., 
+            as_div_geo_hyb_12$EventName) %>% 
+  intersect(., 
+            as_div_geo_hyb_18$EventName)
+## 204 overlap between all 4 conditions
+
+
+
+
+
 Brain_AS_amb_hyb_12_volplot = ggplot(data = as_div_amb_hyb_12_full, 
                                     aes(x = logFC, 
                                         y = -log10(FDR)))+
