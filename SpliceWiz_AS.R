@@ -456,3 +456,135 @@ as_div_geo_hyb_18 = read_csv('Brain_Div_geo_hyb_18_AS.csv') %>%
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
 
+
+Brain_AS_amb_hyb_12_volplot = ggplot(data = as_div_amb_hyb_12_full, 
+                                    aes(x = logFC, 
+                                        y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_div_amb_hyb_12, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient - Hybrid divergence at 12°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+
+Brain_AS_geo_hyb_12_volplot = ggplot(data = as_div_geo_hyb_12_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_div_geo_hyb_12, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'B) Geothermal - Hybrid divergence at 12°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+
+
+
+Brain_AS_amb_hyb_18_volplot = ggplot(data = as_div_amb_hyb_18_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_div_amb_hyb_18, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'D) Ambient - Hybrid divergence at 18°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+
+Brain_AS_geo_hyb_18_volplot = ggplot(data = as_div_geo_hyb_18_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_div_geo_hyb_18, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'E) Geothermal - Hybrid divergence at 18°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+
+eco_hyb_div_combo = (Brain_AS_amb_hyb_12_volplot+Brain_AS_geo_hyb_12_volplot)/(Brain_AS_amb_hyb_18_volplot+Brain_AS_geo_hyb_18_volplot)
+
+
+ggsave('Alternative_Splicing_Ecotype_Hybrid_div_Volcanoe_Plot.svg', 
+       plot = eco_hyb_div_combo, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 45, 
+       height = 25)
