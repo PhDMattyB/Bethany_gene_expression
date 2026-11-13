@@ -957,14 +957,18 @@ trans_as_12 = read_csv('Brain_AS_Transgressive_expression_12degrees.csv')%>%
          end = as.numeric(end))%>% 
   mutate(mid = start + (end-start)/2)
 
+splice_gene_overlap_12 = trans_as_12 %>%
+  inner_join(trans_gene_12,
+    by = join_by(chromosome,
+      between(mid, start, end)),
+    relationship = "many-to-many")
 
-inner_join(trans_gene_12, 
-           trans_as_12, 
-           by = 'chromosome')
+
+splice_gene_overlap_18 = trans_as_18 %>%
+  inner_join(trans_gene_18,
+             by = join_by(chromosome,
+                          between(mid, start, end)),
+             relationship = "many-to-many")
 
 
-inner_join(trans_gene_12, 
-           trans_as_12, 
-           by = c('chromosome', 
-                  'start', 
-                  'end'))
+View()
