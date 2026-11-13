@@ -333,6 +333,65 @@ intersect(as_geo_plast$EventName,
 ## 25 overlap between all 3 plastic ecotypes
 
 
+
+
+Brain_AS_amb_plast_volplot = ggplot(data = as_amb_plast_full, 
+                                aes(x = logFC, 
+                                    y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_amb_plast, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+Brain_AS_geo_plast_volplot = ggplot(data = as_geo_plast_full, 
+                                    aes(x = logFC, 
+                                        y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = as_geo_plast, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'B) Geothermal plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
 # AS ecotype hybrid divergence -----------------------------------------
 
 as_div_amb_hyb_12 = read_csv("Brain_Div_amb_hyb_12_AS.csv") %>% 
