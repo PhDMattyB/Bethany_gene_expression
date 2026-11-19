@@ -228,3 +228,96 @@ read_csv('Brain_Transgressive_expression_18degrees.csv') %>%
              annotation_data, 
              by = 'ensemble_name') %>% 
   write_csv('Trans_expression_18.csv')
+
+
+
+# AS plasticity annotation ------------------------------------------------
+
+as_amb_plast_info = read_csv('Brain_plast_amb_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+             'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '')%>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end)) %>% 
+  mutate(mid = start + (end-start)/2) %>% 
+  dplyr::select(EventName, 
+                EventType, 
+                chromosome, 
+                start, 
+                end, 
+                mid)
+
+inner_join(as_amb_plast_info,
+           annotation_data,
+           by = join_by(chromosome,
+                        mid <= end,
+                        mid >= start),
+           suffix = c("_AS", "_Annotation"),
+           relationship = "many-to-many") %>% 
+  filter(feature == 'gene') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('AS_amb_plast_genes.txt')
+  
+
+read_csv('Brain_plast_hyb_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+             'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '')%>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end)) %>% 
+  mutate(mid = start + (end-start)/2) %>% 
+  dplyr::select(EventName, 
+                EventType, 
+                chromosome, 
+                start, 
+                end, 
+                mid) %>% inner_join(.,
+           annotation_data,
+           by = join_by(chromosome,
+                        mid <= end,
+                        mid >= start),
+           suffix = c("_AS", "_Annotation"),
+           relationship = "many-to-many") %>% 
+  filter(feature == 'gene') %>% 
+  dplyr::select(gene_name) %>% 
+  write_tsv('AS_hyb_plast_genes.txt')

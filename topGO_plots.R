@@ -149,6 +149,16 @@ amb_plast_topGO = bind_rows(amb_plast_GO_BP,
                           levels = unique(GO_Term))) 
 
 
+amb_plast_topGO = read_csv('amb_plast_topGO.csv') %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
 
 amb_plast_topGO_plot = ggplot(data = amb_plast_topGO, 
                            aes(y = GO_Term, 
@@ -160,10 +170,11 @@ amb_plast_topGO_plot = ggplot(data = amb_plast_topGO,
   scale_fill_manual(values = go_pal4)+
   theme(axis.title.y = element_blank(), 
         panel.grid.major.y = element_blank(), 
-        legend.position = 'none')
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
 
 
-ggsave('Amb_plast_topGO_plot.svg', 
+ggsave('Amb_plast_topGO_plot.tiff', 
        plot = amb_plast_topGO_plot, 
        dpi = 'retina', 
        units = 'cm', 
@@ -213,10 +224,11 @@ geo_plast_topGO_plot = ggplot(data = geo_plast_topGO,
   scale_fill_manual(values = go_pal4)+
   theme(axis.title.y = element_blank(), 
         panel.grid.major.y = element_blank(), 
-        legend.position = 'none')
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
 
 
-ggsave('geo_plast_topGO_plot.svg', 
+ggsave('geo_plast_topGO_plot.tiff', 
        plot = geo_plast_topGO_plot, 
        dpi = 'retina', 
        units = 'cm', 
@@ -265,10 +277,11 @@ hyb_plast_topGO_plot = ggplot(data = hyb_plast_topGO,
   scale_fill_manual(values = go_pal4)+
   theme(axis.title.y = element_blank(), 
         panel.grid.major.y = element_blank(), 
-        legend.position = 'none')
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
 
 
-ggsave('hyb_plast_topGO_plot.svg', 
+ggsave('hyb_plast_topGO_plot.tiff', 
        plot = hyb_plast_topGO_plot, 
        dpi = 'retina', 
        units = 'cm', 
@@ -327,6 +340,131 @@ ggsave('overlap_plast_topGO_plot.svg',
        units = 'cm', 
        width = 20, 
        height = 15)
+
+
+# alternative splicing plasticity -----------------------------------------
+
+as_amb_plast_topgo = read_csv('AS_amb_plast_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+as_amb_plast_topGO_plot = ggplot(data = as_amb_plast_topgo, 
+                              aes(y = GO_Term, 
+                                  x = neg_log_pval, 
+                                  group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('AS_Amb_plast_topGO_plot.tiff', 
+       plot = as_amb_plast_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+
+as_geo_plast_topgo = read_csv('AS_geo_plast_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+as_geo_plast_topGO_plot = ggplot(data = as_geo_plast_topgo, 
+                                 aes(y = GO_Term, 
+                                     x = neg_log_pval, 
+                                     group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('AS_geo_plast_topGO_plot.tiff', 
+       plot = as_geo_plast_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+
+as_hyb_plast_topgo = read_csv('AS_hyb_plast_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+as_hyb_plast_topGO_plot = ggplot(data = as_hyb_plast_topgo, 
+                                 aes(y = GO_Term, 
+                                     x = neg_log_pval, 
+                                     group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('AS_hyb_plast_topGO_plot.tiff', 
+       plot = as_hyb_plast_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
 
 
 # trans 12 pure vs hyb ----------------------------------------------------

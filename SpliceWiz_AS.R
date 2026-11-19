@@ -238,15 +238,15 @@ Brain_AS_eco12_volplot = ggplot(data = as_eco12_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'C) Ambient - Geothermal 12˚C')+
+       title = 'C) Geothermal - ambient divergence 12˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
              linetype = 'dashed')+
-  geom_hline(yintercept = 0.05, 
-             col = '#f72585', 
-             size = 1, 
-             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
@@ -267,15 +267,15 @@ Brain_AS_eco18_volplot = ggplot(data = as_eco18_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'D) Ambient - Geothermal 18˚C')+
+       title = 'D) Geothermal - ambient divergence 18˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
              linetype = 'dashed')+
-  geom_hline(yintercept = 0.05, 
-             col = '#f72585', 
-             size = 1, 
-             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
         axis.title = element_text(size = 14), 
@@ -285,7 +285,7 @@ Brain_AS_eco18_volplot = ggplot(data = as_eco18_full,
 
 Brain_AS_Div_plots = Brain_AS_eco12_volplot + Brain_AS_eco18_volplot
 
-ggsave('Alternative_Splicing_EcoDiv_Volcanoe_Plot.svg', 
+ggsave('Alternative_Splicing_EcoDiv_Volcanoe_Plot.tiff', 
        plot = Brain_AS_Div_plots, 
        dpi = 'retina', 
        units = 'cm', 
@@ -349,7 +349,7 @@ Brain_AS_amb_plast_volplot = ggplot(data = as_amb_plast_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'A) Ambient plasticity')+
+       title = 'D) Ambient plasticity')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -360,8 +360,9 @@ Brain_AS_amb_plast_volplot = ggplot(data = as_amb_plast_full,
   #            linetype = 'dashed')+
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
-        axis.title = element_text(size = 14), 
-        axis.text = element_text(size = 12))
+        axis.title = element_text(size = 12), 
+        axis.text = element_text(size = 12), 
+        plot.title = element_text(size = 12))
 
 
 Brain_AS_geo_plast_volplot = ggplot(data = as_geo_plast_full, 
@@ -378,7 +379,7 @@ Brain_AS_geo_plast_volplot = ggplot(data = as_geo_plast_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'B) Geothermal plasticity')+
+       title = 'E) Geothermal plasticity')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -389,9 +390,10 @@ Brain_AS_geo_plast_volplot = ggplot(data = as_geo_plast_full,
   #            linetype = 'dashed')+
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
-        axis.title = element_text(size = 14), 
+        axis.title = element_text(size = 12), 
         axis.text = element_text(size = 12), 
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(), 
+        plot.title = element_text(size = 12))
 
 
 Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full, 
@@ -408,7 +410,7 @@ Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'C) Hybrid plasticity')+
+       title = 'F) Hybrid plasticity')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -419,20 +421,35 @@ Brain_AS_hyb_plast_volplot = ggplot(data = as_hyb_plast_full,
   #            linetype = 'dashed')+
   theme(legend.position = 'none', 
         panel.grid = element_blank(), 
-        axis.title = element_text(size = 14), 
+        axis.title = element_text(size = 12), 
         axis.text = element_text(size = 12), 
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(), 
+        plot.title = element_text(size = 12))
 
 plasticity_plots = Brain_AS_amb_plast_volplot+Brain_AS_geo_plast_volplot+Brain_AS_hyb_plast_volplot
 
 
-ggsave('Alternative_Splicing_Ecotype_plasticity_Volcanoe_Plot.svg', 
+ggsave('Alternative_Splicing_Ecotype_plasticity_Volcanoe_Plot.tiff', 
        plot = plasticity_plots, 
        dpi = 'retina', 
        units = 'cm', 
        width = 25, 
        height = 15)
 
+
+ggsave('Alternative_Splicing_AMB_plasticity_Volcanoe_Plot.tiff', 
+       plot = Brain_AS_amb_plast_volplot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 11.25, 
+       height = 8.5)
+
+ggsave('Alternative_Splicing_HYB_plasticity_Volcanoe_Plot.tiff', 
+       plot = Brain_AS_hyb_plast_volplot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 11.25, 
+       height = 8.5)
 
 # AS ecotype hybrid divergence -----------------------------------------
 as_div_amb_hyb_12_full = read_csv("Brain_Div_amb_hyb_12_AS.csv")
