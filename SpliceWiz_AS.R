@@ -921,6 +921,12 @@ ggsave('Alternative_Splicing_Inheritance_Volcanoe_Plot.svg',
        width = 35, 
        height = 25)
 
+ggsave('Alternative_Splicing_Inheritance_18_Volcanoe_Plot.tiff', 
+       plot = Inheritance_pattern_18, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 14, 
+       height = 14)
 
 
 # Transgressive gene expression and AS overlap ----------------------------
@@ -1190,3 +1196,916 @@ intersect(upreg_18$gene_name,
           upreg_12$gene_name)
 setdiff(upreg_18$gene_name, 
         upreg_12$gene_name)
+
+
+# LIVER AS RESULTS --------------------------------------------------------
+
+Liver_as_eco12_full = read_csv('Liver_Eco12_div_geo_amb_AS.csv')
+Liver_as_eco12 = read_csv('Liver_Eco12_div_geo_amb_AS.csv') %>% 
+  filter(FDR < 0.05) %>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+
+Liver_as_eco18_full = read_csv('Liver_Eco18_div_geo_amb_AS.csv') 
+Liver_as_eco18 = read_csv('Liver_Eco18_div_geo_amb_AS.csv') %>% 
+  filter(FDR < 0.05) %>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+
+
+
+# Brain AS plasticity -----------------------------------------------------
+Liver_as_amb_plast_full = read_csv('Liver_plast_amb_AS.csv')
+Liver_as_amb_plast = read_csv('Liver_plast_amb_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+Liver_as_geo_plast_full = read_csv('Liver_plast_geo_AS.csv')
+Liver_as_geo_plast = read_csv('Liver_plast_geo_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+Liver_as_hyb_plast_full = read_csv("Liver_plast_hyb_AS.csv")
+Liver_as_hyb_plast = read_csv("Liver_plast_hyb_AS.csv") %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) 
+
+intersect(Liver_as_amb_plast$EventName, 
+          Liver_as_geo_plast$EventName)
+## 2 overlapp between amb and geo
+intersect(Liver_as_amb_plast$EventName, 
+          Liver_as_hyb_plast$EventName)
+## 2 overlapp between amb and hyb
+
+intersect(Liver_as_geo_plast$EventName, 
+          Liver_as_hyb_plast$EventName)
+## 3 overlapp between geo and hyb
+
+intersect(Liver_as_geo_plast$EventName, 
+          Liver_as_hyb_plast$EventName) %>% 
+  intersect(., 
+            Liver_as_amb_plast$EventName)
+## 2 overlap between all 3 plastic ecotypes
+
+
+
+
+Liver_as_amb_plast_volplot = ggplot(data = Liver_as_amb_plast_full, 
+                                    aes(x = logFC, 
+                                        y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_amb_plast, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 12), 
+        axis.text = element_text(size = 12), 
+        plot.title = element_text(size = 12))
+
+
+Liver_as_geo_plast_volplot = ggplot(data = Liver_as_geo_plast_full, 
+                                    aes(x = logFC, 
+                                        y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_geo_plast, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'B) Geothermal plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 12), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank(), 
+        plot.title = element_text(size = 12))
+
+
+Liver_as_hyb_plast_volplot = ggplot(data = Liver_as_hyb_plast_full, 
+                                    aes(x = logFC, 
+                                        y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_hyb_plast, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'C) Hybrid plasticity')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 12), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank(), 
+        plot.title = element_text(size = 12))
+
+Liver_plasticity_plots = Liver_as_amb_plast_volplot+Liver_as_geo_plast_volplot+Liver_as_hyb_plast_volplot
+
+
+ggsave('Liver_Alternative_Splicing_Ecotype_plasticity_Volcanoe_Plot.tiff', 
+       plot = Liver_plasticity_plots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 30, 
+       height = 15)
+
+
+# AS ecotype hybrid divergence -----------------------------------------
+Liver_as_div_amb_hyb_12_full = read_csv("Liver_Div_amb_hyb_12_AS.csv")
+Liver_as_div_amb_hyb_12 = read_csv("Liver_Div_amb_hyb_12_AS.csv") %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Amb_hyb_12')
+Liver_as_div_geo_hyb_12_full = read_csv('Liver_Div_geo_hyb_12_AS.csv')
+Liver_as_div_geo_hyb_12 = read_csv('Liver_Div_geo_hyb_12_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Geo_hyb_12')
+Liver_as_div_amb_hyb_18_full = read_csv("Liver_Div_amb_hyb_18_AS.csv")
+Liver_as_div_amb_hyb_18 = read_csv("Liver_Div_amb_hyb_18_AS.csv") %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Amb_hyb_18')
+Liver_as_div_geo_hyb_18_full = read_csv('Liver_Div_geo_hyb_18_AS.csv')
+Liver_as_div_geo_hyb_18 = read_csv('Liver_Div_geo_hyb_18_AS.csv') %>% 
+  filter(FDR < 0.05)%>% 
+  mutate(Regulated = case_when(
+    logFC < 0 ~ 'Down-Regulated',
+    logFC > 0 ~ 'Up-Regulated', 
+    logFC == 0 ~ 'Neutral')) %>% 
+  mutate(Div_pattern = 'Geo_hyb_18')
+
+
+intersect(Liver_as_div_amb_hyb_12$EventName, 
+          Liver_as_div_geo_hyb_12$EventName)
+## 0 overlapp between amb and geo
+intersect(Liver_as_div_amb_hyb_18$EventName, 
+          Liver_as_div_geo_hyb_18$EventName)
+## 2 overlapp between amb and hyb
+
+intersect(Liver_as_div_amb_hyb_12$EventName, 
+          Liver_as_div_amb_hyb_18$EventName)
+## 0 overlapp between geo and hyb
+
+intersect(Liver_as_div_geo_hyb_12$EventName, 
+          Liver_as_div_geo_hyb_18$EventName)
+## 0 overlapp between geo and hyb
+
+intersect(Liver_as_div_amb_hyb_12$EventName, 
+          Liver_as_div_amb_hyb_18$EventName) %>% 
+  intersect(., 
+            Liver_as_div_geo_hyb_12$EventName) %>% 
+  intersect(., 
+            Liver_as_div_geo_hyb_18$EventName)
+## 0 overlap between all 4 conditions
+
+
+
+
+
+Liver_as_amb_hyb_12_volplot = ggplot(data = Liver_as_div_amb_hyb_12_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_div_amb_hyb_12, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'A) Ambient - Hybrid divergence at 12°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+
+Liver_as_geo_hyb_12_volplot = ggplot(data = Liver_as_div_geo_hyb_12_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_div_geo_hyb_12, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'B) Geothermal - Hybrid divergence at 12°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+
+
+
+Liver_as_amb_hyb_18_volplot = ggplot(data = Liver_as_div_amb_hyb_18_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_div_amb_hyb_18, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'D) Ambient - Hybrid divergence at 18°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12))
+
+
+
+Liver_as_geo_hyb_18_volplot = ggplot(data = Liver_as_div_geo_hyb_18_full, 
+                                     aes(x = logFC, 
+                                         y = -log10(FDR)))+
+  geom_point(size = 2.5, 
+             col = 'black')+
+  geom_point(size = 2, 
+             col = '#dedbd2')+
+  geom_point(data = Liver_as_div_geo_hyb_18, 
+             aes(col = Regulated), 
+             size = 2)+
+  # scale_y_reverse()+
+  scale_color_manual(values = volcano_cols)+
+  labs(x = 'log Fold Change', 
+       y = '-log(FDR)', 
+       title = 'E) Geothermal - Hybrid divergence at 18°C')+
+  geom_vline(xintercept = 0, 
+             col = 'black', 
+             size = 1, 
+             linetype = 'dashed')+
+  # geom_hline(yintercept = 0.05, 
+  #            col = '#f72585', 
+  #            size = 1, 
+  #            linetype = 'dashed')+
+  theme(legend.position = 'none', 
+        panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        axis.title.y = element_blank())
+
+
+Liver_eco_hyb_div_combo = (Liver_as_amb_hyb_12_volplot+Liver_as_geo_hyb_12_volplot)/(Liver_as_amb_hyb_18_volplot+Liver_as_geo_hyb_18_volplot)
+
+
+ggsave('Liver_Alternative_Splicing_Ecotype_Hybrid_div_Volcanoe_Plot.tiff', 
+       plot = Liver_eco_hyb_div_combo, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 45, 
+       height = 25)
+
+
+
+# hybridization inheritance type ------------------------------------------
+## quantify how many AS events are transgressive
+
+
+# Inheritance pattern 12 degrees ------------------------------------------
+
+div_hyb_12_common_genes = inner_join(Liver_as_div_amb_hyb_12, 
+                                     Liver_as_div_geo_hyb_12, 
+                                     by = c('EventName', 
+                                            'EventRegion', 
+                                            'EventType'))
+
+
+### 12 degree inheritance pattern
+exp_pattern_12 = div_hyb_12_common_genes %>% 
+  dplyr::select(EventName,
+                EventType, 
+                EventRegion, 
+                AvgPSI_SKRC_12, 
+                AvgPSI_SKRHYB_12.x, 
+                AvgPSI_SKRW_12, 
+                AvgPSI_SKRHYB_12.y, 
+                logFC.x, 
+                logFC.y, 
+                FDR.x, 
+                FDR.y) %>% 
+  dplyr::rename(am_hyb_12 = logFC.x, 
+                geo_hyb_12 = logFC.y)
+
+Nothing_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 <= 0.32 & am_hyb_12 >= -0.32) %>% 
+  filter(geo_hyb_12 < 0.32 & geo_hyb_12 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+## 987 genes
+dom_geo1_12 = exp_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2_12 = exp_pattern_12 %>%
+  filter(am_hyb_12 <= 0.32 &
+           am_hyb_12 >= -0.32) %>%
+  filter(geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1_12 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= -0.32) %>%
+  filter(am_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2_12 = exp_pattern_12 %>% 
+  filter(geo_hyb_12 <= 0.32 & geo_hyb_12 >= 0.32) %>%
+  filter(am_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+
+additive1_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 > 0.32 & geo_hyb_12 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_12 = exp_pattern_12 %>% 
+  filter(am_hyb_12 < -0.32 & geo_hyb_12 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+# bind_rows(transgressive1_12,
+#           transgressive2_12) %>%
+#   write_csv('Brain_AS_Transgressive_expression_12degrees.csv')
+
+exp_pattern_12_graph = bind_rows(dom_amb1_12, 
+                                 dom_amb2_12, 
+                                 dom_geo1_12,
+                                 dom_geo2_12, 
+                                 additive1_12, 
+                                 additive2_12, 
+                                 transgressive1_12, 
+                                 transgressive2_12, 
+                                 Nothing_12)
+
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+inheritance_pal = c('#fee440', 
+                    '#1d58ab',
+                    '#00bbf9',
+                    '#adb5bd',
+                    '#9b5de5')
+
+AS_12_inheritance_pal = c('#9b5de5')
+
+Inheritance_pattern_12 = ggplot(data = exp_pattern_12_graph, 
+                                aes(x = geo_hyb_12, 
+                                    y = am_hyb_12, 
+                                    col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Hybrid 12°C - Geothermal 12°C', 
+       y = 'Hybrid 12°C - Ambient 12°C',
+       title = 'A)')+
+  xlim(-8.5, 8.5)+
+  ylim(-8.5, 8.5)+
+  scale_color_manual(values = AS_12_inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+
+# Inheritance pattern 18 degrees ------------------------------------------
+
+div_hyb_18_common_genes = inner_join(Liver_as_div_amb_hyb_18, 
+                                     Liver_as_div_geo_hyb_18, 
+                                     by = c('EventName', 
+                                            'EventRegion', 
+                                            'EventType'))
+
+
+### 12 degree inheritance pattern
+exp_pattern_18 = div_hyb_18_common_genes %>% 
+  dplyr::select(EventName,
+                EventType, 
+                EventRegion, 
+                AvgPSI_SKRC_18, 
+                AvgPSI_SKRHYB_18.x, 
+                AvgPSI_SKRW_18, 
+                AvgPSI_SKRHYB_18.y, 
+                logFC.x, 
+                logFC.y, 
+                FDR.x, 
+                FDR.y) %>% 
+  dplyr::rename(am_hyb_18 = logFC.x, 
+                geo_hyb_18 = logFC.y)
+
+Nothing_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 <= 0.32 & am_hyb_18 >= -0.32) %>% 
+  filter(geo_hyb_18 < 0.32 & geo_hyb_18 > -0.32) %>% 
+  mutate(exp_pattern = 'Neutral')
+## 987 genes
+dom_geo1_18 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+dom_geo2_18 = exp_pattern_18 %>%
+  filter(am_hyb_18 <= 0.32 &
+           am_hyb_18 >= -0.32) %>%
+  filter(geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Geothermal')
+
+
+dom_amb1_18 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= -0.32) %>%
+  filter(am_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+dom_amb2_18 = exp_pattern_18 %>% 
+  filter(geo_hyb_18 <= 0.32 & geo_hyb_18 >= 0.32) %>%
+  filter(am_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Dominant Ambient')
+
+additive1_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+additive2_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Additive')
+
+transgressive1_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 > 0.32 & geo_hyb_18 > 0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+transgressive2_18 = exp_pattern_18 %>% 
+  filter(am_hyb_18 < -0.32 & geo_hyb_18 < -0.32) %>% 
+  mutate(exp_pattern = 'Transgressive')
+
+# bind_rows(transgressive1_18,
+#           transgressive2_18) %>%
+#   write_csv('Brain_AS_Transgressive_expression_18degrees.csv')
+
+exp_pattern_18_graph = bind_rows(dom_amb1_18, 
+                                 dom_amb2_18, 
+                                 dom_geo1_18,
+                                 dom_geo2_18, 
+                                 additive1_18, 
+                                 additive2_18, 
+                                 transgressive1_18, 
+                                 transgressive2_18, 
+                                 Nothing_18)
+
+# inheritance_pal = c('#ff9e00',
+#                     '#669bbc',
+#                     '#c1121f', 
+#                     '#adb5bd', 
+#                     '#7400b8')
+
+# inheritance_pal = c('#fee440', 
+#                     '#1d58ab',
+#                     '#00bbf9',
+#                     '#adb5bd',
+#                     '#9b5de5')
+
+AS_18_inheritance_pal = c('#9b5de5')
+
+Inheritance_pattern_18 = ggplot(data = exp_pattern_18_graph, 
+                                aes(x = geo_hyb_18, 
+                                    y = am_hyb_18, 
+                                    col = exp_pattern))+
+  geom_point()+
+  geom_hline(yintercept = 0, 
+             col = 'black')+
+  geom_vline(xintercept = 0, 
+             col = 'black')+
+  geom_hline(yintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_hline(yintercept = -0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.32, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = -0.32, 
+             linetype = 'dashed')+
+  labs(x = 'Hybrid 18°C - Geothermal 18°C', 
+       y = 'Hybrid 18°C - Ambient 18c',
+       title = 'B)')+
+  xlim(-11.5, 11.5)+
+  ylim(-11.5, 11.5)+
+  scale_color_manual(values = AS_18_inheritance_pal)+
+  theme(panel.grid = element_blank(), 
+        axis.title = element_text(size = 14), 
+        axis.text = element_text(size = 12), 
+        legend.position = 'none')
+
+
+trans_12 = bind_rows(transgressive1_12, 
+                     transgressive2_12)
+
+trans_18 = bind_rows(transgressive1_18, 
+                     transgressive2_18)
+
+inner_join(trans_12, 
+           trans_18, 
+           by = c('EventName', 
+                  'EventType', 
+                  'EventRegion'))
+
+
+AS_Inheritance_combo = Inheritance_pattern_12+Inheritance_pattern_18
+ggsave('Liver_Alternative_Splicing_Inheritance_Volcanoe_Plot.svg', 
+       plot = AS_Inheritance_combo, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 35, 
+       height = 25)
+
+ggsave('Alternative_Splicing_Inheritance_18_Volcanoe_Plot.tiff', 
+       plot = Inheritance_pattern_18, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 14, 
+       height = 14)
+
+
+# Transgressive gene expression and AS overlap ----------------------------
+
+trans_gene_12 = read_csv('Trans_expression_12.csv')
+trans_gene_18 = read_csv('Trans_expression_18.csv')
+
+trans_as_18 = read_csv('Brain_AS_Transgressive_expression_18degrees.csv') %>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+             'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '')%>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end)) %>% 
+  mutate(mid = start + (end-start)/2)
+
+trans_as_12 = read_csv('Brain_AS_Transgressive_expression_12degrees.csv')%>% 
+  separate(col = EventRegion, 
+           c('chromosome', 
+             'Region'), 
+           sep = ':') %>% 
+  separate(col = Region, 
+           c('start', 
+             'end'), 
+           sep = '-') %>% 
+  separate(col = end, 
+           c('end', 
+             'direction'), 
+           sep = '/') %>% 
+  dplyr::select(-direction) %>% 
+  mutate(header = 'chr') %>% 
+  unite(col = chromosome, 
+        c('header', 
+          'chromosome'), 
+        sep = '') %>% 
+  mutate(start = as.numeric(start), 
+         end = as.numeric(end))%>% 
+  mutate(mid = start + (end-start)/2)
+
+splice_gene_overlap_12 = trans_as_12 %>%
+  inner_join(trans_gene_12,
+             by = join_by(chromosome,
+                          between(mid, start, end)),
+             relationship = "many-to-many")%>% 
+  dplyr::rename(AS_amb_hyb_12 = am_hyb_12.x, 
+                AS_geo_hyb_12 = geo_hyb_12.x, 
+                DEG_amb_hyb_12 = am_hyb_12.y, 
+                DEG_geo_hyb_12 = geo_hyb_12.y) %>% 
+  mutate(Regulated = case_when(
+    AS_amb_hyb_12 < 0 & DEG_amb_hyb_12 < 0 ~ 'Down-Regulated',
+    AS_amb_hyb_12 > 0 & DEG_amb_hyb_12 > 0 ~ 'Up-Regulated', 
+    AS_amb_hyb_12 < 0 & DEG_amb_hyb_12 > 0 ~ 'Mismatch1', 
+    AS_amb_hyb_12 > 0 & DEG_amb_hyb_12 < 0 ~ 'Mismatch2'))
+
+
+
+splice_gene_overlap_18 = trans_as_18 %>%
+  inner_join(trans_gene_18,
+             by = join_by(chromosome,
+                          between(mid, start, end)),
+             relationship = "many-to-many") %>% 
+  dplyr::rename(AS_amb_hyb_18 = am_hyb_18.x, 
+                AS_geo_hyb_18 = geo_hyb_18.x, 
+                DEG_amb_hyb_18 = am_hyb_18.y, 
+                DEG_geo_hyb_18 = geo_hyb_18.y) %>% 
+  mutate(Regulated = case_when(
+    AS_amb_hyb_18 < 0 & DEG_amb_hyb_18 < 0 ~ 'Down-Regulated',
+    AS_amb_hyb_18 > 0 & DEG_amb_hyb_18 > 0 ~ 'Up-Regulated', 
+    AS_amb_hyb_18 < 0 & DEG_amb_hyb_18 > 0 ~ 'Mismatch1', 
+    AS_amb_hyb_18 > 0 & DEG_amb_hyb_18 < 0 ~ 'Mismatch2'))
+
+
+
+# splice_gene_overlap_12 %>% 
+#   write_csv('AS_DEG_Overlap_12.csv')
+# splice_gene_overlap_18 %>% 
+#   write_csv('AS_DEG_Overlap_18.csv')
+
+overlap_pal = c('#f2542d', 
+                '#f15bb5', 
+                '#127475')
+
+as_gene_amb_hyb_12 = ggplot(data = splice_gene_overlap_12, 
+                            aes(x = AS_amb_hyb_12, 
+                                y = DEG_amb_hyb_12))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Ambient - Hybrid 12°C', 
+       y = 'DEG logFC Ambient - Hybrid 12°C', 
+       title = 'A)')+
+  theme(legend.position = 'none')
+
+as_gene_amb_hyb_18 = ggplot(data = splice_gene_overlap_18, 
+                            aes(x = AS_amb_hyb_18, 
+                                y = DEG_amb_hyb_18))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Ambient - Hybrid 18°C', 
+       y = 'DEG logFC Ambient - Hybrid 18°C', 
+       title = 'B)')+
+  theme(legend.position = 'none')
+
+
+as_gene_geo_hyb_12 = ggplot(data = splice_gene_overlap_12, 
+                            aes(x = AS_geo_hyb_12, 
+                                y = DEG_geo_hyb_12))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Geothermal - Hybrid 12°C', 
+       y = 'DEG logFC Geothermal - Hybrid 12°C', 
+       title = 'C)')+
+  theme(legend.position = 'none')
+
+as_gene_geo_hyb_18 = ggplot(data = splice_gene_overlap_18, 
+                            aes(x = AS_geo_hyb_18, 
+                                y = DEG_geo_hyb_18))+
+  geom_point(col = 'black', 
+             size = 2.5)+
+  geom_point(aes(col = Regulated), 
+             size = 2)+
+  geom_hline(yintercept = 0.0, 
+             linetype = 'dashed')+
+  geom_vline(xintercept = 0.0, 
+             linetype = 'dashed')+
+  scale_colour_manual(values = overlap_pal)+
+  labs(x = 'Alternative splicing logFC Geothermal - Hybrid 18°C', 
+       y = 'DEG logFC Geothermal - Hybrid 18°C', 
+       title = 'D)')+
+  theme(legend.position = 'none')
+
+
+as_gene_combo_plots = (as_gene_amb_hyb_12+as_gene_amb_hyb_18)/(as_gene_geo_hyb_12+as_gene_geo_hyb_18)
+
+ggsave('Overlap_AS_DEG__Plot.svg', 
+       plot = as_gene_combo_plots, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 35, 
+       height = 35)
+
+
+mismatch_12 = splice_gene_overlap_12 %>%
+  filter(Regulated == 'Mismatch2')
+
+mismatch_18 = splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Mismatch2')
+
+intersect(mismatch_12$EventName, 
+          mismatch_18$EventName)
+setdiff(mismatch_12$EventName, 
+        mismatch_18$EventName)
+
+intersect(mismatch_18$EventName, 
+          mismatch_12$EventName)
+
+setdiff(mismatch_18$EventName, 
+        mismatch_12$EventName)
+
+
+intersect(mismatch_12$gene_name, 
+          mismatch_18$gene_name)
+
+mismatch_12$gene_name %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_12.txt', 
+            col_names = F)
+
+mismatch_18$gene_name %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_18.txt', 
+            col_names = F)
+
+mismatch_12 %>% 
+  dplyr::select(gene_name) %>% 
+  filter(str_detect(gene_name, 'rp')) %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_12_RIBOSOMAL.txt', 
+            col_names = F)
+mismatch_18 %>% 
+  dplyr::select(gene_name) %>% 
+  filter(str_detect(gene_name, 'rp'))%>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_18_RIBOSOMAL.txt', 
+            col_names = F)
+## the mismatches have some unique and some consistent mismatches
+## Means that this is A COMMON REGULATORY FORM!!!!!!!
+## THEY ARE DIFFERENT ACROSS TEMPERATURES 
+## WITH SOME OVERLAP
+
+## 52% are overlapped and 48% unique at 12 degrees
+
+## 37% are overlapped and 63% unique at 18 degrees
+
+
+## HOLY FUCK. hybridization affects post-translational modificatoins 
+##of proteins asssociated with energy use
+
+
+# concordant DEG and AS ---------------------------------------------------
+
+splice_gene_overlap_12 %>% 
+  filter(Regulated == 'Down-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Down-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+
+
+upreg_12 = splice_gene_overlap_12 %>% 
+  filter(Regulated == 'Up-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+upreg_18 = splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Up-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+
+intersect(upreg_12$gene_name, 
+          upreg_18$gene_name)
+
+setdiff(upreg_12$gene_name, 
+        upreg_18$gene_name)
+
+
+intersect(upreg_18$gene_name, 
+          upreg_12$gene_name)
+setdiff(upreg_18$gene_name, 
+        upreg_12$gene_name)
+

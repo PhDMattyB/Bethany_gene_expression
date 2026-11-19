@@ -3008,3 +3008,275 @@ as_hyb_plast_CC_GO_genes_sig <- lapply(
   as_hyb_plast_CC_GO_genes,
   function(genes) dplyr::intersect(genes, as_hyb_plast_genes$Gene))
 
+
+# DEG AS overlap upreg 12 -------------------------------------------------
+overlap_upreg_genes_12 = read_tsv("DEG_AS_overlap_Upreg_12.txt", 
+                              col_names = 'Gene') %>% 
+  unique()
+
+overlap_upreg_genes_12_genelist = overlap_upreg_genes_12$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% overlap_upreg_genes_12_genelist] <- 1
+overlap_upreg_genes_12_genelist <- as.factor(all_genelist)
+
+overlap_upreg_genes_12_GOdata_BP <- new("topGOdata",
+                              ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                              allGenes = overlap_upreg_genes_12_genelist,          # Named vector of genes
+                              geneSelectionFun = topDiffGenes,
+                              nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                              annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                              gene2GO = geneID2GO)
+
+overlap_upreg_genes_12_GOdata_MF <- new("topGOdata",
+                              ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                              allGenes = overlap_upreg_genes_12_genelist,          # Named vector of genes
+                              geneSelectionFun = topDiffGenes,
+                              nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                              annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                              gene2GO = geneID2GO)
+
+overlap_upreg_genes_12_GOdata_CC <- new("topGOdata",
+                              ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                              allGenes = overlap_upreg_genes_12_genelist,          # Named vector of genes
+                              geneSelectionFun = topDiffGenes,
+                              nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                              annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                              gene2GO = geneID2GO)
+
+overlap_upreg_genes_12_resultFisher_BP <- runTest(
+  overlap_upreg_genes_12_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_12_resultFisher_MF <- runTest(
+  overlap_upreg_genes_12_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_12_resultFisher_CC <- runTest(
+  overlap_upreg_genes_12_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_12_GO_BP <- GenTable(
+  overlap_upreg_genes_12_GOdata_BP,
+  weight01Fisher = overlap_upreg_genes_12_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_12_resultFisher_BP)))
+
+# Molecular Function
+overlap_upreg_genes_12_GO_MF <- GenTable(
+  overlap_upreg_genes_12_GOdata_MF,
+  weight01Fisher = overlap_upreg_genes_12_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_12_resultFisher_MF)))
+
+# Cellular Component
+overlap_upreg_genes_12_GO_CC <- GenTable(
+  overlap_upreg_genes_12_GOdata_CC,
+  weight01Fisher = overlap_upreg_genes_12_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_12_resultFisher_CC)))
+
+
+overlap_upreg_genes_12_GO_BP = overlap_upreg_genes_12_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'BP')
+
+overlap_upreg_genes_12_GO_MF = overlap_upreg_genes_12_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'MF')
+
+overlap_upreg_genes_12_GO_CC = overlap_upreg_genes_12_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'CC')
+
+bind_rows(overlap_upreg_genes_12_GO_BP, 
+          overlap_upreg_genes_12_GO_MF, 
+          overlap_upreg_genes_12_GO_CC) %>% 
+  write_csv('overlap_upreg_genes_12_TopGO.csv')
+
+
+overlap_upreg_genes_12_BP_GO_genes = genesInTerm(
+  overlap_upreg_genes_12_GOdata_BP,
+  overlap_upreg_genes_12_GO_BP$GO.ID
+)
+
+overlap_upreg_genes_12_BP_GO_genes_sig <- lapply(
+  overlap_upreg_genes_12_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_12_genes$Gene))
+
+
+overlap_upreg_genes_12_MF_GO_genes = genesInTerm(
+  overlap_upreg_genes_12_GOdata_MF,
+  overlap_upreg_genes_12_GO_MF$GO.ID
+)
+
+overlap_upreg_genes_12_MF_GO_genes_sig <- lapply(
+  overlap_upreg_genes_12_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_12_genes$Gene))
+
+
+overlap_upreg_genes_12_CC_GO_genes = genesInTerm(
+  overlap_upreg_genes_12_GOdata_CC,
+  overlap_upreg_genes_12_GO_CC$GO.ID
+)
+
+overlap_upreg_genes_12_CC_GO_genes_sig <- lapply(
+  overlap_upreg_genes_12_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_12_genes$Gene))
+
+
+# DEG AS overlap upreg 18 -------------------------------------------------
+
+overlap_upreg_genes_18 = read_tsv("DEG_AS_overlap_Upreg_18.txt", 
+                                  col_names = 'Gene') %>% 
+  unique()
+
+overlap_upreg_genes_18_genelist = overlap_upreg_genes_18$Gene
+
+geneID2GO = readMappings(file = "Stickleback_Gene_GO_Map.txt") 
+all_genes_universe = names(geneID2GO)
+
+all_genelist = rep(0, length(all_genes_universe))
+names(all_genelist) = all_genes_universe
+all_genelist[names(all_genelist) %in% overlap_upreg_genes_18_genelist] <- 1
+overlap_upreg_genes_18_genelist <- as.factor(all_genelist)
+
+overlap_upreg_genes_18_GOdata_BP <- new("topGOdata",
+                                        ontology = 'BP',              # Choose "BP", "MF", or "CC"
+                                        allGenes = overlap_upreg_genes_18_genelist,          # Named vector of genes
+                                        geneSelectionFun = topDiffGenes,
+                                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                        gene2GO = geneID2GO)
+
+overlap_upreg_genes_18_GOdata_MF <- new("topGOdata",
+                                        ontology = 'MF',              # Choose "BP", "MF", or "CC"
+                                        allGenes = overlap_upreg_genes_18_genelist,          # Named vector of genes
+                                        geneSelectionFun = topDiffGenes,
+                                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                        gene2GO = geneID2GO)
+
+overlap_upreg_genes_18_GOdata_CC <- new("topGOdata",
+                                        ontology = 'CC',              # Choose "BP", "MF", or "CC"
+                                        allGenes = overlap_upreg_genes_18_genelist,          # Named vector of genes
+                                        geneSelectionFun = topDiffGenes,
+                                        nodeSize = 5,                # Minimum number of annotated genes per GO term (e.g., >= 10)
+                                        annot = annFUN.gene2GO,       # Use custom gene-to-GO mapping
+                                        gene2GO = geneID2GO)
+
+overlap_upreg_genes_18_resultFisher_BP <- runTest(
+  overlap_upreg_genes_18_GOdata_BP,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_18_resultFisher_MF <- runTest(
+  overlap_upreg_genes_18_GOdata_MF,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_18_resultFisher_CC <- runTest(
+  overlap_upreg_genes_18_GOdata_CC,
+  algorithm = "weight01",
+  statistic = "fisher")
+
+overlap_upreg_genes_18_GO_BP <- GenTable(
+  overlap_upreg_genes_18_GOdata_BP,
+  weight01Fisher = overlap_upreg_genes_18_resultFisher_BP,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_18_resultFisher_BP)))
+
+# Molecular Function
+overlap_upreg_genes_18_GO_MF <- GenTable(
+  overlap_upreg_genes_18_GOdata_MF,
+  weight01Fisher = overlap_upreg_genes_18_resultFisher_MF,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_18_resultFisher_MF)))
+
+# Cellular Component
+overlap_upreg_genes_18_GO_CC <- GenTable(
+  overlap_upreg_genes_18_GOdata_CC,
+  weight01Fisher = overlap_upreg_genes_18_resultFisher_CC,
+  orderBy = "weight01Fisher",
+  ranksOf = "weight01Fisher",
+  topNodes = length(score(overlap_upreg_genes_18_resultFisher_CC)))
+
+
+overlap_upreg_genes_18_GO_BP = overlap_upreg_genes_18_GO_BP %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'BP')
+
+overlap_upreg_genes_18_GO_MF = overlap_upreg_genes_18_GO_MF %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'MF')
+
+overlap_upreg_genes_18_GO_CC = overlap_upreg_genes_18_GO_CC %>% 
+  as_tibble() %>% 
+  # mutate( pvalue = as.numeric(sub("^<\\s*", "", classicFisher)),
+  #         FDR = p.adjust(pvalue, method = "BH")) %>% 
+  filter(weight01Fisher <= 0.05) %>% 
+  mutate(GO_process = 'CC')
+
+bind_rows(overlap_upreg_genes_18_GO_BP, 
+          overlap_upreg_genes_18_GO_MF, 
+          overlap_upreg_genes_18_GO_CC) %>% 
+  write_csv('overlap_upreg_genes_18_TopGO.csv')
+
+
+overlap_upreg_genes_18_BP_GO_genes = genesInTerm(
+  overlap_upreg_genes_18_GOdata_BP,
+  overlap_upreg_genes_18_GO_BP$GO.ID
+)
+
+overlap_upreg_genes_18_BP_GO_genes_sig <- lapply(
+  overlap_upreg_genes_18_BP_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_18_genes$Gene))
+
+
+overlap_upreg_genes_18_MF_GO_genes = genesInTerm(
+  overlap_upreg_genes_18_GOdata_MF,
+  overlap_upreg_genes_18_GO_MF$GO.ID
+)
+
+overlap_upreg_genes_18_MF_GO_genes_sig <- lapply(
+  overlap_upreg_genes_18_MF_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_18_genes$Gene))
+
+
+overlap_upreg_genes_18_CC_GO_genes = genesInTerm(
+  overlap_upreg_genes_18_GOdata_CC,
+  overlap_upreg_genes_18_GO_CC$GO.ID
+)
+
+overlap_upreg_genes_18_CC_GO_genes_sig <- lapply(
+  overlap_upreg_genes_18_CC_GO_genes,
+  function(genes) dplyr::intersect(genes, overlap_upreg_genes_18_genes$Gene))
+
+

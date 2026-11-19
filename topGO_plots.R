@@ -582,3 +582,176 @@ ggsave('trans_18_pure_hyb_topGO_plot.svg',
        width = 50, 
        height = 40)
 
+
+
+# DEG AS overlap plots ----------------------------------------------------
+
+
+
+# upreg 12 ----------------------------------------------------------------
+
+overlap_upreg_12_topgo = read_csv('overlap_upreg_genes_12_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+overlap_upreg_12_topGO_plot = ggplot(data = overlap_upreg_12_topgo, 
+                                 aes(y = GO_Term, 
+                                     x = neg_log_pval, 
+                                     group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('overlap_upreg_12_topGO_plot.tiff', 
+       plot = overlap_upreg_12_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+# upreg 18 ----------------------------------------------------------------
+
+overlap_upreg_18_topgo = read_csv('overlap_upreg_genes_18_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+overlap_upreg_18_topGO_plot = ggplot(data = overlap_upreg_18_topgo, 
+                                     aes(y = GO_Term, 
+                                         x = neg_log_pval, 
+                                         group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('overlap_upreg_18_topGO_plot.tiff', 
+       plot = overlap_upreg_18_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+# mismatch 12 -------------------------------------------------------------
+mismatch_12_topgo = read_csv('Mismatch_12_DEG_AS_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+mismatch_12_topGO_plot = ggplot(data = mismatch_12_topgo, 
+                                     aes(y = GO_Term, 
+                                         x = neg_log_pval, 
+                                         group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('mismatch_12_topGO_plot.tiff', 
+       plot = mismatch_12_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+# mismatch 18 -------------------------------------------------------------
+mismatch_18_topgo = read_csv('Mismatch_18_DEG_AS_TopGO.csv')%>% 
+  unite(col = 'GO_Term', 
+        c('GO.ID', 
+          'Term'), 
+        sep = ': ') %>%
+  mutate(Type = case_when(
+    GO_process == 'BP' ~ 'Biological Process', 
+    GO_process == 'MF' ~ 'Molecular Function', 
+    GO_process == 'CC' ~ 'Cellular Component')) %>% 
+  mutate(neg_log_pval = -log10(weight01Fisher), 
+         Type = factor(Type,
+                       levels = c("Biological Process", 
+                                  "Molecular Function", 
+                                  "Cellular Component")))%>% 
+  arrange(desc(Type), neg_log_pval) %>% 
+  mutate(GO_Term = factor(GO_Term,
+                          levels = unique(GO_Term))) 
+
+
+mismatch_18_topGO_plot = ggplot(data = mismatch_18_topgo, 
+                                aes(y = GO_Term, 
+                                    x = neg_log_pval, 
+                                    group = Type))+
+  geom_col(aes(fill = Type),
+           col = 'black')+
+  labs(x = '-Log(p-value)')+
+  scale_fill_manual(values = go_pal4)+
+  theme(axis.title.y = element_blank(), 
+        panel.grid.major.y = element_blank(), 
+        legend.position = 'none', 
+        axis.text.y = element_text(size = 8))
+
+
+ggsave('mismatch_18_topGO_plot.tiff', 
+       plot = mismatch_18_topGO_plot, 
+       dpi = 'retina', 
+       units = 'cm', 
+       width = 20, 
+       height = 10)
+
+
+
