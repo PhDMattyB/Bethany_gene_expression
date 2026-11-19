@@ -213,6 +213,9 @@ as_eco12 = read_csv('Brain_Eco12_div_geo_amb_AS.csv') %>%
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
+as_eco12 %>% 
+  group_by(EventType) %>% 
+  summarize(n = n())
 
 as_eco18_full = read_csv('Brain_Eco18_div_geo_amb_AS.csv') 
 as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') %>% 
@@ -221,6 +224,9 @@ as_eco18 = read_csv('Brain_Eco18_div_geo_amb_AS.csv') %>%
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
+as_eco18 %>% 
+  group_by(EventType) %>% 
+  summarize(n = n())
 
 as_eco12$EventName == as_eco18$EventName
 
@@ -300,6 +306,10 @@ as_amb_plast = read_csv('Brain_plast_amb_AS.csv') %>%
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
+as_amb_plast %>% 
+  group_by(EventType) %>% 
+  summarize(n = n())
+
 as_geo_plast_full = read_csv('Brain_plast_geo_AS.csv')
 as_geo_plast = read_csv('Brain_plast_geo_AS.csv') %>% 
   filter(FDR < 0.05)%>% 
@@ -307,6 +317,11 @@ as_geo_plast = read_csv('Brain_plast_geo_AS.csv') %>%
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
+
+as_geo_plast %>% 
+  group_by(EventType) %>% 
+  summarize(n = n())
+
 as_hyb_plast_full = read_csv("Brain_plast_hyb_AS.csv")
 as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv") %>% 
   filter(FDR < 0.05)%>% 
@@ -314,6 +329,10 @@ as_hyb_plast = read_csv("Brain_plast_hyb_AS.csv") %>%
     logFC < 0 ~ 'Down-Regulated',
     logFC > 0 ~ 'Up-Regulated', 
     logFC == 0 ~ 'Neutral')) 
+
+as_hyb_plast %>% 
+  group_by(EventType) %>% 
+  summarize(n = n())
 
 intersect(as_amb_plast$EventName, 
           as_geo_plast$EventName)
@@ -331,7 +350,7 @@ intersect(as_geo_plast$EventName,
   intersect(., 
             as_amb_plast$EventName)
 ## 25 overlap between all 3 plastic ecotypes
-
+## 16 exon skipping
 
 
 
