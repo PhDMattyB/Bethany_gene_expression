@@ -238,7 +238,7 @@ Brain_AS_eco12_volplot = ggplot(data = as_eco12_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'A) Ambient - Geothermal 12˚C')+
+       title = 'C) Ambient - Geothermal 12˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -267,7 +267,7 @@ Brain_AS_eco18_volplot = ggplot(data = as_eco18_full,
   scale_color_manual(values = volcano_cols)+
   labs(x = 'log Fold Change', 
        y = '-log(FDR)', 
-       title = 'B) Ambient - Geothermal 18˚C')+
+       title = 'D) Ambient - Geothermal 18˚C')+
   geom_vline(xintercept = 0, 
              col = 'black', 
              size = 1, 
@@ -1080,7 +1080,7 @@ ggsave('Overlap_AS_DEG__Plot.svg',
        height = 35)
 
 
-mismatch_12 = splice_gene_overlap_12 %>% 
+mismatch_12 = splice_gene_overlap_12 %>%
   filter(Regulated == 'Mismatch2')
 
 mismatch_18 = splice_gene_overlap_18 %>% 
@@ -1088,11 +1088,41 @@ mismatch_18 = splice_gene_overlap_18 %>%
 
 intersect(mismatch_12$EventName, 
           mismatch_18$EventName)
+setdiff(mismatch_12$EventName, 
+        mismatch_18$EventName)
+
+intersect(mismatch_18$EventName, 
+          mismatch_12$EventName)
+
+setdiff(mismatch_18$EventName, 
+        mismatch_12$EventName)
 
 
 intersect(mismatch_12$gene_name, 
           mismatch_18$gene_name)
 
+mismatch_12$gene_name %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_12.txt', 
+            col_names = F)
+
+mismatch_18$gene_name %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_18.txt', 
+            col_names = F)
+
+mismatch_12 %>% 
+  dplyr::select(gene_name) %>% 
+  filter(str_detect(gene_name, 'rp')) %>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_12_RIBOSOMAL.txt', 
+            col_names = F)
+mismatch_18 %>% 
+  dplyr::select(gene_name) %>% 
+  filter(str_detect(gene_name, 'rp'))%>% 
+  as_tibble() %>% 
+  write_tsv('Mismatch_AS_DEG_genes_18_RIBOSOMAL.txt', 
+            col_names = F)
 ## the mismatches have some unique and some consistent mismatches
 ## Means that this is A COMMON REGULATORY FORM!!!!!!!
 ## THEY ARE DIFFERENT ACROSS TEMPERATURES 
@@ -1105,3 +1135,41 @@ intersect(mismatch_12$gene_name,
 
 ## HOLY FUCK. hybridization affects post-translational modificatoins 
 ##of proteins asssociated with energy use
+
+
+# concordant DEG and AS ---------------------------------------------------
+
+splice_gene_overlap_12 %>% 
+  filter(Regulated == 'Down-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Down-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+
+
+upreg_12 = splice_gene_overlap_12 %>% 
+  filter(Regulated == 'Up-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+upreg_18 = splice_gene_overlap_18 %>% 
+  filter(Regulated == 'Up-Regulated') %>% 
+  select(gene_name, 
+         EventName, 
+         EventType)
+
+intersect(upreg_12$gene_name, 
+          upreg_18$gene_name)
+
+setdiff(upreg_12$gene_name, 
+        upreg_18$gene_name)
+
+
+intersect(upreg_18$gene_name, 
+          upreg_12$gene_name)
+setdiff(upreg_18$gene_name, 
+        upreg_12$gene_name)
